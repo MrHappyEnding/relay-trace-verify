@@ -15,4 +15,6 @@ artifacts/
 jobs/
 node_modules/
 dist/
+build/
+*.egg-info/
 *.log

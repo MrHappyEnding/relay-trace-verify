@@ -6,7 +6,30 @@
 
 面向长程 Coding Agent 的可恢复执行与分支实验系统。
 
-**状态：设计阶段。** 当前仓库包含架构提案与验收计划，尚未实现 runtime，也没有性能或成功率提升结论。
+**状态：首版框架原型。** 已有可运行的本地接力演示、领域模型、文件检查点、事件记录与测试。真实 agent、Harbor、Temporal 和容器后端尚未接入；没有模型效果或分布式可靠性结论。
+
+## 快速开始
+
+需要 Python 3.11+ 和 uv。在仓库根目录执行：
+
+```bash
+uv sync --locked --dev
+uv run rtv demo --output work/demo
+```
+
+演示使用两个确定性 fixture，不调用模型、不需要 API key。A 写入文件并提交检查点，B 从检查点恢复到独立目录、修改结果，最后由 verifier 检查。输出包含 `events.jsonl`、`report.json`、工作区和检查点。
+
+输出目录必须尚不存在；重复运行时换一个目录，例如 `work/demo-2`。本地后端是普通目录，不提供容器或进程隔离。
+
+开发检查：
+
+```bash
+uv run pytest
+uv run ruff check src tests
+uv run ruff format --check src tests
+```
+
+模块说明、当前保证和扩展入口见[框架开发指南](docs/framework.md)。
 
 ## 核心问题
 
@@ -22,6 +45,7 @@ RTV 围绕三个能力展开：
 
 | 文档 | 内容 |
 | --- | --- |
+| [框架开发指南](docs/framework.md) | 当前代码、运行方法、验证范围和集成边界 |
 | [系统设计](docs/design.md) | 对象关系、不变量、检查点协议、故障处理、预算与能力矩阵 |
 | [实验协议](docs/experiments.md) | 配对分支、预算口径、基线、统计及结果产物 |
 | [里程碑](docs/roadmap.md) | 实现顺序、验收证据与待决策项 |
@@ -42,7 +66,7 @@ flowchart TD
     OBJ --> EXP
 ```
 
-图中表示计划中的职责，不代表组件已经实现。Harbor 的具体接入层级需要先完成兼容性原型。
+图中表示完整目标架构；当前代码只覆盖本地框架原型。Harbor 的具体接入层级仍需完成兼容性原型。
 
 ## 技术边界
 

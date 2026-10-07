@@ -4,7 +4,17 @@
 
 Status: Draft · 2026-10-07
 
-All implementation work below is pending and ordered to reduce risk. The initial commit establishes only the design baseline.
+The initial framework completes F0 below. M0–M4 remain pending and are ordered to reduce risk. The local fixture demo does not replace compatibility testing with real agents.
+
+## F0: Framework skeleton
+
+- [x] Python package, `rtv` CLI, and uv dependency lockfile.
+- [x] Trial state transitions, Attempt/Execution identities, and adapter contracts.
+- [x] Local file checkpoints, hash validation, and restoration into independent directories.
+- [x] JSONL events, a two-stage fixture relay, and a final verification report.
+- [x] Tests for states, isolation, corruption detection, and commit failure windows.
+
+See the [framework development guide](framework.en.md) for the current implementation boundary.
 
 ## M0: Compatibility and protocol prototype
 

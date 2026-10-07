@@ -6,7 +6,30 @@
 
 A recoverable execution and branching experiment system for long-running coding agents.
 
-**Status: design phase.** This repository currently contains architecture proposals and acceptance plans. The runtime is not implemented yet, and no performance or success-rate improvements have been established.
+**Status: initial framework prototype.** A local relay demo, domain models, file checkpoints, event logging, and tests are implemented. Real agents, Harbor, Temporal, and container backends are not integrated yet. No model-performance or distributed-reliability claims have been established.
+
+## Quick start
+
+Requires Python 3.11+ and uv. Run from the repository root:
+
+```bash
+uv sync --locked --dev
+uv run rtv demo --output work/demo
+```
+
+The demo uses two deterministic fixtures, with no model calls or API keys. A writes a file and commits a checkpoint. B restores it into an independent directory, modifies the result, and passes it to a verifier. Outputs include `events.jsonl`, `report.json`, workspaces, and checkpoints.
+
+The output directory must not already exist. Choose a new path, such as `work/demo-2`, for another run. The local backend uses ordinary directories and does not provide container or process isolation.
+
+Development checks:
+
+```bash
+uv run pytest
+uv run ruff check src tests
+uv run ruff format --check src tests
+```
+
+See the [framework development guide](docs/framework.en.md) for modules, current guarantees, and extension points.
 
 ## Core problem
 
@@ -22,6 +45,7 @@ RTV focuses on three capabilities:
 
 | Document | Contents |
 | --- | --- |
+| [Framework development guide](docs/framework.en.md) | Current code, run instructions, validation scope, and integration boundaries |
 | [System design](docs/design.en.md) | Object relationships, invariants, checkpoint protocol, failure handling, budgets, and adapter capabilities |
 | [Experiment protocol](docs/experiments.en.md) | Paired branches, budget accounting, baselines, statistics, and result artifacts |
 | [Roadmap](docs/roadmap.en.md) | Implementation order, acceptance evidence, and open decisions |
@@ -42,7 +66,7 @@ flowchart TD
     OBJ --> EXP
 ```
 
-This diagram shows planned responsibilities, not implemented components. A compatibility prototype must establish the specific Harbor integration boundary.
+This diagram shows the complete target architecture; the current code implements only the local framework prototype. A compatibility prototype must still establish the specific Harbor integration boundary.
 
 ## Technical boundaries
 
