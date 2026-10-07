@@ -1,4 +1,8 @@
-# Agent Relay Runtime
+# Relay Trace Verify (RTV)
+
+[![中文](docs/assets/lang-zh.svg)](README.md) [![English](docs/assets/lang-en.svg)](README.en.md)
+
+*A platform for reliable agent execution and evaluation.*
 
 面向长程 Coding Agent 的可恢复执行与分支实验系统。
 
@@ -8,11 +12,11 @@
 
 当 agent 卡住、worker 失联或沙箱销毁时，如何让后续执行获得一致的工作区与会话状态，并从同一个检查点公平比较不同继续策略？
 
-项目围绕三个能力展开：
+RTV 围绕三个能力展开：
 
-1. **Checkpoint / Recover**：提交可校验的应用级检查点，从最后一个已提交状态恢复。
-2. **Relay / Fork**：交给另一个 agent，或从同一个检查点创建隔离的实验分支。
-3. **Measure / Diagnose**：关联工具事件、检查点、交接、验证结果和成本，区分系统可靠性与 agent 解题效果。
+1. **Relay**：通过一致性检查点恢复执行、交给另一个 agent，或创建隔离分支。
+2. **Trace**：关联工具事件、工作区、检查点、交接和成本，定位失败发生在哪一层。
+3. **Verify**：用独立验证和配对实验衡量系统可靠性与 agent 解题效果。
 
 ## 设计入口
 

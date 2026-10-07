@@ -1,4 +1,6 @@
-# 系统设计提案
+# RTV 系统设计提案
+
+[![中文](assets/lang-zh.svg)](design.md) [![English](assets/lang-en.svg)](design.en.md)
 
 状态：Draft · 2026-10-07
 

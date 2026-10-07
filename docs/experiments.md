@@ -1,4 +1,6 @@
-# 实验协议草案
+# RTV 实验协议草案
+
+[![中文](assets/lang-zh.svg)](experiments.md) [![English](assets/lang-en.svg)](experiments.en.md)
 
 状态：Draft · 2026-10-07
 

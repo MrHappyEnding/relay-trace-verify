@@ -1,4 +1,6 @@
-# 实施路线与验收
+# RTV 实施路线与验收
+
+[![中文](assets/lang-zh.svg)](roadmap.md) [![English](assets/lang-en.svg)](roadmap.en.md)
 
 状态：Draft · 2026-10-07
 

@@ -1,4 +1,6 @@
-# ADR 0001：Runtime 与已有框架的边界
+# ADR 0001：RTV 与已有框架的边界
+
+[![中文](../assets/lang-zh.svg)](0001-runtime-boundary.md) [![English](../assets/lang-en.svg)](0001-runtime-boundary.en.md)
 
 - 日期：2026-10-07
 - 状态：Proposed
