@@ -2,9 +2,9 @@
 
 [![中文](assets/lang-zh.svg)](roadmap.md) [![English](assets/lang-en.svg)](roadmap.en.md)
 
-Status: F0 complete; M0 in progress · 2026-10-08
+Status: F0 complete; M0 accepted for the first Codex adapter; M1 next · 2026-10-08
 
-The initial framework completes F0 below. M0 has started; M1–M4 remain unimplemented and are ordered to reduce risk. Local fixtures and mocked protocol tests do not replace real-container or real-agent compatibility tests. Reproduction and original implementation both remain in scope; see the [learning plan](learning-plan.en.md).
+The initial framework completes F0 below. M0 is accepted within the first Codex adapter’s stated scope; M1–M4 remain unimplemented and are ordered to reduce risk. Local fixtures and mocked protocol tests do not replace real-container or real-agent compatibility tests. Reproduction and original implementation both remain in scope; see the [learning plan](learning-plan.en.md).
 
 ## F0: Framework skeleton
 
@@ -24,14 +24,14 @@ See the [framework development guide](framework.en.md) for the current implement
 - [x] Run a scripted fixture through real container file recovery; validate Harbor Task/sandbox/verifier integration.
 - [x] Run the first real-agent task; reuse Harbor Codex while RTV controls stages and checkpoints.
 - [x] Verify workspace export at stage completion, restoration into a new sandbox and pinned native-session import.
-- [ ] Verify ATIF import and conversion information loss.
-- [ ] Verify agent subprocess termination and quiescence boundaries; produce an evidence-based capability matrix.
-- [ ] Define snapshot file scope and handling of permissions, symbolic links, and required generated files.
-- [ ] Identify adapters that support strict budget admission and those that support only soft limits.
+- [x] Verify pinned same-model Codex text ATIF import and conversion losses; cross-framework validation remains M3 work.
+- [x] Cancel a real running tool and its child, confirm sandbox stop and rollback; publish scope with `rtv capabilities`.
+- [x] Define workspace/session scope, regular-file modes, link rejection and generated-file rules; retain checkpoint images.
+- [x] Current Codex supports soft control only; interrupted usage is UNKNOWN and strict token/dollar admission is unsupported.
 
 **Acceptance evidence**: a recovery example between two isolated sandboxes, file-digest comparisons, compatibility records, and explicit rejection of unsupported capabilities. M0 does not require a complex web interface or Kubernetes.
 
-See the [M0 guide](m0.en.md) for commands, protocol, and evidence. Scripted container recovery and the first real Codex native recovery/fresh-session handoff passed; see [Codex evidence](codex-m0.en.md). Arbitrary tool interruption, ATIF and budget admission remain unverified.
+See the [M0 guide](m0.en.md) for commands, protocol, and evidence. Scripted container recovery and the first real Codex native recovery/fresh-session handoff passed; see [Codex evidence](codex-m0.en.md). Follow-up ATIF and real cancellation/rollback evidence is in [M0 acceptance](m0-boundaries.en.md). Process-memory recovery, worker crashes and strict budgets remain unsupported.
 
 ## M1: Durable single-agent execution
 
@@ -88,4 +88,4 @@ Tool-boundary checkpoints, more agents, trajectory judges calibrated against lab
 | Control language | Python | Harbor integration cost and typed contracts |
 | First execution backend | Local containers | Validate the protocol before distributed faults |
 
-Next: finish ATIF import, real interruption tests and capability declarations to close M0, then begin M1 durable execution. The second agent remains scheduled for M3.
+Next: M1 stable operation IDs, Temporal orchestration, query/cancel behavior and worker-restart reconciliation. The second agent remains scheduled for M3.

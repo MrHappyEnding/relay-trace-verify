@@ -1,0 +1,294 @@
+{
+  "schema_version": 1,
+  "mode": "codex-m0-boundaries",
+  "status": "passed",
+  "model": "gpt-6-astra",
+  "cli_version": "0.160.1",
+  "harbor_version": "0.24.0",
+  "preflight": {
+    "schema_version": 1,
+    "mode": "read-only-preflight",
+    "ready": true,
+    "checks": {
+      "python": {
+        "ok": true,
+        "version": "3.13.9"
+      },
+      "harbor": {
+        "ok": true,
+        "version": "0.24.0",
+        "required": "0.24.0"
+      },
+      "task": {
+        "ok": true,
+        "name": "rtv/codex-session",
+        "digest": "816a94a6aa6921ef5a17ee018e19e78589b91caa7322d60afb7e0bb0d956d4c4"
+      },
+      "docker": {
+        "ok": true,
+        "client": "28.5.1",
+        "server": "28.5.1",
+        "arch": "arm64"
+      },
+      "compose": {
+        "ok": true,
+        "version": "2.40.0-desktop.1"
+      }
+    }
+  },
+  "task_digest": "816a94a6aa6921ef5a17ee018e19e78589b91caa7322d60afb7e0bb0d956d4c4",
+  "source_checkpoint": {
+    "checkpoint_id": "82bc7ee0-02d0-4982-a7ce-e8b8e44e2e75",
+    "manifest_sha256": "cb5688ca69a1118415ec233a5d95ab36bd5fe7cce440cda17ff998696334e2ba"
+  },
+  "source_execution": {
+    "trial_id": "47fb5f87-40ea-46f0-8ca2-a0cfdc72a899",
+    "attempt_id": "540464cc-ebdf-40ba-99e1-c724684922eb",
+    "execution_id": "1649357b-53cc-4fd8-98e2-2e05edbcfd9d",
+    "epoch": 1
+  },
+  "image_id": "sha256:35573fc01a8d24979022d1e9ff2db8482b77508cb8a0aa50bbcf40ea7faab5c5",
+  "image_ref": "rtv-checkpoint-cache:35573fc01a8d24979022d1e9ff2db8482b77508cb8a0aa50bbcf40ea7faab5c5",
+  "billing": "existing-chatgpt-subscription",
+  "cost_usd": null,
+  "usage_complete": false,
+  "checks": {
+    "atif_same_image": true,
+    "atif_workspace_identical": true,
+    "atif_messages_preserved": true,
+    "atif_calls_preserved": true,
+    "atif_results_preserved": true,
+    "atif_new_session": true,
+    "atif_marker_recalled": true,
+    "atif_verified": true,
+    "interrupted_same_image": true,
+    "interrupted_workspace_identical": true,
+    "real_tool_and_child_writing": true,
+    "cancel_stopped_all_container_processes": true,
+    "interrupted_changes_exist": true,
+    "tool_did_not_finish": true,
+    "incomplete_turn_rejected": true,
+    "checkpoint_unchanged_after_cancel": true,
+    "recovery_same_image": true,
+    "recovery_workspace_identical": true,
+    "uncommitted_changes_not_restored": true,
+    "recovery_original_session": true,
+    "recovery_marker_recalled": true,
+    "recovery_verified": true,
+    "source_checkpoint_unchanged": true
+  },
+  "turns": {
+    "atif": {
+      "execution": {
+        "trial_id": "47fb5f87-40ea-46f0-8ca2-a0cfdc72a899",
+        "attempt_id": "fc843274-3c9a-47a6-831a-6155c9666feb",
+        "execution_id": "ba92fbba-5015-4472-8c4f-e2f7397d4d9e",
+        "epoch": 1
+      },
+      "session_id": "ec8e6c66-b078-42a1-bd69-117faa2a2ed0",
+      "usage": {
+        "input_tokens": 38210,
+        "cached_input_tokens": 24832,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 422,
+        "reasoning_output_tokens": 0
+      },
+      "session_usage": {
+        "input_tokens": 38210,
+        "cached_input_tokens": 24832,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 422,
+        "reasoning_output_tokens": 0
+      },
+      "usage_scope": "incremental-turn"
+    },
+    "interrupted": {
+      "execution": {
+        "trial_id": "47fb5f87-40ea-46f0-8ca2-a0cfdc72a899",
+        "attempt_id": "540464cc-ebdf-40ba-99e1-c724684922eb",
+        "execution_id": "638ea19b-5422-4bec-ba73-b32de035bc94",
+        "epoch": 2
+      },
+      "status": "cancelled",
+      "usage": null,
+      "usage_scope": "unknown",
+      "observed_session_usage_lower_bound": {
+        "input_tokens": 60477,
+        "cached_input_tokens": 45696,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 419,
+        "reasoning_output_tokens": 0,
+        "total_tokens": 60896
+      },
+      "checkpoint_committed": false
+    },
+    "recovery": {
+      "execution": {
+        "trial_id": "47fb5f87-40ea-46f0-8ca2-a0cfdc72a899",
+        "attempt_id": "540464cc-ebdf-40ba-99e1-c724684922eb",
+        "execution_id": "170773a8-22ff-4430-a6f6-97efff7e2254",
+        "epoch": 3
+      },
+      "session_id": "01a11a9f-dcbd-72d1-9f72-01700e9287d0",
+      "usage": {
+        "input_tokens": 37924,
+        "cached_input_tokens": 36352,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 402,
+        "reasoning_output_tokens": 0
+      },
+      "session_usage": {
+        "input_tokens": 85979,
+        "cached_input_tokens": 69888,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 753,
+        "reasoning_output_tokens": 0
+      },
+      "usage_scope": "incremental-turn"
+    }
+  },
+  "agent_turns_attempted": 3,
+  "cleanup_errors": [],
+  "not_tested": [
+    "worker crash / distributed fencing",
+    "process memory restoration",
+    "cross-agent / cross-model ATIF",
+    "strict monetary admission"
+  ],
+  "atif_conversion": {
+    "schema": "ATIF-v1.7",
+    "steps": 9,
+    "content": {
+      "messages": {
+        "source": 7,
+        "converted": 7,
+        "retained_normalized": 7,
+        "lost_or_changed": 0,
+        "added_or_changed": 0
+      },
+      "calls": {
+        "source": 3,
+        "converted": 3,
+        "retained_normalized": 3,
+        "lost_or_changed": 0,
+        "added_or_changed": 0
+      },
+      "results": {
+        "source": 3,
+        "converted": 3,
+        "retained_normalized": 3,
+        "lost_or_changed": 0,
+        "added_or_changed": 0
+      }
+    },
+    "comparison": "Message text blocks concatenate; tool text blocks join with newlines; structured arguments compare as JSON. Block boundaries are not preserved.",
+    "source_event_types": {
+      "session_meta": 1,
+      "event_msg": 13,
+      "response_item": 13,
+      "world_state": 1,
+      "turn_context": 1,
+      "token_usage_record": 4
+    },
+    "converted_event_types": {
+      "session_meta": 1,
+      "response_item": 13,
+      "event_msg": 4
+    },
+    "native_metadata_not_carried": [
+      "base_instructions",
+      "context_window",
+      "creator_account_id",
+      "creator_user_id",
+      "history_mode",
+      "model_provider",
+      "runtime_workspace_roots"
+    ],
+    "source_reasoning_steps": 0,
+    "documented_losses": [
+      "native world state, turn context, base instructions and runtime metadata",
+      "message channels and step reasoning fields are not reconstructed",
+      "token counters / ATIF metrics do not seed native session billing counters",
+      "filesystem, processes and pending tools are not part of ATIF",
+      "text block boundaries are flattened; comparison joins text blocks"
+    ],
+    "rtv_adjustments": {
+      "cwd": "/workspace",
+      "cli_version": "0.160.1",
+      "session_identity": "new UUID; source retained in lineage"
+    }
+  },
+  "interrupted_processes": {
+    "nonce": "c164a3443d0b4999af5373cdd8b75f1c",
+    "pid": 259,
+    "child_pid": 260
+  },
+  "elapsed_seconds": 81.45,
+  "post_cleanup_image_available": true,
+  "source_creation": {
+    "mode": "codex-checkpoint",
+    "checkpoint": {
+      "checkpoint_id": "82bc7ee0-02d0-4982-a7ce-e8b8e44e2e75",
+      "manifest_sha256": "cb5688ca69a1118415ec233a5d95ab36bd5fe7cce440cda17ff998696334e2ba"
+    },
+    "image_id": "sha256:35573fc01a8d24979022d1e9ff2db8482b77508cb8a0aa50bbcf40ea7faab5c5",
+    "image_ref": "rtv-checkpoint-cache:35573fc01a8d24979022d1e9ff2db8482b77508cb8a0aa50bbcf40ea7faab5c5",
+    "agent_turns_attempted": 1,
+    "turns": {
+      "source": {
+        "execution": {
+          "trial_id": "47fb5f87-40ea-46f0-8ca2-a0cfdc72a899",
+          "attempt_id": "540464cc-ebdf-40ba-99e1-c724684922eb",
+          "execution_id": "1649357b-53cc-4fd8-98e2-2e05edbcfd9d",
+          "epoch": 1
+        },
+        "session_id": "01a11a9f-dcbd-72d1-9f72-01700e9287d0",
+        "usage": {
+          "input_tokens": 48055,
+          "cached_input_tokens": 33536,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 351,
+          "reasoning_output_tokens": 0
+        },
+        "session_usage": {
+          "input_tokens": 48055,
+          "cached_input_tokens": 33536,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 351,
+          "reasoning_output_tokens": 0
+        },
+        "usage_scope": "incremental-turn",
+        "seconds": 22.0
+      }
+    },
+    "checks": {
+      "pinned_cli": true,
+      "source_partial_rejected": true,
+      "background_writer_active": true,
+      "source_stopped_before_snapshot": true,
+      "stopped_export_stable": true,
+      "marker_absent_from_workspace": true
+    },
+    "cleanup_errors": []
+  },
+  "development_overhead": {
+    "completed_source_turns": 1,
+    "usage": {
+      "input_tokens": 48096,
+      "cached_input_tokens": 45184,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 368,
+      "reasoning_output_tokens": 0
+    },
+    "reason": "Extra image tag alone did not survive Harbor down --rmi local; cleanup now retains image artifacts.",
+    "failed_model_free_attempts": 2
+  },
+  "known_development_usage": {
+    "input_tokens": 172285,
+    "cached_input_tokens": 139904,
+    "cache_write_input_tokens": 0,
+    "output_tokens": 1543,
+    "reasoning_output_tokens": 0
+  },
+  "usage_note": "Known completed-turn subtotal only; interrupted usage remains UNKNOWN. Observed interrupted counters include the imported prefix and must not be added without subtraction."
+}

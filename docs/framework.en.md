@@ -2,7 +2,7 @@
 
 [![中文](assets/lang-zh.svg)](framework.md) [![English](assets/lang-en.svg)](framework.en.md)
 
-Status: local framework and M0 Harbor/Codex probes · 2026-10-08
+Status: local framework and M0 accepted for the first Codex adapter · 2026-10-08
 
 ## 1. Current code
 
@@ -17,7 +17,11 @@ src/rtv/
   demo.py          # Deterministic fixture agents and verifier
   harbor_probe.py  # Optional Harbor preflight and container file recovery prototype
   codex_agent.py   # Optional real Codex adapter, session validation and incremental usage
-  codex_probe.py   # Controlled native recovery / fresh-session handoff experiment
+  codex_probe.py   # Native recovery / fresh handoff and source checkpoints
+  codex_atif.py    # ATIF validation, receiver metadata and conversion-loss audit
+  codex_lifecycle.py # Stop sandbox before draining cancelled transport
+  codex_boundaries.py # Real ATIF, tool interruption and rollback experiment
+  capabilities.py # Version, snapshot and budget scope declarations
   cli.py           # demo / harbor-* / codex-prepare / codex-smoke / --version
 tests/
   test_domain.py
@@ -26,6 +30,9 @@ tests/
   test_harbor_probe.py
   test_codex_agent.py
   test_codex_probe.py
+  test_codex_atif.py
+  test_codex_lifecycle.py
+  test_codex_boundaries.py
 examples/tasks/positive-sum/  # Controlled scripted task in Harbor format
 examples/tasks/codex-session/ # Pinned Codex real-agent experiment
 ```
@@ -100,3 +107,5 @@ Tests cover recovery/handoff identity differences, state transitions, cancellati
 Optional Harbor tests use the real Task parser with mocked container transport, covering failed stops, round-trip corruption, failed verification, and cleanup leaks. The real-container integration test is skipped unless `RTV_RUN_DOCKER=1` is set; mocked tests are not evidence of container validation.
 
 A separately executed real Docker smoke verified file recovery, workspace isolation and Harbor verification; see the [M0 guide](m0.en.md). The first real Codex native recovery and fresh-session handoff also passed; see the [Codex guide](codex-m0.en.md). Mocked faults cover timeout, cancellation, unquiesced snapshot refusal, corruption and cleanup leaks. This evidence does not establish handoff gains, general sandbox security, workflow crash recovery, budget caps or multi-worker correctness; follow the [roadmap](roadmap.en.md).
+
+See [M0 acceptance](m0-boundaries.en.md) for the final scope, `capabilities` / `codex-atif-audit` / `codex-boundaries` commands and image retention. The synchronous Runner remains a fixture; durable orchestration begins at M1.

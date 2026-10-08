@@ -141,11 +141,19 @@ class HarborCodexAdapter:
         self.auth_file = validate_auth(auth_file)
 
     async def execute(
-        self, env: Any, instruction: str, *, native: Path | None = None
+        self, env: Any, instruction: str, *, native: Path | None = None, atif: Path | None = None
     ) -> TurnResult:
         from harbor.agents.installed.codex import Codex
         from harbor.models.agent.context import AgentContext
 
+        if native is not None and atif is not None:
+            raise ValueError("Choose either native recovery or ATIF import")
+        expected_atif_id = None
+        if atif is not None:
+            from rtv.codex_atif import atif_codex_class, validate_atif
+
+            expected_atif_id = validate_atif(atif, model=self.model).session_id
+            Codex = atif_codex_class()
         if native is not None:
             read_session(native)
         # No host config, skills, MCP connections or session directory is mounted.
@@ -157,12 +165,15 @@ class HarborCodexAdapter:
             config={"forced_login_method": "chatgpt", "features": {"multi_agent": False}},
             reasoning_effort="low",
             web_search="disabled",
-            load_trajectory=native,
+            load_trajectory=native or atif,
         )
         # Never let Harbor's generic installer silently replace this pinned image.
         version = await env.exec(command="codex --version", timeout_sec=15)
         if version.return_code or (version.stdout or "").strip() != f"codex-cli {CODEX_VERSION}":
             raise ValueError("Container has the wrong Codex CLI version")
-        action = agent.load if native is not None else agent.run
+        action = agent.load if native is not None or atif is not None else agent.run
         await action(instruction, env, AgentContext())
-        return read_turn(env.trial_paths.agent_dir, native=native)
+        result = read_turn(env.trial_paths.agent_dir, native=native)
+        if expected_atif_id is not None and result.session_id != expected_atif_id:
+            raise ValueError("ATIF import did not select the prepared semantic session")
+        return result

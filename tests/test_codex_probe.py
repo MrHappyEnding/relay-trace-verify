@@ -22,7 +22,13 @@ def protocol(monkeypatch, tmp_path):
     if sys.version_info < (3, 12):
         pytest.skip("Optional Harbor schema needs Python 3.12+")
     pytest.importorskip("harbor.models.task.task")
-    state = {"envs": [], "failure": None, "calls": [], "source_id": str(uuid4())}
+    state = {
+        "envs": [],
+        "failure": None,
+        "calls": [],
+        "source_id": str(uuid4()),
+        "delete_flags": [],
+    }
 
     class Environment:
         def __init__(self, role):
@@ -37,6 +43,7 @@ def protocol(monkeypatch, tmp_path):
             (self.root / "positive_sum.py").write_text(PARTIAL_SOURCE)
 
         async def stop(self, **kwargs):
+            state["delete_flags"].append(kwargs["delete"])
             self.deleted = state["failure"] != "leak"
 
         async def download_dir(self, remote, local):
@@ -109,6 +116,13 @@ def protocol(monkeypatch, tmp_path):
         return {"reward": float(env.role != "source")}
 
     def docker(*args, **kwargs):
+        if args[:2] == ("image", "tag"):
+            state["retained_image"] = args[-1]
+            return ""
+        if args[:2] == ("image", "inspect"):
+            if state["failure"] == "missing_image":
+                raise RuntimeError("Retained image disappeared")
+            return "[]"
         if args[0] == "stop":
             env = next(e for e in state["envs"] if e.role == args[-1])
             env.stopped = state["failure"] != "stop"
@@ -125,6 +139,14 @@ def protocol(monkeypatch, tmp_path):
     monkeypatch.setattr(probe, "verify", verify)
     monkeypatch.setattr(probe, "_docker", docker)
     monkeypatch.setattr(probe, "main_container", lambda env: env.role)
+    from rtv import codex_lifecycle
+
+    async def stop_sandbox(env):
+        docker("stop", "--time", "2", env.role)
+        if not env.stopped:
+            raise RuntimeError("Sandbox still running")
+
+    monkeypatch.setattr(codex_lifecycle, "stop_sandbox", stop_sandbox)
     monkeypatch.setattr(
         probe,
         "_container_ids",
@@ -156,9 +178,14 @@ def test_recovery_preserves_attempt_and_handoff_changes_session(protocol, tmp_pa
     assert turns["handoff"]["execution"]["attempt_id"] != turns["source"]["execution"]["attempt_id"]
     assert protocol["calls"] == ["source", "recovery", "handoff"]
     assert all(e.deleted for e in protocol["envs"])
+    assert report["image_ref"] == protocol["retained_image"]
+    assert protocol["delete_flags"]
+    assert not any(protocol["delete_flags"]), "Checkpoint cleanup must not delete source images"
 
 
-@pytest.mark.parametrize("failure", ["stop", "timeout", "cancel", "corrupt", "leak"])
+@pytest.mark.parametrize(
+    "failure", ["stop", "timeout", "cancel", "corrupt", "leak", "missing_image"]
+)
 def test_failure_refuses_unsafe_progress_and_cleans_up(protocol, tmp_path, failure):
     protocol["failure"] = failure
     if failure == "cancel":
@@ -171,7 +198,7 @@ def test_failure_refuses_unsafe_progress_and_cleans_up(protocol, tmp_path, failu
         assert report["status"] == "failed"
     if failure in {"stop", "timeout", "cancel"}:
         assert "checkpoint" not in report
-    if failure != "leak":
+    if failure not in {"leak", "missing_image"}:
         assert all(e.deleted for e in protocol["envs"])
         assert protocol["calls"] == ["source"]
     else:

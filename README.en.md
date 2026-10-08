@@ -6,7 +6,7 @@
 
 A recoverable execution and branching experiment system for long-running coding agents.
 
-**Status: F0 complete; M0 in progress.** The first real agent is integrated: pinned Codex runs through Harbor on ARM64 Docker. Native-session recovery, fresh-session handoff, file consistency and final verification passed a controlled experiment. A second agent, ATIF import and Temporal remain pending. See the [real-agent experiment](docs/codex-m0.en.md).
+**Status: F0 complete; M0 accepted for the first Codex adapter; M1 is next.** Native recovery, fresh-session handoff, same-model ATIF import and rollback after real mid-tool cancellation are verified. Image retention, snapshot scope and soft budget boundaries are explicit. Temporal, worker-crash recovery and a second agent remain unimplemented. See [M0 acceptance](docs/m0-boundaries.en.md).
 
 RTV supports learning through reproduction, system implementation, and original exploration. Existing approaches remain learning material and comparison baselines; see the [learning and resource plan](docs/learning-plan.en.md) for sources and scope. No model-performance or distributed-reliability claims have been established.
 
@@ -52,6 +52,7 @@ RTV focuses on three capabilities:
 | [Framework development guide](docs/framework.en.md) | Current code, run instructions, validation scope, and integration boundaries |
 | [M0 integration guide](docs/m0.en.md) | Harbor preflight, container recovery prototype, capability matrix, and current gaps |
 | [Codex recovery experiment](docs/codex-m0.en.md) | First real agent, native/semantic handoff, recovery boundaries and usage evidence |
+| [M0 acceptance and recovery boundaries](docs/m0-boundaries.en.md) | ATIF information loss, real cancellation/rollback, image lifecycle and capabilities |
 | [Learning and resource plan](docs/learning-plan.en.md) | Open-source references, reproduction goals, lab GPUs, and spending agreement |
 | [System design](docs/design.en.md) | Object relationships, invariants, checkpoint protocol, failure handling, budgets, and adapter capabilities |
 | [Experiment protocol](docs/experiments.en.md) | Paired branches, budget accounting, baselines, statistics, and result artifacts |

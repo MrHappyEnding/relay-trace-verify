@@ -3,8 +3,9 @@
 [![中文](assets/lang-zh.svg)](codex-m0.md) [![English](assets/lang-en.svg)](codex-m0.en.md)
 
 2026-10-08: Codex native-session recovery and fresh-session handoff passed on local
-ARM64 Docker. This is a controlled compatibility experiment, not a two-agent
-performance experiment or completion of all M0 acceptance criteria.
+ARM64 Docker. This first controlled compatibility experiment does not measure
+two-agent performance. Follow-up [ATIF/interruption work](m0-boundaries.en.md) now
+completes M0 within its stated scope; the evidence below retains its original scope.
 
 ## Configuration and attribution
 
@@ -118,9 +119,9 @@ Only trusted, reconstructible filesystem tasks are supported. Verification runs
 inside the target container rather than an isolated hidden-test service. Successful
 export after stage completion does not establish arbitrary mid-tool recovery.
 
-Next: finish M0 with ATIF import/information-loss tests, real interruption scenarios
-and capability declarations, then M1 durable single-agent execution. Add the second
-agent for paired experiments after M1/M2.
+Follow-up [M0 acceptance](m0-boundaries.en.md) completes same-model ATIF, real
+cancellation/rollback, capability declarations and the image-retention fix. Next
+is M1 durable execution; the second agent remains M3 work.
 
 ## References
 

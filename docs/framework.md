@@ -2,7 +2,7 @@
 
 [![中文](assets/lang-zh.svg)](framework.md) [![English](assets/lang-en.svg)](framework.en.md)
 
-状态：本地框架与 M0 Harbor / Codex 原型 · 2026-10-08
+状态：本地框架与首个 Codex 的 M0 验收完成 · 2026-10-08
 
 ## 1. 当前代码
 
@@ -17,7 +17,11 @@ src/rtv/
   demo.py          # 确定性 fixture agent 与 verifier
   harbor_probe.py  # 可选 Harbor 预检查与容器文件恢复原型
   codex_agent.py   # 可选真实 Codex 适配、会话校验和增量用量
-  codex_probe.py   # 原生恢复 / 新会话交接受控实验
+  codex_probe.py   # 原生恢复 / 新会话交接与源检查点
+  codex_atif.py    # ATIF 转换校验、接收端元数据适配和信息损失审计
+  codex_lifecycle.py # 先停止沙箱，再回收 transport 的取消次序
+  codex_boundaries.py # 真实 ATIF 导入、工具中断和回滚实验
+  capabilities.py # 版本范围、快照策略与预算边界声明
   cli.py           # demo / harbor-* / codex-prepare / codex-smoke / --version
 tests/
   test_domain.py
@@ -26,6 +30,9 @@ tests/
   test_harbor_probe.py
   test_codex_agent.py
   test_codex_probe.py
+  test_codex_atif.py
+  test_codex_lifecycle.py
+  test_codex_boundaries.py
 examples/tasks/positive-sum/  # Harbor 格式的受控脚本任务
 examples/tasks/codex-session/ # 固定 Codex 的真实 agent 实验任务
 ```
@@ -100,3 +107,5 @@ work/demo/
 可选 Harbor 测试使用真实 Task parser 与模拟容器传输，覆盖停止失败、文件往返损坏、验证失败和清理残留。实际容器集成测试默认跳过，需显式设置 `RTV_RUN_DOCKER=1`；不能把模拟测试计为容器验证成功。
 
 另行执行的真实 Docker smoke 已验证容器间文件恢复、工作区隔离和 Harbor verifier，记录见 [M0 指南](m0.md)。首个真实 Codex 的原生恢复与新会话交接也已通过，见 [Codex 指南](codex-m0.md)；模拟故障测试覆盖超时、取消、拒绝不静止快照、损坏和清理残留。这些证据不能证明接力收益、通用沙箱安全性、故障后的工作流自动恢复、预算上限或多 worker 正确性，仍按[实施路线](roadmap.md)逐步验证。
+
+M0 的最终限定范围验收、`capabilities` / `codex-atif-audit` / `codex-boundaries` 命令与镜像保留策略见 [M0 验收](m0-boundaries.md)。当前同步 Runner 仍是 fixture；持久编排从 M1 开始。

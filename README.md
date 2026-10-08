@@ -6,7 +6,7 @@
 
 面向长程 Coding Agent 的可恢复执行与分支实验系统。
 
-**状态：F0 完成，M0 进行中。** 已接入首个真实 agent：固定版本 Codex 通过 Harbor 在 ARM64 Docker 中运行。原生会话恢复、新会话交接、文件一致性与最终验证已通过受控实验；第二种 agent、ATIF 导入和 Temporal 尚未接入。详见[真实 agent 实验](docs/codex-m0.md)。
+**状态：F0 完成，首个 Codex 适配器的 M0 验收完成；下一步 M1。** 已验证原生会话恢复、新会话交接、同模型 ATIF 导入，以及真实工具运行中取消后回滚至已提交检查点。镜像保留、文件范围和软预算边界已明确；Temporal、worker 崩溃恢复和第二种 agent 尚未实现。详见 [M0 验收记录](docs/m0-boundaries.md)。
 
 RTV 同时用于学习复现、系统实现和自主探索。已有方案会保留为学习材料与对照基线，参考来源和复现范围见[学习与资源计划](docs/learning-plan.md)。目前没有模型效果或分布式可靠性结论。
 
@@ -52,6 +52,7 @@ RTV 围绕三个能力展开：
 | [框架开发指南](docs/framework.md) | 当前代码、运行方法、验证范围和集成边界 |
 | [M0 接入指南](docs/m0.md) | Harbor 预检查、容器恢复原型、能力矩阵与当前缺口 |
 | [Codex 恢复实验](docs/codex-m0.md) | 首个真实 agent、原生会话 / 语义交接、恢复边界与用量证据 |
+| [M0 验收与恢复边界](docs/m0-boundaries.md) | ATIF 信息损失、真实取消与回滚、镜像生命周期和能力声明 |
 | [学习与资源计划](docs/learning-plan.md) | 开源参考、复现目标、lab GPU 与费用约定 |
 | [系统设计](docs/design.md) | 对象关系、不变量、检查点协议、故障处理、预算与能力矩阵 |
 | [实验协议](docs/experiments.md) | 配对分支、预算口径、基线、统计及结果产物 |

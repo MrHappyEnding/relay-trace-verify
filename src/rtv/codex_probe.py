@@ -69,11 +69,20 @@ async def verify(task: Any, env: Any) -> dict[str, float]:
 async def clean_environments(environments: list[Any], report: dict[str, Any]) -> None:
     for env in reversed(environments):
         try:
-            await asyncio.wait_for(env.stop(delete=True), timeout=60)
+            # Harbor delete=True runs down --rmi local, which can remove an image
+            # by ID along with extra tags. In this volume-free fixture, down alone
+            # removes containers/networks while retaining checkpoint image artifacts.
+            await asyncio.wait_for(env.stop(delete=not bool(report.get("image_ref"))), timeout=60)
             if _container_ids(env.session_id):
                 raise RuntimeError("Container cleanup left live or stopped containers")
         except Exception as exc:
             report["cleanup_errors"].append({"session": env.session_id, "error": str(exc)})
+    if report.get("image_ref"):
+        try:
+            for reference in (report["image_id"], report["image_ref"]):
+                _docker("image", "inspect", reference)
+        except Exception as exc:
+            report["cleanup_errors"].append({"image": report["image_ref"], "error": str(exc)})
     if report["cleanup_errors"]:
         report["status"] = "failed"
 
@@ -86,6 +95,7 @@ async def run_probe(
     auth_file: Path | None = None,
     allow_model_calls: bool = False,
     prepare_only: bool = False,
+    checkpoint_only: bool = False,
     turn_timeout: int = 240,
 ) -> dict[str, Any]:
     if not prepare_only and not allow_model_calls:
@@ -112,7 +122,13 @@ async def run_probe(
     sink = JsonlEventSink(output / "events.jsonl")
     report: dict[str, Any] = {
         "schema_version": 1,
-        "mode": "codex-prepare" if prepare_only else "codex-session-smoke",
+        "mode": (
+            "codex-prepare"
+            if prepare_only
+            else "codex-checkpoint"
+            if checkpoint_only
+            else "codex-session-smoke"
+        ),
         "status": "running",
         "cli_version": CODEX_VERSION,
         "harbor_version": HARBOR_VERSION,
@@ -151,18 +167,17 @@ async def run_probe(
         return env
 
     async def turn(role: str, env: Any, ref: ExecutionRef, prompt: str, native=None):
+        from rtv.codex_lifecycle import owned_turn
+
         assert adapter is not None
         report["agent_turns_attempted"] += 1
         sink.emit("agent.turn.started", ref, {"role": role, "native_import": native is not None})
         began = time.monotonic()
         try:
-            result = await asyncio.wait_for(
-                adapter.execute(env, prompt, native=native), timeout=turn_timeout
+            result = await owned_turn(
+                lambda: adapter.execute(env, prompt, native=native), env, timeout=turn_timeout
             )
         except BaseException:
-            # A cancelled docker-exec client does not establish tool quiescence.
-            # Kill this sandbox before any caller could consider a checkpoint.
-            _docker("stop", "--time", "2", main_container(env))
             sink.emit("agent.turn.aborted", ref, {"role": role})
             raise
         report["agent_turns_completed"] += 1
@@ -184,6 +199,9 @@ async def run_probe(
             report["image_id"] = image_id
             actual = await command(source, "codex --version")
             check("pinned_cli", actual == f"codex-cli {CODEX_VERSION}")
+            image_ref = "rtv-checkpoint-cache:" + image_id.removeprefix("sha256:")
+            _docker("image", "tag", image_id, image_ref)
+            report["image_ref"] = image_ref
             if prepare_only:
                 report["status"] = "passed"
                 return report
@@ -275,6 +293,9 @@ async def run_probe(
                 "author": "controlled RTV fixture",
             }
             (output / "handoff.json").write_text(json.dumps(handoff, indent=2) + "\n")
+            if checkpoint_only:
+                report["status"] = "passed"
+                return report
             for role, ref in [
                 ("recovery", source_ref.recover()),
                 ("handoff", source_ref.handoff()),
