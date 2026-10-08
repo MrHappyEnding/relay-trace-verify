@@ -2,9 +2,9 @@
 
 [![中文](assets/lang-zh.svg)](roadmap.md) [![English](assets/lang-en.svg)](roadmap.en.md)
 
-Status: Draft · 2026-10-07
+Status: F0 complete; M0 in progress · 2026-10-08
 
-The initial framework completes F0 below. M0–M4 remain pending and are ordered to reduce risk. The local fixture demo does not replace compatibility testing with real agents.
+The initial framework completes F0 below. M0 has started; M1–M4 remain unimplemented and are ordered to reduce risk. Local fixtures and mocked protocol tests do not replace real-container or real-agent compatibility tests. Reproduction and original implementation both remain in scope; see the [learning plan](learning-plan.en.md).
 
 ## F0: Framework skeleton
 
@@ -18,7 +18,9 @@ See the [framework development guide](framework.en.md) for the current implement
 
 ## M0: Compatibility and protocol prototype
 
-- [ ] Pin Harbor, candidate agent CLIs, model identifiers, and container runtime versions.
+- [x] Pin Harbor 0.24.0 and the base-image digest; validate the minimal fixture with the real Task parser.
+- [x] Implement read-only preflight, a file recovery prototype, mocked failure tests, and an opt-in real-container test.
+- [ ] Pin candidate agent CLIs, model identifiers, and an available container runtime version.
 - [ ] Run one minimal task and establish the task/agent/sandbox/verifier integration boundary.
 - [ ] Verify workspace export at stage completion, restoration into a new sandbox, native-session import, and ATIF import.
 - [ ] Verify agent subprocess termination and quiescence boundaries; produce an evidence-based capability matrix.
@@ -26,6 +28,8 @@ See the [framework development guide](framework.en.md) for the current implement
 - [ ] Identify adapters that support strict budget admission and those that support only soft limits.
 
 **Acceptance evidence**: a recovery example between two isolated sandboxes, file-digest comparisons, compatibility records, and explicit rejection of unsupported capabilities. M0 does not require a complex web interface or Kubernetes.
+
+See the [M0 guide](m0.en.md) for commands, protocol, and evidence. The local Docker daemon is unreachable, so the real-container round trip has not run. This is an M0 environment gap, not completed acceptance evidence.
 
 ## M1: Durable single-agent execution
 
@@ -82,4 +86,4 @@ Tool-boundary checkpoints, more agents, trajectory judges calibrated against lab
 | Control language | Python | Harbor integration cost and typed contracts |
 | First execution backend | Local containers | Validate the protocol before distributed faults |
 
-The next implementation task is the M0 compatibility prototype. Do not expand into complex scheduling policies before the capability matrix has supporting evidence.
+The next implementation task is the real-container M0 round trip, followed by the first real agent. Do not expand into complex scheduling policies before the capability matrix has supporting evidence.

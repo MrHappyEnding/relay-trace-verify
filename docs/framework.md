@@ -2,7 +2,7 @@
 
 [![中文](assets/lang-zh.svg)](framework.md) [![English](assets/lang-en.svg)](framework.en.md)
 
-状态：初始本地原型 · 2026-10-07
+状态：本地框架与 M0 接入准备 · 2026-10-08
 
 ## 1. 当前代码
 
@@ -15,14 +15,17 @@ src/rtv/
   events.py        # 单写入者 JSONL 事件
   runner.py        # 组合接口的两阶段本地接力
   demo.py          # 确定性 fixture agent 与 verifier
-  cli.py           # rtv demo / rtv --version
+  harbor_probe.py  # 可选 Harbor 预检查与容器文件恢复原型
+  cli.py           # demo / harbor-doctor / harbor-smoke / --version
 tests/
   test_domain.py
   test_checkpoints.py
   test_relay.py
+  test_harbor_probe.py
+examples/tasks/positive-sum/  # Harbor 格式的受控脚本任务
 ```
 
-运行时代码只依赖 Python 标准库。pytest、Ruff 是开发依赖，具体版本锁在 `uv.lock`。`pyproject.toml` 定义可安装的包与 CLI。
+基础运行时代码只依赖 Python 标准库，支持 Python 3.11+。可选 `harbor` 组需要 Python 3.12+；Harbor 只在集成入口按需导入。pytest、Ruff 是开发依赖，具体版本锁在 `uv.lock`。`pyproject.toml` 定义可安装的包与 CLI。
 
 ## 2. 运行与检查
 
@@ -38,6 +41,8 @@ uv run ruff format --check src tests
 `rtv demo` 要求新的输出目录，不覆盖已有实验。CLI 成功退出码为 0；验证失败或运行错误返回非零退出码。演示不会下载任务、调用模型或启动容器。
 
 演示的 A 将 `answer.txt` 写为 41，然后请求交接；B 在另一个执行目录中读取恢复的文件，将其改为 42。独立的 verifier 检查文件内容。这里的验证器独立于 agent 接口，但仍在同一宿主进程中运行，不是隔离的隐藏测试服务。
+
+Harbor 的安装、`harbor-doctor` 和 `harbor-smoke` 使用方法见 [M0 指南](m0.md)。容器原型独立于现有同步 Runner，先验证厂商接口和文件传输，再决定正式 adapter 契约；它不是已完成的 WorkspaceBackend。
 
 ## 3. 产物与身份
 
@@ -85,5 +90,7 @@ work/demo/
 ## 6. 验证范围
 
 测试覆盖恢复 / 交接身份差异、状态迁移、取消后的状态约束、文件与分支隔离、manifest / 内容损坏、缺失文件、非法路径、符号链接、已有目录保护和提交写入失败。端到端测试还验证事件关联、verifier 失败时的最终状态及 CLI 行为。
+
+可选 Harbor 测试使用真实 Task parser 与模拟容器传输，覆盖停止失败、文件往返损坏、验证失败和清理残留。实际容器集成测试默认跳过，需显式设置 `RTV_RUN_DOCKER=1`；不能把模拟测试计为容器验证成功。
 
 当前测试不能证明真实 agent 接力收益、容器隔离、故障后的工作流自动恢复、预算上限或多 worker 正确性。这些仍按[实施路线](roadmap.md)逐步验证。

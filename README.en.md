@@ -6,7 +6,9 @@
 
 A recoverable execution and branching experiment system for long-running coding agents.
 
-**Status: initial framework prototype.** A local relay demo, domain models, file checkpoints, event logging, and tests are implemented. Real agents, Harbor, Temporal, and container backends are not integrated yet. No model-performance or distributed-reliability claims have been established.
+**Status: F0 complete; M0 in progress.** The local relay demo, domain models, file checkpoints, and event logging now have a pinned Harbor fixture, environment preflight, and container recovery prototype. Mocked protocol tests pass; real-container round trips remain unverified. Real agents and Temporal are not integrated yet.
+
+RTV supports learning through reproduction, system implementation, and original exploration. Existing approaches remain learning material and comparison baselines; see the [learning and resource plan](docs/learning-plan.en.md) for sources and scope. No model-performance or distributed-reliability claims have been established.
 
 ## Quick start
 
@@ -31,6 +33,8 @@ uv run ruff format --check src tests
 
 See the [framework development guide](docs/framework.en.md) for modules, current guarantees, and extension points.
 
+The Harbor prototype uses an optional dependency group and Python 3.12+. See the [M0 guide](docs/m0.en.md) for installation, preflight, and container test commands. Normal tests skip real-container execution; this does not establish container recovery.
+
 ## Core problem
 
 When an agent gets stuck, a worker disconnects, or a sandbox is destroyed, how can the next execution recover a consistent workspace and session, and fairly compare different continuation strategies from the same checkpoint?
@@ -46,6 +50,8 @@ RTV focuses on three capabilities:
 | Document | Contents |
 | --- | --- |
 | [Framework development guide](docs/framework.en.md) | Current code, run instructions, validation scope, and integration boundaries |
+| [M0 integration guide](docs/m0.en.md) | Harbor preflight, container recovery prototype, capability matrix, and current gaps |
+| [Learning and resource plan](docs/learning-plan.en.md) | Open-source references, reproduction goals, lab GPUs, and spending agreement |
 | [System design](docs/design.en.md) | Object relationships, invariants, checkpoint protocol, failure handling, budgets, and adapter capabilities |
 | [Experiment protocol](docs/experiments.en.md) | Paired branches, budget accounting, baselines, statistics, and result artifacts |
 | [Roadmap](docs/roadmap.en.md) | Implementation order, acceptance evidence, and open decisions |
@@ -66,7 +72,7 @@ flowchart TD
     OBJ --> EXP
 ```
 
-This diagram shows the complete target architecture; the current code implements only the local framework prototype. A compatibility prototype must still establish the specific Harbor integration boundary.
+This diagram shows the complete target architecture; current code covers the local framework and M0 integration preparation. Real-container and real-agent tests must still establish the specific Harbor integration boundary.
 
 ## Technical boundaries
 

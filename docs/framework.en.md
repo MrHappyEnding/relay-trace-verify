@@ -2,7 +2,7 @@
 
 [![中文](assets/lang-zh.svg)](framework.md) [![English](assets/lang-en.svg)](framework.en.md)
 
-Status: initial local prototype · 2026-10-07
+Status: local framework and M0 integration preparation · 2026-10-08
 
 ## 1. Current code
 
@@ -15,14 +15,17 @@ src/rtv/
   events.py        # Single-writer JSONL events
   runner.py        # Two-stage local relay composed from the interfaces
   demo.py          # Deterministic fixture agents and verifier
-  cli.py           # rtv demo / rtv --version
+  harbor_probe.py  # Optional Harbor preflight and container file recovery prototype
+  cli.py           # demo / harbor-doctor / harbor-smoke / --version
 tests/
   test_domain.py
   test_checkpoints.py
   test_relay.py
+  test_harbor_probe.py
+examples/tasks/positive-sum/  # Controlled scripted task in Harbor format
 ```
 
-Runtime code uses only the Python standard library. pytest and Ruff are development dependencies, with their versions pinned in `uv.lock`. `pyproject.toml` defines the installable package and CLI.
+The core runtime uses only the Python standard library and supports Python 3.11+. The optional `harbor` group requires Python 3.12+; Harbor is imported lazily by the integration entry points. pytest and Ruff are development dependencies, with their versions pinned in `uv.lock`. `pyproject.toml` defines the installable package and CLI.
 
 ## 2. Run and check
 
@@ -38,6 +41,8 @@ uv run ruff format --check src tests
 `rtv demo` requires a new output directory and never overwrites an existing experiment. Successful execution returns exit code 0; verification failures or runtime errors return a nonzero code. The demo does not download tasks, call models, or start containers.
 
 Fixture A writes 41 to `answer.txt` and requests a handoff. B reads the restored file in another execution directory and changes it to 42. A separate verifier checks its contents. This verifier is separate from the agent interface but runs in the same host process; it is not an isolated hidden-test service.
+
+See the [M0 guide](m0.en.md) for Harbor installation, `harbor-doctor`, and `harbor-smoke`. The container prototype is separate from the synchronous Runner: it validates vendor interfaces and file transfer before defining formal adapter contracts. It is not a completed WorkspaceBackend.
 
 ## 3. Artifacts and identities
 
@@ -85,5 +90,7 @@ These are provisional, changeable contracts. Do not consider them stable APIs be
 ## 6. Validation scope
 
 Tests cover recovery/handoff identity differences, state transitions, cancellation state constraints, file and branch isolation, manifest/content corruption, missing files, unsafe paths, symbolic links, existing-destination protection, and commit write failures. End-to-end tests also cover event correlation, final status after verifier failure, and CLI behavior.
+
+Optional Harbor tests use the real Task parser with mocked container transport, covering failed stops, round-trip corruption, failed verification, and cleanup leaks. The real-container integration test is skipped unless `RTV_RUN_DOCKER=1` is set; mocked tests are not evidence of container validation.
 
 These tests do not establish real-agent handoff gains, container isolation, automatic workflow recovery after failure, budget caps, or multi-worker correctness. Validate those incrementally through the [roadmap](roadmap.en.md).
