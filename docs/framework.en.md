@@ -93,4 +93,4 @@ Tests cover recovery/handoff identity differences, state transitions, cancellati
 
 Optional Harbor tests use the real Task parser with mocked container transport, covering failed stops, round-trip corruption, failed verification, and cleanup leaks. The real-container integration test is skipped unless `RTV_RUN_DOCKER=1` is set; mocked tests are not evidence of container validation.
 
-These tests do not establish real-agent handoff gains, container isolation, automatic workflow recovery after failure, budget caps, or multi-worker correctness. Validate those incrementally through the [roadmap](roadmap.en.md).
+A separately executed real Docker smoke verified file recovery between two containers, workspace isolation, and the Harbor verifier; see the [M0 guide](m0.en.md). This evidence does not establish real-agent handoff gains, general sandbox security, automatic workflow recovery after failure, budget caps, or multi-worker correctness. Validate those incrementally through the [roadmap](roadmap.en.md).

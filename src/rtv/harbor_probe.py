@@ -128,7 +128,7 @@ async def run_smoke(task_dir: Path, output: Path) -> dict[str, Any]:
     from harbor.environments.docker.docker import DockerEnvironment
     from harbor.models.task.config import NetworkMode, NetworkPolicy
     from harbor.models.task.task import Task
-    from harbor.models.trial.paths import TrialPaths
+    from harbor.models.trial.paths import EnvironmentPaths, TrialPaths
     from harbor.verifier.verifier import Verifier
 
     task_dir = task_dir.resolve()
@@ -163,15 +163,30 @@ async def run_smoke(task_dir: Path, output: Path) -> dict[str, Any]:
         ],
     }
 
-    def make_environment(role: str) -> Any:
+    def make_environment(role: str, *, image_id: str | None = None) -> Any:
         paths = TrialPaths(output / role)
         paths.mkdir()
+        environment_config = task.config.environment
+        if image_id is not None:
+            # Rebuilding may change the image ID even when build layers are cached.
+            # Restore against the exact source image, not another build of its inputs.
+            environment_config = environment_config.model_copy(update={"docker_image": image_id})
+        env_paths = EnvironmentPaths.for_os(environment_config.os)
+        # Direct environment construction bypasses Trial's log-mount setup.
+        mounts = [
+            {"type": "bind", "source": str(host), "target": str(container)}
+            for host, container in [
+                (paths.agent_dir, env_paths.agent_dir),
+                (paths.verifier_dir, env_paths.verifier_dir),
+            ]
+        ]
         env = DockerEnvironment(
             environment_dir=task.paths.environment_dir,
             environment_name=task.short_name,
             session_id=f"rtv-m0-{uuid4().hex}",
             trial_paths=paths,
-            task_env_config=task.config.environment,
+            task_env_config=environment_config,
+            mounts=mounts,
             network_policy=NetworkPolicy(network_mode=NetworkMode.NO_NETWORK),
         )
         environments.append(env)
@@ -223,13 +238,14 @@ async def run_smoke(task_dir: Path, output: Path) -> dict[str, Any]:
             )
             sink.emit("checkpoint.committed", source_ref, checkpoint.to_dict())
             restored = store.restore(checkpoint, output / "restored")
-            target = make_environment("target")
+            target = make_environment("target", image_id=report["source_image_id"])
             await target.start(force_build=False)
             record_images(target)
             target_ids = _container_ids(target.session_id, main_only=True)
             if len(target_ids) != 1:
                 raise RuntimeError("Expected exactly one target fixture container")
             target_image = _docker("inspect", "--format", "{{.Image}}", target_ids[0])
+            report["target_image_id"] = target_image
             if target_image != report["source_image_id"]:
                 raise RuntimeError("Source and target images differ")
             result = await target.exec(

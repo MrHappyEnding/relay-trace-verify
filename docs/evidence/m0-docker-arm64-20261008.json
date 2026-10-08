@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "mode": "harbor-scripted-smoke",
+  "status": "passed",
+  "model_calls": 0,
+  "preflight": {
+    "schema_version": 1,
+    "mode": "read-only-preflight",
+    "ready": true,
+    "checks": {
+      "python": {
+        "ok": true,
+        "version": "3.13.9"
+      },
+      "harbor": {
+        "ok": true,
+        "version": "0.24.0",
+        "required": "0.24.0"
+      },
+      "task": {
+        "ok": true,
+        "name": "rtv/positive-sum",
+        "digest": "e7610fd145810263bc52aa5cdf99205cafc34cfd5e62dbdca289dd6168a066db"
+      },
+      "docker": {
+        "ok": true,
+        "client": "28.5.1",
+        "server": "28.5.1",
+        "arch": "arm64"
+      },
+      "compose": {
+        "ok": true,
+        "version": "2.40.0-desktop.1"
+      }
+    }
+  },
+  "task_digest": "e7610fd145810263bc52aa5cdf99205cafc34cfd5e62dbdca289dd6168a066db",
+  "source": {
+    "trial_id": "c679255f-ea45-494f-a1ca-6b671517000e",
+    "attempt_id": "7030218e-f500-4a92-986b-9df3af94724e",
+    "execution_id": "8d17d7c0-af42-4f76-85b6-3a21ac62e021",
+    "epoch": 1
+  },
+  "target": {
+    "trial_id": "c679255f-ea45-494f-a1ca-6b671517000e",
+    "attempt_id": "8e35e3ad-ec02-469b-9811-9d887e2a3799",
+    "execution_id": "ebc66e68-e495-403c-a048-6eda1c48352b",
+    "epoch": 1
+  },
+  "capabilities_verified": [
+    "harbor_task",
+    "stopped_container_export",
+    "file_checkpoint_restore",
+    "workspace_isolation",
+    "harbor_verifier"
+  ],
+  "container_images": {
+    "rtv-m0-4aeee708d64b46e2ab8f2c5ec9e7e1c4": {
+      "e0a2f02d3488": "sha256:c1c2a890b882ff463dce91c0d0054a30ed68639d8f693dd68ac2c77f21c22a86",
+      "7d612b19f839": "sha256:c074eac961ebbc19e863fc251d5003f4f7743f9934a8ced34326af12fafd3a07"
+    },
+    "rtv-m0-4137c757b4ce483a8cd3cf7b79839e28": {
+      "23b97b918542": "sha256:c1c2a890b882ff463dce91c0d0054a30ed68639d8f693dd68ac2c77f21c22a86",
+      "feb0e0215904": "sha256:c074eac961ebbc19e863fc251d5003f4f7743f9934a8ced34326af12fafd3a07"
+    }
+  },
+  "cleanup_errors": [],
+  "not_tested": [
+    "native_session",
+    "atif_import",
+    "real_agent_quiescence",
+    "worker_recovery",
+    "budget_admission"
+  ],
+  "source_image_id": "sha256:c1c2a890b882ff463dce91c0d0054a30ed68639d8f693dd68ac2c77f21c22a86",
+  "target_image_id": "sha256:c1c2a890b882ff463dce91c0d0054a30ed68639d8f693dd68ac2c77f21c22a86",
+  "checkpoint": {
+    "checkpoint_id": "1243fc25-b88c-457d-9d74-f927969f9930",
+    "manifest_sha256": "99ae59cd090ecd2bf5b6c1397fb74aa6e6795255c131afe4c05d05b0951de0d2"
+  },
+  "workspace_digest": "a27e478cb4037068913f7fbc3f56c4fe9766ec8ee2f33eb38d3cf1a6084bf934",
+  "verifier_before": {
+    "reward": 0.0
+  },
+  "verifier_after": {
+    "reward": 1.0
+  }
+}

@@ -86,9 +86,11 @@ def fake_harbor(monkeypatch, tmp_path):
     }
 
     class Environment:
-        def __init__(self, *, session_id, trial_paths, **kwargs):
+        def __init__(self, *, session_id, trial_paths, task_env_config, mounts, **kwargs):
             self.session_id = session_id
             self.trial_paths = trial_paths
+            self.task_env_config = task_env_config
+            self.mounts = mounts
             self.root = tmp_path / session_id
             self.root.mkdir()
             self.running = False
@@ -180,6 +182,14 @@ def test_scripted_protocol_preserves_source_and_verifies_target(fake_harbor, tmp
     report = asyncio.run(probe.run_smoke(TASK, output))
     assert report["status"] == "passed", report
     assert report["model_calls"] == 0
+    source, target = fake_harbor["environments"].values()
+    assert source.task_env_config.docker_image is None
+    assert target.task_env_config.docker_image == report["source_image_id"]
+    assert report["target_image_id"] == report["source_image_id"]
+    assert {mount["target"]: mount["source"] for mount in target.mounts} == {
+        "/logs/agent": str(output / "target/agent"),
+        "/logs/verifier": str(output / "target/verifier"),
+    }
     assert all(len(images) == 2 for images in report["container_images"].values())
     assert report["verifier_before"] == {"reward": 0}
     assert report["verifier_after"] == {"reward": 1}

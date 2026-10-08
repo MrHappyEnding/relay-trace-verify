@@ -21,7 +21,8 @@ See the [framework development guide](framework.en.md) for the current implement
 - [x] Pin Harbor 0.24.0 and the base-image digest; validate the minimal fixture with the real Task parser.
 - [x] Implement read-only preflight, a file recovery prototype, mocked failure tests, and an opt-in real-container test.
 - [ ] Pin candidate agent CLIs, model identifiers, and an available container runtime version.
-- [ ] Run one minimal task and establish the task/agent/sandbox/verifier integration boundary.
+- [x] Run a scripted fixture through real container file recovery; validate Harbor Task/sandbox/verifier integration.
+- [ ] Run the first real-agent task and establish the agent integration boundary.
 - [ ] Verify workspace export at stage completion, restoration into a new sandbox, native-session import, and ATIF import.
 - [ ] Verify agent subprocess termination and quiescence boundaries; produce an evidence-based capability matrix.
 - [ ] Define snapshot file scope and handling of permissions, symbolic links, and required generated files.
@@ -29,7 +30,7 @@ See the [framework development guide](framework.en.md) for the current implement
 
 **Acceptance evidence**: a recovery example between two isolated sandboxes, file-digest comparisons, compatibility records, and explicit rejection of unsupported capabilities. M0 does not require a complex web interface or Kubernetes.
 
-See the [M0 guide](m0.en.md) for commands, protocol, and evidence. The local Docker daemon is unreachable, so the real-container round trip has not run. This is an M0 environment gap, not completed acceptance evidence.
+See the [M0 guide](m0.en.md) for commands, protocol, and evidence. Local Docker is running and the scripted real-container round trip passed. Real agents, sessions, and budget capabilities remain unverified.
 
 ## M1: Durable single-agent execution
 
@@ -86,4 +87,4 @@ Tool-boundary checkpoints, more agents, trajectory judges calibrated against lab
 | Control language | Python | Harbor integration cost and typed contracts |
 | First execution backend | Local containers | Validate the protocol before distributed faults |
 
-The next implementation task is the real-container M0 round trip, followed by the first real agent. Do not expand into complex scheduling policies before the capability matrix has supporting evidence.
+The next implementation task is to pin the first real agent, its model endpoint, and recovery boundaries. Do not expand into complex scheduling policies before the capability matrix has supporting evidence.

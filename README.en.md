@@ -6,7 +6,7 @@
 
 A recoverable execution and branching experiment system for long-running coding agents.
 
-**Status: F0 complete; M0 in progress.** The local relay demo, domain models, file checkpoints, and event logging now have a pinned Harbor fixture, environment preflight, and container recovery prototype. Mocked protocol tests pass; real-container round trips remain unverified. Real agents and Temporal are not integrated yet.
+**Status: F0 complete; M0 in progress.** The local relay demo, domain models, file checkpoints, and event logging now have a pinned Harbor fixture, environment preflight, and container recovery prototype. Mocked protocol tests and a real file-recovery round trip on local ARM64 Docker pass. Real agents and Temporal are not integrated yet.
 
 RTV supports learning through reproduction, system implementation, and original exploration. Existing approaches remain learning material and comparison baselines; see the [learning and resource plan](docs/learning-plan.en.md) for sources and scope. No model-performance or distributed-reliability claims have been established.
 
@@ -33,7 +33,7 @@ uv run ruff format --check src tests
 
 See the [framework development guide](docs/framework.en.md) for modules, current guarantees, and extension points.
 
-The Harbor prototype uses an optional dependency group and Python 3.12+. See the [M0 guide](docs/m0.en.md) for installation, preflight, and container test commands. Normal tests skip real-container execution; this does not establish container recovery.
+The Harbor prototype uses an optional dependency group and Python 3.12+. See the [M0 guide](docs/m0.en.md) for installation, preflight, and container test commands. Normal tests skip real-container execution; the guide records the separately executed real smoke test and its evidence.
 
 ## Core problem
 
