@@ -1,0 +1,185 @@
+{
+  "schema_version": 1,
+  "mode": "codex-session-smoke",
+  "status": "passed",
+  "cli_version": "0.160.1",
+  "harbor_version": "0.24.0",
+  "model": "gpt-6-astra",
+  "task_digest": "816a94a6aa6921ef5a17ee018e19e78589b91caa7322d60afb7e0bb0d956d4c4",
+  "preflight": {
+    "schema_version": 1,
+    "mode": "read-only-preflight",
+    "ready": true,
+    "checks": {
+      "python": {
+        "ok": true,
+        "version": "3.13.9"
+      },
+      "harbor": {
+        "ok": true,
+        "version": "0.24.0",
+        "required": "0.24.0"
+      },
+      "task": {
+        "ok": true,
+        "name": "rtv/codex-session",
+        "digest": "816a94a6aa6921ef5a17ee018e19e78589b91caa7322d60afb7e0bb0d956d4c4"
+      },
+      "docker": {
+        "ok": true,
+        "client": "28.5.1",
+        "server": "28.5.1",
+        "arch": "arm64"
+      },
+      "compose": {
+        "ok": true,
+        "version": "2.40.0-desktop.1"
+      }
+    }
+  },
+  "billing": "existing-chatgpt-subscription",
+  "cost_usd": null,
+  "agent_turns_attempted": 3,
+  "agent_turns_completed": 3,
+  "turns": {
+    "source": {
+      "execution": {
+        "trial_id": "7f36045b-a33e-427e-919f-610ef7370f81",
+        "attempt_id": "c6072087-5ece-4cfb-9981-df173869f25d",
+        "execution_id": "120494e9-8633-4087-ac1b-6252e6c8517c",
+        "epoch": 1
+      },
+      "session_id": "01a11a82-23c5-79e3-af7d-5519893852ec",
+      "usage": {
+        "input_tokens": 48077,
+        "cached_input_tokens": 33280,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 360,
+        "reasoning_output_tokens": 0
+      },
+      "seconds": 23.91,
+      "session_usage": {
+        "input_tokens": 48077,
+        "cached_input_tokens": 33280,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 360,
+        "reasoning_output_tokens": 0
+      },
+      "usage_scope": "incremental-turn"
+    },
+    "recovery": {
+      "execution": {
+        "trial_id": "7f36045b-a33e-427e-919f-610ef7370f81",
+        "attempt_id": "c6072087-5ece-4cfb-9981-df173869f25d",
+        "execution_id": "85f53c9d-c378-45e5-b84c-2e5631844b27",
+        "epoch": 2
+      },
+      "session_id": "01a11a82-23c5-79e3-af7d-5519893852ec",
+      "usage": {
+        "input_tokens": 37983,
+        "cached_input_tokens": 36608,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 396,
+        "reasoning_output_tokens": 0
+      },
+      "seconds": 24.01,
+      "session_usage": {
+        "input_tokens": 86060,
+        "cached_input_tokens": 69888,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 756,
+        "reasoning_output_tokens": 0
+      },
+      "usage_scope": "incremental-turn"
+    },
+    "handoff": {
+      "execution": {
+        "trial_id": "7f36045b-a33e-427e-919f-610ef7370f81",
+        "attempt_id": "395d0269-0485-4562-8ed5-7c225aa06fb4",
+        "execution_id": "ce71cefc-97ff-4398-95d0-c275b3a7e981",
+        "epoch": 1
+      },
+      "session_id": "01a11a83-206a-76d3-bd72-235afd3710c5",
+      "usage": {
+        "input_tokens": 48622,
+        "cached_input_tokens": 45312,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 444,
+        "reasoning_output_tokens": 0
+      },
+      "seconds": 25.97,
+      "session_usage": {
+        "input_tokens": 48622,
+        "cached_input_tokens": 45312,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 444,
+        "reasoning_output_tokens": 0
+      },
+      "usage_scope": "incremental-turn"
+    }
+  },
+  "checks": {
+    "pinned_cli": true,
+    "source_partial_rejected": true,
+    "background_writer_active": true,
+    "source_stopped_before_snapshot": true,
+    "stopped_export_stable": true,
+    "marker_absent_from_workspace": true,
+    "recovery_same_image": true,
+    "recovery_workspace_identical": true,
+    "recovery_session_identity": true,
+    "recovery_memory_marker": true,
+    "recovery_verified": true,
+    "handoff_same_image": true,
+    "handoff_workspace_identical": true,
+    "handoff_session_identity": true,
+    "handoff_memory_marker": true,
+    "handoff_verified": true,
+    "source_isolated_from_branches": true
+  },
+  "cleanup_errors": [],
+  "not_tested": [
+    "mid-tool process memory recovery",
+    "worker crash / distributed ownership",
+    "ATIF import",
+    "second agent implementation",
+    "cross-model recovery",
+    "strict token or monetary admission",
+    "benchmark performance"
+  ],
+  "image_id": "sha256:d01cabd543422b0f1b42637dbdaf4769c98e65fd2fff130427777ad1e2c9ca3d",
+  "checkpoint": {
+    "checkpoint_id": "e9b19d8a-b971-4378-85d6-72b27a4690e7",
+    "manifest_sha256": "7fe7fe7494e5c0883f83c44e374b5dd0b4ebb61e117d8dbd3e16d7a680950617"
+  },
+  "workspace_digest": "d74150cba475ac6c54474ad72af93cac3b87e08f944bf9425f43491e42c5b1e5",
+  "elapsed_seconds": 105.34,
+  "evidence_note": "Usage reconciled offline from retained native logs after identifying cumulative resume counters; execution assertions and raw artifacts were not rerun or altered.",
+  "development_overhead": {
+    "failed_runs": 1,
+    "agent_turns_completed": 1,
+    "reason": "RTV container helper did not handle None stdout; fixed and regression-tested.",
+    "usage": {
+      "input_tokens": 48076,
+      "cached_input_tokens": 35328,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 369,
+      "reasoning_output_tokens": 0
+    },
+    "cleanup_errors": []
+  },
+  "successful_probe_usage": {
+    "input_tokens": 134682,
+    "cached_input_tokens": 115200,
+    "cache_write_input_tokens": 0,
+    "output_tokens": 1200,
+    "reasoning_output_tokens": 0
+  },
+  "total_development_usage": {
+    "input_tokens": 182758,
+    "cached_input_tokens": 150528,
+    "cache_write_input_tokens": 0,
+    "output_tokens": 1569,
+    "reasoning_output_tokens": 0
+  }
+}

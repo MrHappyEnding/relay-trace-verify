@@ -2,7 +2,7 @@
 
 [![中文](assets/lang-zh.svg)](framework.md) [![English](assets/lang-en.svg)](framework.en.md)
 
-状态：本地框架与 M0 接入准备 · 2026-10-08
+状态：本地框架与 M0 Harbor / Codex 原型 · 2026-10-08
 
 ## 1. 当前代码
 
@@ -16,13 +16,18 @@ src/rtv/
   runner.py        # 组合接口的两阶段本地接力
   demo.py          # 确定性 fixture agent 与 verifier
   harbor_probe.py  # 可选 Harbor 预检查与容器文件恢复原型
-  cli.py           # demo / harbor-doctor / harbor-smoke / --version
+  codex_agent.py   # 可选真实 Codex 适配、会话校验和增量用量
+  codex_probe.py   # 原生恢复 / 新会话交接受控实验
+  cli.py           # demo / harbor-* / codex-prepare / codex-smoke / --version
 tests/
   test_domain.py
   test_checkpoints.py
   test_relay.py
   test_harbor_probe.py
+  test_codex_agent.py
+  test_codex_probe.py
 examples/tasks/positive-sum/  # Harbor 格式的受控脚本任务
+examples/tasks/codex-session/ # 固定 Codex 的真实 agent 实验任务
 ```
 
 基础运行时代码只依赖 Python 标准库，支持 Python 3.11+。可选 `harbor` 组需要 Python 3.12+；Harbor 只在集成入口按需导入。pytest、Ruff 是开发依赖，具体版本锁在 `uv.lock`。`pyproject.toml` 定义可安装的包与 CLI。
@@ -70,7 +75,7 @@ work/demo/
 - 保留普通文件内容、文件权限位和空目录；拒绝符号链接、特殊文件、路径穿越和文件 / 目录冲突。
 - 拒绝恢复到已有目标；各分支复制文件，不共享可写内容。
 
-本地格式 v1 保存的是文件、摘要和事件边界，尚无原生会话、镜像重建清单或预算账本。它是系统设计中完整 checkpoint 协议的一个实现起点。
+本地格式 v1 保存文件、摘要和事件边界；Codex 原型在其文件包中加入工作区、原生 rollout 和版本元数据，见 [Codex 指南](codex-m0.md)。正式环境重建清单与预算账本尚未实现。它是系统设计中完整 checkpoint 协议的一个实现起点。
 
 存储目录按单进程受控环境使用，不提供对抗恶意磁盘写入的安全边界。源文件并发修改、跨进程提交、断电持久性、引用 GC 和分布式所有权尚不支持。SHA-256 用于完整性检查，不是签名。
 
@@ -79,6 +84,7 @@ work/demo/
 | 接口 | 当前实现 | 下一步 |
 | --- | --- | --- |
 | AgentAdapter | PrepareAgent / FinishAgent | M0 验证真实 CLI 阶段终止、会话格式与静止能力 |
+| HarborCodexAdapter | 异步真实 Codex 原型，独立于同步 fixture 接口 | ATIF、真实中断与正式能力契约；见 [Codex 指南](codex-m0.md) |
 | WorkspaceBackend | 普通本地目录 | 基于 Harbor 环境接口验证容器及远程工作区契约 |
 | CheckpointStore | 本地文件和 manifest | 扩展会话、环境清单、对象存储与条件提交 |
 | EventSink | 单写入者 JSONL | 持久身份、去重、重连与查询投影 |
@@ -93,4 +99,4 @@ work/demo/
 
 可选 Harbor 测试使用真实 Task parser 与模拟容器传输，覆盖停止失败、文件往返损坏、验证失败和清理残留。实际容器集成测试默认跳过，需显式设置 `RTV_RUN_DOCKER=1`；不能把模拟测试计为容器验证成功。
 
-另行执行的真实 Docker smoke 已验证两个容器间的文件恢复、工作区隔离和 Harbor verifier，记录见 [M0 指南](m0.md)。这些证据不能证明真实 agent 接力收益、通用沙箱安全性、故障后的工作流自动恢复、预算上限或多 worker 正确性。这些仍按[实施路线](roadmap.md)逐步验证。
+另行执行的真实 Docker smoke 已验证容器间文件恢复、工作区隔离和 Harbor verifier，记录见 [M0 指南](m0.md)。首个真实 Codex 的原生恢复与新会话交接也已通过，见 [Codex 指南](codex-m0.md)；模拟故障测试覆盖超时、取消、拒绝不静止快照、损坏和清理残留。这些证据不能证明接力收益、通用沙箱安全性、故障后的工作流自动恢复、预算上限或多 worker 正确性，仍按[实施路线](roadmap.md)逐步验证。

@@ -6,7 +6,7 @@
 
 A recoverable execution and branching experiment system for long-running coding agents.
 
-**Status: F0 complete; M0 in progress.** The local relay demo, domain models, file checkpoints, and event logging now have a pinned Harbor fixture, environment preflight, and container recovery prototype. Mocked protocol tests and a real file-recovery round trip on local ARM64 Docker pass. Real agents and Temporal are not integrated yet.
+**Status: F0 complete; M0 in progress.** The first real agent is integrated: pinned Codex runs through Harbor on ARM64 Docker. Native-session recovery, fresh-session handoff, file consistency and final verification passed a controlled experiment. A second agent, ATIF import and Temporal remain pending. See the [real-agent experiment](docs/codex-m0.en.md).
 
 RTV supports learning through reproduction, system implementation, and original exploration. Existing approaches remain learning material and comparison baselines; see the [learning and resource plan](docs/learning-plan.en.md) for sources and scope. No model-performance or distributed-reliability claims have been established.
 
@@ -51,6 +51,7 @@ RTV focuses on three capabilities:
 | --- | --- |
 | [Framework development guide](docs/framework.en.md) | Current code, run instructions, validation scope, and integration boundaries |
 | [M0 integration guide](docs/m0.en.md) | Harbor preflight, container recovery prototype, capability matrix, and current gaps |
+| [Codex recovery experiment](docs/codex-m0.en.md) | First real agent, native/semantic handoff, recovery boundaries and usage evidence |
 | [Learning and resource plan](docs/learning-plan.en.md) | Open-source references, reproduction goals, lab GPUs, and spending agreement |
 | [System design](docs/design.en.md) | Object relationships, invariants, checkpoint protocol, failure handling, budgets, and adapter capabilities |
 | [Experiment protocol](docs/experiments.en.md) | Paired branches, budget accounting, baselines, statistics, and result artifacts |
@@ -72,7 +73,7 @@ flowchart TD
     OBJ --> EXP
 ```
 
-This diagram shows the complete target architecture; current code covers the local framework and M0 integration preparation. Real-container and real-agent tests must still establish the specific Harbor integration boundary.
+This diagram shows the complete target architecture. Current code covers the local framework and M0 Harbor/Codex recovery probes; durable orchestration, distributed ownership and a budget ledger remain unimplemented.
 
 ## Technical boundaries
 

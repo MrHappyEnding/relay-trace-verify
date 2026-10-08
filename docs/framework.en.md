@@ -2,7 +2,7 @@
 
 [![中文](assets/lang-zh.svg)](framework.md) [![English](assets/lang-en.svg)](framework.en.md)
 
-Status: local framework and M0 integration preparation · 2026-10-08
+Status: local framework and M0 Harbor/Codex probes · 2026-10-08
 
 ## 1. Current code
 
@@ -16,13 +16,18 @@ src/rtv/
   runner.py        # Two-stage local relay composed from the interfaces
   demo.py          # Deterministic fixture agents and verifier
   harbor_probe.py  # Optional Harbor preflight and container file recovery prototype
-  cli.py           # demo / harbor-doctor / harbor-smoke / --version
+  codex_agent.py   # Optional real Codex adapter, session validation and incremental usage
+  codex_probe.py   # Controlled native recovery / fresh-session handoff experiment
+  cli.py           # demo / harbor-* / codex-prepare / codex-smoke / --version
 tests/
   test_domain.py
   test_checkpoints.py
   test_relay.py
   test_harbor_probe.py
+  test_codex_agent.py
+  test_codex_probe.py
 examples/tasks/positive-sum/  # Controlled scripted task in Harbor format
+examples/tasks/codex-session/ # Pinned Codex real-agent experiment
 ```
 
 The core runtime uses only the Python standard library and supports Python 3.11+. The optional `harbor` group requires Python 3.12+; Harbor is imported lazily by the integration entry points. pytest and Ruff are development dependencies, with their versions pinned in `uv.lock`. `pyproject.toml` defines the installable package and CLI.
@@ -70,7 +75,7 @@ Events retain Trial, Attempt, Execution, epoch, and source sequence identifiers.
 - Preserve regular-file contents, file permission bits, and empty directories. Reject symbolic links, special files, path traversal, and file/directory conflicts.
 - Reject existing restore destinations. Branches copy files and share no writable contents.
 
-Local format v1 stores files, a summary, and an event boundary. It does not yet include native sessions, environment reconstruction manifests, or a budget ledger. It is a starting point for the full checkpoint protocol in the system design.
+Local format v1 stores files, a summary and an event boundary. The Codex probe bundles a workspace, native rollout and version metadata as those files; see the [Codex guide](codex-m0.en.md). Formal environment reconstruction manifests and a budget ledger remain unimplemented. This is a starting point for the full checkpoint protocol.
 
 The store assumes a controlled single-process environment, not a security boundary against hostile disk writes. Concurrent source modifications, cross-process commits, power-loss durability, reference garbage collection, and distributed ownership are unsupported. SHA-256 provides integrity checking, not signatures.
 
@@ -79,6 +84,7 @@ The store assumes a controlled single-process environment, not a security bounda
 | Interface | Current implementation | Next step |
 | --- | --- | --- |
 | AgentAdapter | PrepareAgent / FinishAgent | M0 verification of real CLI stage termination, session formats, and quiescence |
+| HarborCodexAdapter | Asynchronous real Codex probe, separate from the synchronous fixture contract | ATIF, real interruptions and a formal capability contract; see [Codex guide](codex-m0.en.md) |
 | WorkspaceBackend | Ordinary local directories | Validate container and remote-workspace contracts against Harbor environment interfaces |
 | CheckpointStore | Local files and manifests | Add sessions, environment manifests, object storage, and conditional commits |
 | EventSink | Single-writer JSONL | Durable identities, deduplication, reconnection, and query projections |
@@ -93,4 +99,4 @@ Tests cover recovery/handoff identity differences, state transitions, cancellati
 
 Optional Harbor tests use the real Task parser with mocked container transport, covering failed stops, round-trip corruption, failed verification, and cleanup leaks. The real-container integration test is skipped unless `RTV_RUN_DOCKER=1` is set; mocked tests are not evidence of container validation.
 
-A separately executed real Docker smoke verified file recovery between two containers, workspace isolation, and the Harbor verifier; see the [M0 guide](m0.en.md). This evidence does not establish real-agent handoff gains, general sandbox security, automatic workflow recovery after failure, budget caps, or multi-worker correctness. Validate those incrementally through the [roadmap](roadmap.en.md).
+A separately executed real Docker smoke verified file recovery, workspace isolation and Harbor verification; see the [M0 guide](m0.en.md). The first real Codex native recovery and fresh-session handoff also passed; see the [Codex guide](codex-m0.en.md). Mocked faults cover timeout, cancellation, unquiesced snapshot refusal, corruption and cleanup leaks. This evidence does not establish handoff gains, general sandbox security, workflow crash recovery, budget caps or multi-worker correctness; follow the [roadmap](roadmap.en.md).

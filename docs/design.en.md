@@ -134,7 +134,7 @@ These capabilities must be probed and tested; they are not guarantees about any 
 | Incremental events and token/cost accounting | Label completeness and estimation sources |
 | Request-cost upper bounds and call interception | Enforce strict admission when supported; otherwise declare soft limits |
 
-Claude Code and Codex are candidate agents. Pin Harbor and both CLI versions, then validate actual capabilities. Start with stage-boundary handoffs rather than assuming every CLI can pause after any tool call.
+The first verified integration is Codex CLI 0.160.1 + `gpt-6-astra` through Harbor 0.24.0; see the [experiment](codex-m0.en.md). Claude Code remains a candidate for the second agent, with version pinning and compatibility checks at M3. Start with stage-boundary handoffs rather than assuming every CLI can pause after any tool call.
 
 ## 8. Budget model
 

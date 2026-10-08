@@ -52,7 +52,7 @@ def tree_digest(root: Path) -> str:
     return digest.hexdigest()
 
 
-def doctor(task_dir: Path) -> dict[str, Any]:
+def doctor(task_dir: Path, *, expected_task: str = "rtv/positive-sum") -> dict[str, Any]:
     """Read-only checks. Never starts containers, pulls images or calls a model."""
     checks: dict[str, dict[str, Any]] = {}
     checks["python"] = {"ok": sys.version_info >= (3, 12), "version": platform.python_version()}
@@ -70,8 +70,8 @@ def doctor(task_dir: Path) -> dict[str, Any]:
             from harbor.models.task.task import Task
 
             task = Task(task_dir)
-            if task.name != "rtv/positive-sum":
-                raise ValueError("This smoke probe only supports the rtv/positive-sum fixture")
+            if task.name != expected_task:
+                raise ValueError(f"This probe only supports the {expected_task} fixture")
             checks["task"] = {
                 "ok": True,
                 "name": task.name,

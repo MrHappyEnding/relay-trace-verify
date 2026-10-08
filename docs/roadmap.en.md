@@ -20,17 +20,18 @@ See the [framework development guide](framework.en.md) for the current implement
 
 - [x] Pin Harbor 0.24.0 and the base-image digest; validate the minimal fixture with the real Task parser.
 - [x] Implement read-only preflight, a file recovery prototype, mocked failure tests, and an opt-in real-container test.
-- [ ] Pin candidate agent CLIs, model identifiers, and an available container runtime version.
+- [x] Pin the first agent: Codex CLI 0.160.1, `gpt-6-astra`, and local Docker versions; pin the second agent at M3.
 - [x] Run a scripted fixture through real container file recovery; validate Harbor Task/sandbox/verifier integration.
-- [ ] Run the first real-agent task and establish the agent integration boundary.
-- [ ] Verify workspace export at stage completion, restoration into a new sandbox, native-session import, and ATIF import.
+- [x] Run the first real-agent task; reuse Harbor Codex while RTV controls stages and checkpoints.
+- [x] Verify workspace export at stage completion, restoration into a new sandbox and pinned native-session import.
+- [ ] Verify ATIF import and conversion information loss.
 - [ ] Verify agent subprocess termination and quiescence boundaries; produce an evidence-based capability matrix.
 - [ ] Define snapshot file scope and handling of permissions, symbolic links, and required generated files.
 - [ ] Identify adapters that support strict budget admission and those that support only soft limits.
 
 **Acceptance evidence**: a recovery example between two isolated sandboxes, file-digest comparisons, compatibility records, and explicit rejection of unsupported capabilities. M0 does not require a complex web interface or Kubernetes.
 
-See the [M0 guide](m0.en.md) for commands, protocol, and evidence. Local Docker is running and the scripted real-container round trip passed. Real agents, sessions, and budget capabilities remain unverified.
+See the [M0 guide](m0.en.md) for commands, protocol, and evidence. Scripted container recovery and the first real Codex native recovery/fresh-session handoff passed; see [Codex evidence](codex-m0.en.md). Arbitrary tool interruption, ATIF and budget admission remain unverified.
 
 ## M1: Durable single-agent execution
 
@@ -87,4 +88,4 @@ Tool-boundary checkpoints, more agents, trajectory judges calibrated against lab
 | Control language | Python | Harbor integration cost and typed contracts |
 | First execution backend | Local containers | Validate the protocol before distributed faults |
 
-The next implementation task is to pin the first real agent, its model endpoint, and recovery boundaries. Do not expand into complex scheduling policies before the capability matrix has supporting evidence.
+Next: finish ATIF import, real interruption tests and capability declarations to close M0, then begin M1 durable execution. The second agent remains scheduled for M3.
