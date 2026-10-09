@@ -152,3 +152,59 @@ def test_mid_commit_write_failure_never_publishes_a_checkpoint(tmp_path, monkeyp
     with pytest.raises(OSError, match="injected disk failure"):
         store.commit(source, ExecutionRef(uuid4()), event_cursor=0, summary="")
     assert not list(store.root.iterdir())
+
+
+def test_v2_context_and_immutable_identity(tmp_path):
+    source = tmp_path / "source"
+    source.mkdir()
+    (source / "file").write_text("immutable")
+    store = LocalCheckpointStore(tmp_path / "objects")
+    identity = uuid4()
+    context = {"schema_version": 2, "ledger_revision": 7, "event_boundary": ["event-1"]}
+    ref = store.commit(
+        source,
+        ExecutionRef(uuid4()),
+        event_cursor=1,
+        summary="stage",
+        context=context,
+        checkpoint_id=identity,
+    )
+    assert store.load(ref).context == context
+    assert store.load(ref).schema_version == 2
+    (source / "file").write_text("second upload")
+    with pytest.raises(FileExistsError):
+        store.commit(
+            source,
+            ExecutionRef(uuid4()),
+            event_cursor=1,
+            summary="retry",
+            context=context,
+            checkpoint_id=identity,
+        )
+    store.restore(ref, tmp_path / "restored")
+    assert (tmp_path / "restored/file").read_text() == "immutable"
+
+
+def test_fsync_failure_never_publishes_checkpoint(tmp_path, monkeypatch):
+    source = tmp_path / "source"
+    source.mkdir()
+    (source / "file").write_text("data")
+    store = LocalCheckpointStore(tmp_path / "objects")
+
+    def fail(fd):
+        raise OSError("injected fsync failure")
+
+    monkeypatch.setattr("rtv.storage.os.fsync", fail)
+    with pytest.raises(OSError, match="fsync"):
+        store.commit(source, ExecutionRef(uuid4()), event_cursor=0, summary="")
+    assert list(store.root.iterdir()) == []
+
+
+def test_manifest_symlink_rejected(snapshot, tmp_path):
+    store, ref, _ = snapshot
+    manifest = store.root / str(ref.checkpoint_id) / "manifest.json"
+    target = tmp_path / "outside.json"
+    manifest.rename(target)
+    manifest.symlink_to(target)
+    with pytest.raises(CheckpointError, match="symbolic link"):
+        store.load(ref)

@@ -1,60 +1,78 @@
-"""PostgreSQL product state and idempotent, correlated control/execution events."""
+"""Version 2 state: epoch-fenced writes, immutable checkpoints, cumulative usage."""
 
 import hashlib
 import json
-from datetime import UTC, datetime, timedelta
+from contextlib import contextmanager
 from uuid import NAMESPACE_URL, uuid5
 
 import psycopg
 from psycopg.rows import dict_row
 from psycopg.types.json import Jsonb
 
-from rtv.runtime.config import TERMINAL, Settings
+from rtv.runtime.config import LEASE_SECONDS, TERMINAL, Settings
 
 SCHEMA = """
-CREATE TABLE IF NOT EXISTS rtv_trials (
-    trial_id TEXT PRIMARY KEY,
-    operation_id TEXT NOT NULL UNIQUE,
-    attempt_id TEXT NOT NULL UNIQUE,
-    execution_id TEXT NOT NULL UNIQUE,
-    epoch INTEGER NOT NULL DEFAULT 1 CHECK (epoch = 1),
-    root TEXT NOT NULL,
-    spec JSONB NOT NULL,
-    spec_hash TEXT NOT NULL,
-    status TEXT NOT NULL DEFAULT 'queued'
-      CHECK (status IN ('queued','running','verifying','cancel_requested',
-                        'succeeded','failed','cancelled')),
-    cancel_requested BOOLEAN NOT NULL DEFAULT FALSE,
-    cleanup TEXT NOT NULL DEFAULT 'pending' CHECK (cleanup IN ('pending','complete')),
-    created_at TIMESTAMPTZ NOT NULL,
-    deadline TIMESTAMPTZ NOT NULL,
-    result JSONB
+CREATE TABLE IF NOT EXISTS trials (
+ trial_id TEXT PRIMARY KEY, operation_id TEXT UNIQUE NOT NULL, attempt_id TEXT UNIQUE NOT NULL,
+ execution_id TEXT UNIQUE NOT NULL, epoch INT NOT NULL CHECK(epoch>0), root TEXT NOT NULL,
+ spec JSONB NOT NULL, spec_hash TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'queued',
+ cancel_requested BOOL NOT NULL DEFAULT FALSE, cleanup TEXT NOT NULL DEFAULT 'pending',
+ created_at TIMESTAMPTZ NOT NULL DEFAULT clock_timestamp(), deadline TIMESTAMPTZ NOT NULL,
+ result JSONB, latest_checkpoint TEXT, recoveries INT NOT NULL DEFAULT 0,
+ ledger_revision BIGINT NOT NULL DEFAULT 0
 );
-CREATE TABLE IF NOT EXISTS rtv_events (
-    sequence BIGSERIAL PRIMARY KEY,
-    trial_id TEXT NOT NULL REFERENCES rtv_trials(trial_id),
-    event_id TEXT NOT NULL UNIQUE,
-    kind TEXT NOT NULL,
-    payload JSONB NOT NULL,
-    at TIMESTAMPTZ NOT NULL DEFAULT now()
+ALTER TABLE trials ADD COLUMN IF NOT EXISTS artifacts_retired BOOL NOT NULL DEFAULT FALSE;
+CREATE TABLE IF NOT EXISTS executions (
+ execution_id TEXT PRIMARY KEY, trial_id TEXT NOT NULL REFERENCES trials(trial_id),
+ epoch INT NOT NULL, stage INT NOT NULL, resume_from TEXT, state TEXT NOT NULL DEFAULT 'queued',
+ cleanup TEXT NOT NULL DEFAULT 'pending', lease_until TIMESTAMPTZ, result JSONB,
+ operation_id TEXT UNIQUE NOT NULL, created_at TIMESTAMPTZ NOT NULL DEFAULT clock_timestamp(),
+ UNIQUE(trial_id,epoch)
 );
-"""
+CREATE TABLE IF NOT EXISTS events (
+ sequence BIGSERIAL PRIMARY KEY, trial_id TEXT NOT NULL REFERENCES trials(trial_id),
+ event_id TEXT UNIQUE NOT NULL, kind TEXT NOT NULL, payload JSONB NOT NULL,
+ at TIMESTAMPTZ NOT NULL DEFAULT clock_timestamp()
+);
+CREATE TABLE IF NOT EXISTS operations (
+ operation_id TEXT PRIMARY KEY, trial_id TEXT NOT NULL REFERENCES trials(trial_id),
+ execution_id TEXT NOT NULL REFERENCES executions(execution_id), kind TEXT NOT NULL,
+ state TEXT NOT NULL DEFAULT 'pending', usage JSONB, reason TEXT,
+ created_at TIMESTAMPTZ NOT NULL DEFAULT clock_timestamp()
+);
+CREATE TABLE IF NOT EXISTS checkpoints (
+ checkpoint_id TEXT PRIMARY KEY, trial_id TEXT NOT NULL REFERENCES trials(trial_id),
+ execution_id TEXT NOT NULL REFERENCES executions(execution_id), epoch INT NOT NULL,
+ stage INT NOT NULL, state TEXT NOT NULL DEFAULT 'preparing', manifest_sha256 TEXT,
+ context JSONB, parent TEXT REFERENCES checkpoints(checkpoint_id),
+ created_at TIMESTAMPTZ NOT NULL DEFAULT clock_timestamp(), committed_at TIMESTAMPTZ,
+ UNIQUE(execution_id,stage)
+);
+CREATE TABLE IF NOT EXISTS checkpoint_refs (
+ checkpoint_id TEXT NOT NULL REFERENCES checkpoints(checkpoint_id),
+ owner TEXT NOT NULL, PRIMARY KEY(checkpoint_id,owner)
+);
+        """
 
 
-def identity(root: str, key: str) -> dict:
+class Fenced(ValueError):
+    """Caller has lost its epoch or lease."""
+
+
+def identity(root, key):
     if not key.strip() or len(key) > 200:
-        raise ValueError("Idempotency key must contain 1–200 characters")
-    operation = str(uuid5(NAMESPACE_URL, f"rtv:m1:{root}:{key}"))
+        raise ValueError("Idempotency key requires 1–200 characters")
+    operation = str(uuid5(NAMESPACE_URL, f"rtv:m2:{root}:{key}"))
     return {
         "operation_id": operation,
         **{
-            name: str(uuid5(NAMESPACE_URL, f"{operation}:{name}"))
-            for name in ("trial_id", "attempt_id", "execution_id")
+            k: str(uuid5(NAMESPACE_URL, operation + ":" + k))
+            for k in ("trial_id", "attempt_id", "execution_id")
         },
     }
 
 
-def spec_hash(spec: dict) -> str:
+def spec_hash(spec):
     return hashlib.sha256(json.dumps(spec, sort_keys=True).encode()).hexdigest()
 
 
@@ -67,124 +85,534 @@ class Store:
             self.settings.dsn,
             row_factory=dict_row,
             connect_timeout=5,
-            options="-c statement_timeout=10000",
+            options="-c statement_timeout=10000 -c search_path=rtv2",
         )
 
     def initialize(self):
-        with self.connect() as conn:
-            conn.execute(SCHEMA)
+        with self.connect() as c:
+            c.execute("SELECT pg_advisory_xact_lock(72002001)")
+            c.execute("CREATE SCHEMA IF NOT EXISTS rtv2")
+            c.execute(SCHEMA)
+
+    def _row(self, c, trial_id, locking=False):
+        if locking:
+            # Lock the stable Trial first, then resolve its current execution in
+            # a fresh READ COMMITTED statement. A locking join can re-evaluate
+            # against the superseded execution and incorrectly return no row.
+            c.execute(
+                "SELECT trial_id FROM trials WHERE trial_id=%s AND root=%s FOR UPDATE",
+                (trial_id, str(self.settings.root)),
+            )
+        row = c.execute(
+            "SELECT t.*,e.stage,e.resume_from,e.state AS execution_state,e.lease_until,"
+            "e.cleanup AS execution_cleanup,(e.lease_until>clock_timestamp()) AS lease_valid "
+            "FROM trials t JOIN executions e ON e.execution_id=t.execution_id "
+            "WHERE t.trial_id=%s AND t.root=%s" + (" FOR UPDATE OF e" if locking else ""),
+            (trial_id, str(self.settings.root)),
+        ).fetchone()
+        if not row:
+            raise ValueError("Unknown trial in this runtime root")
+        return row
+
+    @contextmanager
+    def owned(self, expected, *, live=True, allow_cancel=False):
+        with self.connect() as c:
+            row = self._row(c, expected["trial_id"], True)
+            if any(row[k] != expected[k] for k in ("execution_id", "epoch", "attempt_id")):
+                raise Fenced("Stale execution token")
+            if live:
+                valid = c.execute(
+                    "SELECT lease_until>clock_timestamp() AS ok FROM executions "
+                    "WHERE execution_id=%s",
+                    (row["execution_id"],),
+                ).fetchone()["ok"]
+                if row["execution_state"] != "running" or not valid:
+                    raise Fenced("Execution lease expired or is not active")
+                if row["cancel_requested"] and not allow_cancel:
+                    raise Fenced("Cancelled trial cannot admit work or publish checkpoints")
+                if (
+                    not allow_cancel
+                    and c.execute(
+                        "SELECT deadline<=clock_timestamp() AS expired FROM trials "
+                        "WHERE trial_id=%s",
+                        (row["trial_id"],),
+                    ).fetchone()["expired"]
+                ):
+                    raise Fenced("Trial deadline prohibits new work/publication")
+            yield c, row
 
     @staticmethod
-    def _event(conn, row: dict, kind: str, payload: dict):
+    def _event(c, row, kind, payload):
         payload = {
             **payload,
             **{k: row[k] for k in ("operation_id", "attempt_id", "execution_id", "epoch")},
         }
-        conn.execute(
-            "INSERT INTO rtv_events(trial_id,event_id,kind,payload) VALUES(%s,%s,%s,%s) "
+        c.execute(
+            "INSERT INTO events(trial_id,event_id,kind,payload) VALUES(%s,%s,%s,%s) "
             "ON CONFLICT(event_id) DO NOTHING",
             (row["trial_id"], row["execution_id"] + ":" + kind, kind, Jsonb(payload)),
         )
 
-    def submit(self, key: str, spec: dict) -> dict:
+    def submit(self, key, spec):
         ids = identity(str(self.settings.root), key)
-        now = datetime.now(UTC)
-        with self.connect() as conn:
-            conn.execute(
-                "INSERT INTO rtv_trials(trial_id,operation_id,attempt_id,execution_id,root,"
-                "spec,spec_hash,created_at,deadline) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s) "
-                "ON CONFLICT(operation_id) DO NOTHING",
+        with self.connect() as c:
+            c.execute(
+                "INSERT INTO trials(trial_id,operation_id,attempt_id,execution_id,epoch,root,"
+                "spec,spec_hash,deadline) VALUES(%s,%s,%s,%s,1,%s,%s,%s,clock_timestamp()+"
+                "(%s * interval '1 second')) ON CONFLICT DO NOTHING",
                 (
                     *[ids[k] for k in ("trial_id", "operation_id", "attempt_id", "execution_id")],
                     str(self.settings.root),
                     Jsonb(spec),
                     spec_hash(spec),
-                    now,
-                    now + timedelta(seconds=spec["ttl_seconds"]),
+                    spec["ttl_seconds"],
                 ),
             )
-            row = conn.execute(
-                "SELECT * FROM rtv_trials WHERE trial_id=%s FOR UPDATE", (ids["trial_id"],)
-            ).fetchone()
+            c.execute(
+                "INSERT INTO executions(execution_id,trial_id,epoch,stage,operation_id) "
+                "VALUES(%s,%s,1,1,%s) ON CONFLICT DO NOTHING",
+                (ids["execution_id"], ids["trial_id"], ids["operation_id"]),
+            )
+            row = self._row(c, ids["trial_id"], True)
             if row["spec_hash"] != spec_hash(spec):
                 raise ValueError("Idempotency key already belongs to a different request")
-            self._event(conn, row, "trial.submitted", {"spec_hash": row["spec_hash"]})
+            self._event(c, row, "trial.submitted", {"spec_hash": row["spec_hash"]})
             return row
 
-    def get(self, trial_id: str) -> dict:
-        with self.connect() as conn:
-            row = conn.execute(
-                "SELECT * FROM rtv_trials WHERE trial_id=%s AND root=%s",
-                (trial_id, str(self.settings.root)),
-            ).fetchone()
-            if row is None:
-                raise ValueError("Unknown trial in this runtime root")
+    def get(self, trial_id):
+        with self.connect() as c:
+            return self._row(c, trial_id)
+
+    def claim(self, expected):
+        with self.owned(expected, live=False) as (c, row):
+            if row["execution_state"] != "queued" or row["cancel_requested"]:
+                return False
+            c.execute(
+                "UPDATE executions SET state='running',lease_until=clock_timestamp()+"
+                "(%s * interval '1 second') WHERE execution_id=%s",
+                (LEASE_SECONDS, row["execution_id"]),
+            )
+            c.execute("UPDATE trials SET status='running' WHERE trial_id=%s", (row["trial_id"],))
+            self._event(c, row, "execution.claimed", {})
+            return True
+
+    def heartbeat(self, expected):
+        with self.owned(expected, allow_cancel=True) as (c, row):
+            c.execute(
+                "UPDATE executions SET lease_until=clock_timestamp()+"
+                "(%s * interval '1 second') WHERE execution_id=%s",
+                (LEASE_SECONDS, row["execution_id"]),
+            )
             return row
 
-    def event(self, trial_id: str, kind: str, payload: dict):
-        with self.connect() as conn:
-            row = conn.execute("SELECT * FROM rtv_trials WHERE trial_id=%s", (trial_id,)).fetchone()
-            self._event(conn, row, kind, payload)
+    def event(self, expected, kind, payload):
+        with self.owned(expected) as (c, row):
+            self._event(c, row, kind, payload)
 
-    def phase(self, trial_id: str, phase: str, payload: dict):
+    def phase(self, expected, phase, payload):
         if phase not in {"running", "verifying"}:
-            raise ValueError("Invalid execution phase")
-        with self.connect() as conn:
-            row = conn.execute(
-                "SELECT * FROM rtv_trials WHERE trial_id=%s FOR UPDATE", (trial_id,)
-            ).fetchone()
-            if row["status"] in TERMINAL or row["cancel_requested"]:
-                return
-            allowed = {"running": {"queued"}, "verifying": {"running"}}
-            if row["status"] not in allowed[phase] and row["status"] != phase:
-                raise ValueError("Invalid runtime state transition")
-            conn.execute("UPDATE rtv_trials SET status=%s WHERE trial_id=%s", (phase, trial_id))
-            self._event(conn, row, "execution." + phase, payload)
+            raise ValueError("Invalid phase")
+        with self.owned(expected) as (c, row):
+            if row["status"] not in (
+                {"running"} if phase == "running" else {"running", "verifying"}
+            ):
+                raise ValueError("Execution phase cannot move backwards")
+            c.execute("UPDATE trials SET status=%s WHERE trial_id=%s", (phase, row["trial_id"]))
+            self._event(c, row, "execution." + phase, payload)
 
-    def cancel(self, trial_id: str) -> dict:
-        self.get(trial_id)
-        with self.connect() as conn:
-            row = conn.execute(
-                "SELECT * FROM rtv_trials WHERE trial_id=%s FOR UPDATE", (trial_id,)
-            ).fetchone()
+    def cancel(self, trial_id):
+        with self.connect() as c:
+            row = self._row(c, trial_id, True)
             if row["status"] not in TERMINAL:
-                conn.execute(
-                    "UPDATE rtv_trials SET cancel_requested=TRUE, "
-                    "status='cancel_requested' WHERE trial_id=%s",
+                c.execute(
+                    "UPDATE trials SET cancel_requested=TRUE,status='cancel_requested' "
+                    "WHERE trial_id=%s",
                     (trial_id,),
                 )
-                self._event(conn, row, "trial.cancel_requested", {})
+                self._event(c, row, "trial.cancel_requested", {})
         return self.get(trial_id)
 
-    def finish(self, trial_id: str, result: dict):
-        # The caller has already confirmed resource cleanup. Cancel intent wins
-        # until this transaction publishes the terminal outcome.
-        with self.connect() as conn:
-            row = conn.execute(
-                "SELECT * FROM rtv_trials WHERE trial_id=%s FOR UPDATE", (trial_id,)
+    def begin_call(self, expected):
+        operation = str(uuid5(NAMESPACE_URL, expected["execution_id"] + ":agent-turn"))
+        with self.owned(expected) as (c, row):
+            inserted = c.execute(
+                "INSERT INTO operations(operation_id,trial_id,execution_id,kind) "
+                "VALUES(%s,%s,%s,%s) ON CONFLICT DO NOTHING RETURNING operation_id",
+                (operation, row["trial_id"], row["execution_id"], row["spec"]["adapter"]),
             ).fetchone()
+            if not inserted:
+                raise Fenced("Agent invocation already admitted; replay forbidden")
+            c.execute(
+                "UPDATE trials SET ledger_revision=ledger_revision+1 WHERE trial_id=%s",
+                (row["trial_id"],),
+            )
+            self._event(c, row, "agent.started", {"call_operation_id": operation})
+        return operation
+
+    def settle_call(self, expected, operation, usage):
+        if usage is not None and (
+            not isinstance(usage, dict) or any(type(v) is not int or v < 0 for v in usage.values())
+        ):
+            raise ValueError("Usage must contain nonnegative integer counters")
+        # A late observation settles only its original operation. It cannot publish
+        # current state. Known observations are immutable; conflicting retries fail.
+        with self.connect() as c:
+            current = self._row(c, expected["trial_id"], True)
+            op = c.execute(
+                "SELECT * FROM operations WHERE operation_id=%s AND execution_id=%s "
+                "AND trial_id=%s FOR UPDATE",
+                (operation, expected["execution_id"], current["trial_id"]),
+            ).fetchone()
+            if not op:
+                raise ValueError("Unknown operation")
+            state = "known" if usage is not None or op["kind"] == "fixture" else "unknown"
+            if op["state"] == "known":
+                if op["usage"] != usage:
+                    raise ValueError("Conflicting settled usage")
+                return
+            c.execute(
+                "UPDATE operations SET state=%s,usage=%s WHERE operation_id=%s",
+                (state, Jsonb(usage), operation),
+            )
+            c.execute(
+                "UPDATE trials SET ledger_revision=ledger_revision+1 WHERE trial_id=%s",
+                (current["trial_id"],),
+            )
+            self._event(
+                c,
+                expected,
+                "agent.completed",
+                {
+                    "call_operation_id": operation,
+                    "usage": usage,
+                    "late_observation": current["execution_id"] != expected["execution_id"],
+                },
+            )
+
+    @staticmethod
+    def _unknown(c, row, reason):
+        changed = c.execute(
+            "UPDATE operations SET state='unknown',reason=%s WHERE execution_id=%s "
+            "AND state='pending' RETURNING operation_id",
+            (reason, row["execution_id"]),
+        ).fetchall()
+        if changed:
+            c.execute(
+                "UPDATE trials SET ledger_revision=ledger_revision+1 WHERE trial_id=%s",
+                (row["trial_id"],),
+            )
+
+    def ledger(self, trial_id):
+        self.get(trial_id)
+        with self.connect() as c:
+            ops = c.execute(
+                "SELECT * FROM operations WHERE trial_id=%s ORDER BY created_at", (trial_id,)
+            ).fetchall()
+        totals = {}
+        for op in ops:
+            if op["state"] == "known":
+                for k, v in (op["usage"] or {}).items():
+                    totals[k] = totals.get(k, 0) + v
+        return {
+            "known_usage": totals,
+            "unknown_operations": sum(o["state"] == "unknown" for o in ops),
+            "pending_operations": sum(o["state"] == "pending" for o in ops),
+            "operations": ops,
+            "cost_usd": None if any(o["kind"] == "codex" for o in ops) else 0,
+        }
+
+    def checkpoint_prepare(self, expected, context):
+        checkpoint = str(uuid5(NAMESPACE_URL, expected["execution_id"] + ":checkpoint"))
+        with self.owned(expected) as (c, row):
+            c.execute(
+                "INSERT INTO "
+                "checkpoints(checkpoint_id,trial_id,execution_id,epoch,stage,context,parent) "
+                "VALUES(%s,%s,%s,%s,%s,%s,%s) ON CONFLICT DO NOTHING",
+                (
+                    checkpoint,
+                    row["trial_id"],
+                    row["execution_id"],
+                    row["epoch"],
+                    row["stage"],
+                    Jsonb(context),
+                    row["resume_from"],
+                ),
+            )
+            cp = c.execute(
+                "SELECT * FROM checkpoints WHERE checkpoint_id=%s", (checkpoint,)
+            ).fetchone()
+            if cp["context"] != context or cp["state"] not in {"preparing", "committed"}:
+                raise ValueError("Checkpoint operation conflict")
+            return cp
+
+    def checkpoint_commit(self, expected, checkpoint, digest, context):
+        with self.owned(expected) as (c, row):
+            cp = c.execute(
+                "SELECT * FROM checkpoints WHERE checkpoint_id=%s FOR UPDATE", (checkpoint,)
+            ).fetchone()
+            if not cp or cp["execution_id"] != row["execution_id"] or cp["context"] != context:
+                raise ValueError("Checkpoint identity/context mismatch")
+            if cp["state"] == "committed":
+                if cp["manifest_sha256"] != digest:
+                    raise ValueError("Checkpoint digest changed")
+                return cp
+            if cp["state"] != "preparing" or row["ledger_revision"] != context["ledger_revision"]:
+                raise Fenced("Checkpoint no longer matches the admitted boundary")
+            if c.execute(
+                "SELECT 1 FROM operations WHERE execution_id=%s AND state='pending'",
+                (row["execution_id"],),
+            ).fetchone():
+                raise ValueError("Pending invocation cannot be checkpointed")
+            c.execute(
+                "UPDATE checkpoints SET "
+                "state='committed',manifest_sha256=%s,committed_at=clock_timestamp() "
+                "WHERE checkpoint_id=%s",
+                (digest, checkpoint),
+            )
+            c.execute(
+                "UPDATE trials SET latest_checkpoint=%s WHERE trial_id=%s",
+                (checkpoint, row["trial_id"]),
+            )
+            self._event(
+                c, row, "checkpoint.committed", {"checkpoint_id": checkpoint, "sha256": digest}
+            )
+            return c.execute(
+                "SELECT * FROM checkpoints WHERE checkpoint_id=%s", (checkpoint,)
+            ).fetchone()
+
+    def checkpoint(self, checkpoint):
+        with self.connect() as c:
+            cp = c.execute(
+                "SELECT p.* FROM checkpoints p JOIN trials t USING(trial_id) "
+                "WHERE p.checkpoint_id=%s "
+                "AND t.root=%s AND p.state='committed'",
+                (checkpoint, str(self.settings.root)),
+            ).fetchone()
+            if not cp:
+                raise ValueError("Checkpoint is not committed or has been collected")
+            return cp
+
+    def finish(self, expected, result, *, controller=False):
+        with self.owned(expected, live=not controller, allow_cancel=True) as (c, row):
             if row["status"] in TERMINAL:
                 return
+            self._unknown(c, row, result["reason"])
             status = "cancelled" if row["cancel_requested"] else result["status"]
-            if status not in TERMINAL:
-                raise ValueError("Invalid final state")
+            if status not in TERMINAL | {"checkpointed"}:
+                raise ValueError("Invalid outcome")
+            if status in {"checkpointed", "succeeded"}:
+                if not c.execute(
+                    "SELECT 1 FROM checkpoints WHERE checkpoint_id=%s AND execution_id=%s "
+                    "AND state='committed'",
+                    (row["latest_checkpoint"], row["execution_id"]),
+                ).fetchone():
+                    raise ValueError("Successful stages require their committed checkpoint")
             result = {**result, "status": status}
-            conn.execute(
-                "UPDATE rtv_trials SET status=%s,cleanup='complete',result=%s WHERE trial_id=%s",
-                (status, Jsonb(result), trial_id),
+            c.execute(
+                "UPDATE executions SET "
+                "state='finished',cleanup='complete',result=%s WHERE execution_id=%s",
+                (Jsonb(result), row["execution_id"]),
             )
-            self._event(conn, row, "trial.finished", result)
+            c.execute(
+                "UPDATE trials SET status=%s,cleanup='complete',result=%s WHERE trial_id=%s",
+                (status, Jsonb(result), row["trial_id"]),
+            )
+            self._event(c, row, "trial.finished", result)
 
-    def pending(self) -> list[dict]:
-        with self.connect() as conn:
-            return conn.execute(
-                "SELECT * FROM rtv_trials WHERE root=%s AND cleanup='pending'",
+    def advance(self, expected, key, *, recovery):
+        if not key.strip() or len(key) > 200:
+            raise ValueError("Recovery key requires 1–200 characters")
+        operation = str(uuid5(NAMESPACE_URL, expected["trial_id"] + ":advance:" + key))
+        with self.connect() as c:
+            row = self._row(c, expected["trial_id"], True)
+            prior = c.execute(
+                "SELECT * FROM executions WHERE operation_id=%s", (operation,)
+            ).fetchone()
+            if prior:
+                return prior
+            if row["execution_id"] != expected["execution_id"] or row["epoch"] != expected["epoch"]:
+                raise Fenced("Recovery raced with another epoch")
+            if (
+                row["artifacts_retired"]
+                or row["cancel_requested"]
+                or row["status"] in {"succeeded", "cancelled"}
+            ):
+                raise Fenced("Trial does not admit another execution")
+            if c.execute(
+                "SELECT deadline<=clock_timestamp() AS expired FROM trials WHERE trial_id=%s",
+                (row["trial_id"],),
+            ).fetchone()["expired"]:
+                raise ValueError("Trial TTL exhausted; recovery does not reset it")
+            cp = c.execute(
+                "SELECT * FROM checkpoints WHERE checkpoint_id=%s AND state='committed' FOR UPDATE",
+                (row["latest_checkpoint"],),
+            ).fetchone()
+            if not cp:
+                raise ValueError("No committed checkpoint available")
+            if recovery and row["recoveries"] >= row["spec"].get("max_recoveries", 0):
+                raise ValueError("Recovery allowance exhausted")
+            if not recovery and row["status"] != "checkpointed":
+                raise ValueError("Only a completed stage can advance normally")
+            self._unknown(c, row, "execution_superseded")
+            new_id = str(uuid5(NAMESPACE_URL, operation + ":execution"))
+            c.execute(
+                "UPDATE executions SET state='retired' WHERE execution_id=%s",
+                (row["execution_id"],),
+            )
+            c.execute(
+                "INSERT INTO "
+                "executions(execution_id,trial_id,epoch,stage,resume_from,operation_id) "
+                "VALUES(%s,%s,%s,%s,%s,%s)",
+                (
+                    new_id,
+                    row["trial_id"],
+                    row["epoch"] + 1,
+                    cp["stage"] + 1,
+                    cp["checkpoint_id"],
+                    operation,
+                ),
+            )
+            c.execute(
+                "UPDATE trials SET execution_id=%s,epoch=epoch+1,status='queued',cleanup='pending',"
+                "result=NULL,recoveries=recoveries+%s WHERE trial_id=%s",
+                (new_id, int(recovery), row["trial_id"]),
+            )
+            new = self._row(c, row["trial_id"])
+            self._event(
+                c,
+                new,
+                "execution.recovered" if recovery else "execution.advanced",
+                {
+                    "from_execution": row["execution_id"],
+                    "checkpoint_id": cp["checkpoint_id"],
+                    "discarded_stage": row["stage"],
+                    "loss_window": "since last committed stage",
+                },
+            )
+            return new
+
+    def recovery_result(self, trial_id, key):
+        self.get(trial_id)
+        operation = str(uuid5(NAMESPACE_URL, trial_id + ":advance:" + key))
+        with self.connect() as c:
+            return c.execute(
+                "SELECT * FROM executions WHERE operation_id=%s", (operation,)
+            ).fetchone()
+
+    def retire(self, trial_id):
+        with self.connect() as c:
+            row = self._row(c, trial_id, True)
+            if row["status"] not in TERMINAL or row["cleanup"] != "complete":
+                raise ValueError("Only terminal, cleaned trials can release artifact references")
+            c.execute("UPDATE trials SET artifacts_retired=TRUE WHERE trial_id=%s", (trial_id,))
+
+    def executions(self, trial_id):
+        trial = self.get(trial_id)
+        with self.connect() as c:
+            rows = c.execute(
+                "SELECT * FROM executions WHERE trial_id=%s ORDER BY epoch", (trial_id,)
+            ).fetchall()
+        return [
+            {
+                **trial,
+                **r,
+                "execution_state": r["state"],
+                "operation_id": trial["operation_id"],
+                "execution_operation_id": r["operation_id"],
+            }
+            for r in rows
+        ]
+
+    def cleaned(self, execution_id):
+        with self.connect() as c:
+            c.execute(
+                "UPDATE executions SET cleanup='complete' WHERE execution_id=%s", (execution_id,)
+            )
+
+    def pending(self):
+        with self.connect() as c:
+            ids = c.execute(
+                "SELECT trial_id FROM trials WHERE root=%s AND "
+                "(cleanup='pending' OR status='checkpointed' "
+                "OR EXISTS (SELECT 1 FROM executions e WHERE "
+                "e.trial_id=trials.trial_id AND (e.cleanup='pending' OR e.state='retired')))",
                 (str(self.settings.root),),
             ).fetchall()
+            return [self._row(c, r["trial_id"]) for r in ids]
 
-    def events(self, trial_id: str) -> list[dict]:
+    def events(self, trial_id):
         self.get(trial_id)
-        with self.connect() as conn:
-            return conn.execute(
-                "SELECT * FROM rtv_events WHERE trial_id=%s ORDER BY sequence", (trial_id,)
+        with self.connect() as c:
+            return c.execute(
+                "SELECT * FROM events WHERE trial_id=%s ORDER BY sequence", (trial_id,)
             ).fetchall()
+
+    def pin(self, checkpoint, owner, *, remove=False):
+        if not owner.strip() or len(owner) > 200:
+            raise ValueError("Reference owner requires 1–200 characters")
+        with self.connect() as c:
+            cp = c.execute(
+                "SELECT p.* FROM checkpoints p JOIN trials t USING(trial_id) "
+                "WHERE p.checkpoint_id=%s "
+                "AND t.root=%s FOR UPDATE OF p",
+                (checkpoint, str(self.settings.root)),
+            ).fetchone()
+            if not cp or cp["state"] != "committed":
+                raise ValueError("Only committed artifacts can be referenced")
+            if remove:
+                c.execute(
+                    "DELETE FROM checkpoint_refs WHERE checkpoint_id=%s AND owner=%s",
+                    (checkpoint, owner),
+                )
+            else:
+                c.execute(
+                    "INSERT INTO checkpoint_refs VALUES(%s,%s) ON CONFLICT DO NOTHING",
+                    (checkpoint, owner),
+                )
+
+    def gc_candidates(self, age_seconds):
+        if age_seconds < 0:
+            raise ValueError("Retention age cannot be negative")
+        with self.connect() as c:
+            # Lock order matches commit/advance: trial first, checkpoint second.
+            c.execute(
+                "SELECT trial_id FROM trials WHERE root=%s ORDER BY trial_id FOR UPDATE",
+                (str(self.settings.root),),
+            )
+            rows = c.execute(
+                "SELECT p.* FROM checkpoints p JOIN trials t USING(trial_id) WHERE t.root=%s "
+                "AND p.created_at<clock_timestamp()-(%s * interval '1 second') "
+                "ORDER BY p.checkpoint_id FOR UPDATE OF p",
+                (str(self.settings.root), age_seconds),
+            ).fetchall()
+            selected = []
+            for cp in rows:
+                protected = c.execute(
+                    "SELECT 1 WHERE EXISTS(SELECT 1 FROM trials WHERE latest_checkpoint=%s "
+                    "AND NOT artifacts_retired) "
+                    "OR EXISTS(SELECT 1 FROM executions e JOIN trials t USING(trial_id) "
+                    "WHERE e.resume_from=%s AND NOT t.artifacts_retired) "
+                    "OR EXISTS(SELECT 1 FROM checkpoint_refs WHERE checkpoint_id=%s) "
+                    "OR EXISTS(SELECT 1 FROM checkpoints WHERE parent=%s AND "
+                    "state NOT IN ('deleted','deleting')) "
+                    "OR EXISTS(SELECT 1 FROM executions e JOIN trials t ON "
+                    "t.execution_id=e.execution_id "
+                    "WHERE e.execution_id=%s AND e.state='running' AND "
+                    "e.lease_until>clock_timestamp())",
+                    (*([cp["checkpoint_id"]] * 4), cp["execution_id"]),
+                ).fetchone()
+                if not protected:
+                    c.execute(
+                        "UPDATE checkpoints SET state='deleting' WHERE checkpoint_id=%s",
+                        (cp["checkpoint_id"],),
+                    )
+                    selected.append(cp)
+            return selected
+
+    def gc_done(self, checkpoint):
+        with self.connect() as c:
+            c.execute(
+                "UPDATE checkpoints SET state='deleted' WHERE checkpoint_id=%s "
+                "AND state='deleting'",
+                (checkpoint,),
+            )

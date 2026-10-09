@@ -42,7 +42,7 @@ def bounded_environment_type():
 
 
 def session(row: dict) -> str:
-    return "rtv-m1-" + row["execution_id"].replace("-", "")
+    return "rtv-m2-" + row["execution_id"].replace("-", "")
 
 
 def resources(row: dict) -> dict:

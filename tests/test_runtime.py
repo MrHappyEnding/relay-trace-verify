@@ -50,6 +50,8 @@ def test_atomic_result_retains_previous_on_failed_write(tmp_path, monkeypatch):
         {"ttl": 1801},
         {"delay": -1},
         {"delay": 601},
+        {"max_recoveries": -1},
+        {"max_recoveries": 4},
         {"adapter": "codex", "allow_model_calls": False},
         {"adapter": "codex", "allow_model_calls": True, "delay": 1},
     ],

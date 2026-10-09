@@ -12,7 +12,7 @@ from pathlib import Path
 from rtv.codex_agent import DEFAULT_MODEL, validate_auth
 from rtv.runtime import sandbox
 from rtv.runtime.cli import make_spec
-from rtv.runtime.config import Settings
+from rtv.runtime.config import Settings, execution_dir
 from rtv.runtime.control import reconcile, summary
 from rtv.runtime.store import Store
 
@@ -77,7 +77,7 @@ def main(args):
             )
         )
         row = store.submit("codex-worker-restart", spec)
-        logs = output / row["trial_id"] / "sandbox/agent/codex.txt"
+        logs = execution_dir(settings, row) / "sandbox/agent/codex.txt"
         wait(lambda: logs.is_file() and '"thread.started"' in logs.read_text())
         check("codex_turn_active_before_restart", store.get(row["trial_id"])["status"] == "running")
         before = sandbox.resources(row)

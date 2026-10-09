@@ -2,6 +2,8 @@
 
 [![中文](assets/lang-zh.svg)](framework.md) [![English](assets/lang-en.svg)](framework.en.md)
 
+This page documents the synchronous F0/M0 teaching runner. For the current durable runtime, see [M2](m2.en.md): manifest v2, conditional commits, epoch fencing, recovery, usage ledger and reference GC. F0 limitations below are not the complete runtime capability matrix.
+
 Status: local framework and M0 accepted for the first Codex adapter · 2026-10-08
 
 ## 1. Current code

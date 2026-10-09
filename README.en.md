@@ -6,7 +6,7 @@
 
 A recoverable execution and branching experiment system for long-running coding agents.
 
-**Status: F0, first-adapter M0 and single-host M1 accepted.** M1 adds a Temporal/PostgreSQL control plane, idempotent submission, query/cancel, detached supervisors, worker takeover and cleanup retries. Real-service fault tests and one real Codex turn across worker SIGKILL passed. Distributed fencing, automatic checkpoint recovery and a second agent remain M2–M4. See the [M1 guide and evidence](docs/m1.en.md).
+**Status: F0–M2 accepted within their stated scopes.** The single-host runtime supports conditional checkpoint commits, epoch ownership checks, independent workspace recovery, cumulative usage and reference-aware collection. Passed: 40 recovery/protocol checks, 10 real-Codex checks and 22 M1 regression checks. The second agent and branches enter M3; multi-host validation remains M4. See the [M2 guide and evidence](docs/m2.en.md).
 
 RTV supports learning through reproduction, system implementation, and original exploration. Existing approaches remain learning material and comparison baselines; see the [learning and resource plan](docs/learning-plan.en.md) for sources and scope. No model-performance or distributed-reliability claims have been established.
 
@@ -54,11 +54,13 @@ RTV focuses on three capabilities:
 | [Codex recovery experiment](docs/codex-m0.en.md) | First real agent, native/semantic handoff, recovery boundaries and usage evidence |
 | [M0 acceptance and recovery boundaries](docs/m0-boundaries.en.md) | ATIF information loss, real cancellation/rollback, image lifecycle and capabilities |
 | [M1 durable execution](docs/m1.en.md) | Local services, submit/cancel, fault injection, real Codex and boundaries |
+| [M2 checkpoints and recovery](docs/m2.en.md) | Conditional commits, epochs, native resume, UNKNOWN usage, reference GC and acceptance |
 | [Learning and resource plan](docs/learning-plan.en.md) | Open-source references, reproduction goals, lab GPUs, and spending agreement |
 | [System design](docs/design.en.md) | Object relationships, invariants, checkpoint protocol, failure handling, budgets, and adapter capabilities |
 | [Experiment protocol](docs/experiments.en.md) | Paired branches, budget accounting, baselines, statistics, and result artifacts |
 | [Roadmap](docs/roadmap.en.md) | Implementation order, acceptance evidence, and open decisions |
 | [ADR 0001](docs/adr/0001-runtime-boundary.en.md) | Responsibility boundaries between Harbor, Temporal, and the RTV runtime |
+| [ADR 0003](docs/adr/0003-fenced-checkpoints.en.md) | M2 ownership, checkpoint publication and collection decisions |
 
 ## Proposed architecture
 
@@ -75,7 +77,7 @@ flowchart TD
     OBJ --> EXP
 ```
 
-This diagram shows the complete target architecture. M1 implements local durable orchestration. Artifacts currently remain local; distributed ownership, object storage and a complete budget ledger remain unimplemented.
+This diagram shows the complete target architecture. M2 implements local durable orchestration, database epoch checks, checkpoint recovery and a stage-call usage ledger. Artifacts remain local. Object storage, multi-host resource fencing, strict budget admission and experiment branches remain unimplemented.
 
 ## Technical boundaries
 

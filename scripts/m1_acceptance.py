@@ -22,7 +22,7 @@ from temporalio.worker import Replayer, Worker
 
 from rtv.runtime import sandbox
 from rtv.runtime.cli import make_spec
-from rtv.runtime.config import Settings
+from rtv.runtime.config import Settings, execution_dir
 from rtv.runtime.control import reconcile, summary
 from rtv.runtime.service import Activities, ensure_workflow
 from rtv.runtime.store import Store
@@ -149,7 +149,7 @@ def main(output: Path):
         check(
             "same_supervisor_after_restart",
             ready["payload"]["supervisor_pid"]
-            == json.loads((output / row["trial_id"] / "started.json").read_text())["pid"],
+            == json.loads((execution_dir(settings, row) / "started.json").read_text())["pid"],
         )
         check(
             "single_effective_agent_start",
@@ -158,7 +158,7 @@ def main(output: Path):
 
         async def workflow_evidence():
             client = await Client.connect(settings.temporal)
-            handle = client.get_workflow_handle("rtv-" + row["trial_id"])
+            handle = client.get_workflow_handle("rtv2-" + row["trial_id"])
             result = await asyncio.wait_for(handle.result(), 90)
             history = await handle.fetch_history()
             (output / "temporal-history.json").write_text(history.to_json())
@@ -185,7 +185,7 @@ def main(output: Path):
         check(
             "queued_cancel_no_execution",
             finished(queued)["status"] == "cancelled"
-            and not (output / queued["trial_id"] / "started.json").exists(),
+            and not (execution_dir(settings, queued) / "started.json").exists(),
         )
 
         # No explicit Temporal dispatch: the production worker repairs the DB/start gap.
@@ -215,7 +215,7 @@ def main(output: Path):
 
         lost = submit("supervisor-lost", delay=90)
         wait_for(lambda: event(lost, "agent.started"))
-        pid = json.loads((output / lost["trial_id"] / "started.json").read_text())["pid"]
+        pid = json.loads((execution_dir(settings, lost) / "started.json").read_text())["pid"]
         os.kill(pid, signal.SIGKILL)
         final = wait_for(lambda: finished(lost))
         check("lost_supervisor_not_replayed", final["result"]["reason"] == "supervisor_lost")
@@ -247,10 +247,14 @@ def main(output: Path):
             "no_trial_containers_or_networks",
             all(not any(sandbox.resources(r).values()) for r in rows),
         )
-        check("artifact_saved", (output / row["trial_id"] / "workspace/positive_sum.py").is_file())
+        check(
+            "artifact_saved",
+            (execution_dir(settings, row) / "bundle/workspace/positive_sum.py").is_file(),
+        )
         check(
             "one_actual_fixture_invocation",
-            (output / row["trial_id"] / "workspace/agent-started").read_text() == "one\n",
+            (execution_dir(settings, row) / "bundle/workspace/agent-started").read_text()
+            == "one\n",
         )
         check(
             "events_correlated",

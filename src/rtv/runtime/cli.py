@@ -1,4 +1,4 @@
-"""Opt-in M1 CLI. Config and auth stay outside durable Workflow payloads."""
+"""Opt-in M2 CLI. Config and auth stay outside durable Workflow payloads."""
 
 import asyncio
 import json
@@ -12,7 +12,7 @@ from rtv.runtime.config import Settings, task_path
 
 
 def add_parser(commands):
-    parser = commands.add_parser("runtime", help="Local Temporal/PostgreSQL M1 runtime")
+    parser = commands.add_parser("runtime", help="Local Temporal/PostgreSQL M2 runtime")
     sub = parser.add_subparsers(dest="runtime_command", required=True)
     sub.add_parser("init", help="Initialize PostgreSQL metadata tables")
     prepare = sub.add_parser("prepare", help="Build a local fixture image without model calls")
@@ -28,13 +28,36 @@ def add_parser(commands):
     submit.add_argument("--delay", type=int, default=0, help="Fixture-only fault-test delay")
     submit.add_argument("--model", default=DEFAULT_MODEL)
     submit.add_argument("--allow-model-calls", action="store_true")
-    for name in ("status", "cancel", "events"):
+    submit.add_argument(
+        "--staged", action="store_true", help="Checkpoint a partial stage, then finish"
+    )
+    submit.add_argument(
+        "--max-recoveries",
+        type=int,
+        default=0,
+        help="Explicit allowance for re-execution after a lost stage",
+    )
+    for name in ("status", "cancel", "events", "ledger", "history", "retire"):
         command = sub.add_parser(name)
         command.add_argument("trial_id")
     sub.add_parser("reconcile", help="Retry orphan/TTL cleanup without launching new turns")
+    recover = sub.add_parser(
+        "recover", help="Fence the old execution and recover its last checkpoint"
+    )
+    recover.add_argument("trial_id")
+    recover.add_argument("--key", required=True)
+    gc = sub.add_parser("gc", help="Collect unreferenced checkpoint uploads after retention")
+    gc.add_argument("--older-than", type=int, default=3600)
+    for name in ("pin", "unpin"):
+        ref = sub.add_parser(name)
+        ref.add_argument("checkpoint_id")
+        ref.add_argument("--owner", required=True)
 
 
 def make_spec(args) -> dict:
+    recoveries = getattr(args, "max_recoveries", 0)
+    if not 0 <= recoveries <= 3:
+        raise ValueError("Recovery allowance must be 0–3")
     if not 1 <= args.ttl <= 1800 or not 0 <= args.delay <= 600:
         raise ValueError("TTL must be 1–1800 seconds; fixture delay 0–600 seconds")
     if args.adapter == "codex" and (not args.allow_model_calls or args.delay):
@@ -48,6 +71,8 @@ def make_spec(args) -> dict:
         "model": args.model if args.adapter == "codex" else None,
         "image_id": image_id,
         "task_digest": tree_digest(task_path(args.adapter)),
+        "stages": 2 if getattr(args, "staged", False) else 1,
+        "max_recoveries": recoveries,
     }
 
 
@@ -109,6 +134,24 @@ def run(args) -> int:
         result = [reconcile(settings, row["trial_id"], launch=False) for row in store.pending()]
     elif cmd == "events":
         result = store.events(args.trial_id)
+    elif cmd == "ledger":
+        result = store.ledger(args.trial_id)
+    elif cmd == "history":
+        result = store.executions(args.trial_id)
+    elif cmd == "retire":
+        store.retire(args.trial_id)
+        result = {"trial_id": args.trial_id, "artifact_references_released": True}
+    elif cmd == "recover":
+        from rtv.runtime.control import recover
+
+        result = summary(recover(settings, store.get(args.trial_id), args.key))
+    elif cmd == "gc":
+        from rtv.runtime.checkpoint import collect
+
+        result = collect(settings, args.older_than)
+    elif cmd in {"pin", "unpin"}:
+        store.pin(args.checkpoint_id, args.owner, remove=cmd == "unpin")
+        result = {"checkpoint_id": args.checkpoint_id, "owner": args.owner, "pinned": cmd == "pin"}
     elif cmd == "cancel":
         result = summary(store.cancel(args.trial_id))
     else:

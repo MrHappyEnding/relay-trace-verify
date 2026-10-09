@@ -11,24 +11,27 @@ from temporalio.common import WorkflowIDConflictPolicy, WorkflowIDReusePolicy
 from temporalio.exceptions import WorkflowAlreadyStartedError
 from temporalio.worker import Worker
 
-from rtv.runtime.config import Settings
+from rtv.runtime.config import TERMINAL, Settings
 from rtv.runtime.control import reconcile
 from rtv.runtime.store import Store
 from rtv.runtime.workflow import TrialWorkflow
 
 
 async def ensure_workflow(client: Client, settings: Settings, trial_id: str):
+    if (await asyncio.to_thread(Store(settings).get, trial_id))["status"] in TERMINAL:
+        return
     try:
         await client.start_workflow(
             TrialWorkflow.run,
             trial_id,
-            id="rtv-" + trial_id,
+            id="rtv2-" + trial_id,
             task_queue=settings.queue,
             id_conflict_policy=WorkflowIDConflictPolicy.USE_EXISTING,
-            id_reuse_policy=WorkflowIDReusePolicy.REJECT_DUPLICATE,
+            id_reuse_policy=WorkflowIDReusePolicy.ALLOW_DUPLICATE,
         )
     except WorkflowAlreadyStartedError:
-        # Closed Workflow IDs cannot silently rerun a completed/lost model call.
+        # Concurrent dispatch uses the running controller. A deliberately recovered
+        # product trial may start a new control run after its prior run completed.
         pass
 
 

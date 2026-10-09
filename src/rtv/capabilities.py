@@ -9,8 +9,8 @@ from rtv.harbor_probe import HARBOR_VERSION
 
 def capability_report() -> dict:
     return {
-        "schema_version": 1,
-        "scope": "M0 local trusted Linux filesystem tasks through the RTV runner",
+        "schema_version": 2,
+        "scope": "M0–M2 local trusted Linux filesystem tasks through RTV",
         "codex": {
             "cli_version": CODEX_VERSION,
             "harbor_version": HARBOR_VERSION,
@@ -63,19 +63,36 @@ def capability_report() -> dict:
                 "directory permission bits (restored with process defaults)",
             ],
             "durability": (
-                "single-process atomic rename; no host-power-loss or distributed guarantees"
+                "local fsync + atomic rename; runtime v2 additionally requires DB commit; "
+                "host power loss and cross-host recovery not verified"
             ),
         },
         "runtime": {
-            "milestone": "M1 single-host trusted fixtures",
+            "milestone": "M2 single-host trusted fixtures",
             "control": "Temporal 1.34.0 SDK + PostgreSQL product metadata",
+            "metadata_schema": "rtv2 (M1 metadata is retained, not migrated)",
             "worker_restart": "take over observation of a surviving local supervisor/sandbox",
-            "supervisor_loss": "fail and clean up; do not replay a possibly charged turn",
-            "automatic_checkpoint_recovery": False,
+            "supervisor_loss": (
+                "new execution from committed completed stage only with explicit recovery "
+                "allowance; pending usage remains UNKNOWN"
+            ),
+            "automatic_checkpoint_recovery": True,
+            "recovery_scope": (
+                "supervisor loss or lease expiry; default allowance 0, maximum 3; "
+                "container/adapter failures require manual recovery; TTL never resets"
+            ),
+            "metadata_epoch_fencing": True,
             "distributed_fencing": False,
+            "ledger_scope": "one operation per physical stage call; not each internal agent tool",
+            "strict_budget_admission": False,
+            "artifact_gc": (
+                "reference-aware local checkpoint GC; explicit pins protect future branches"
+            ),
             "evidence": [
                 "docs/evidence/m1-runtime-arm64-20261008.json",
                 "docs/evidence/m1-codex-arm64-20261008.json",
+                "docs/evidence/m2-runtime-arm64-20261009.json",
+                "docs/evidence/m2-codex-arm64-20261009.json",
             ],
         },
         "not_verified": [
@@ -84,6 +101,6 @@ def capability_report() -> dict:
             "multimodal ATIF",
             "mid-tool continuation",
             "host loss / cross-host takeover",
-            "distributed fencing",
+            "multi-host ownership and external side-effect fencing",
         ],
     }

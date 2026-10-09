@@ -1,0 +1,219 @@
+{
+  "mode": "real-services-model-free",
+  "model_calls": 0,
+  "status": "passed",
+  "checks": {
+    "worker_sigkill_did_not_stop_sandbox": true,
+    "duplicate_submission_same_identity": true,
+    "conflicting_duplicate_rejected": true,
+    "worker_restart_trial_verified": true,
+    "same_supervisor_after_restart": true,
+    "single_effective_agent_start": true,
+    "workflow_history_replays": true,
+    "workflow_converged_after_response_loss": true,
+    "temporal_activity_retried": true,
+    "workflow_query_matches_product": true,
+    "closed_trial_not_reexecuted": true,
+    "queued_cancel_no_execution": true,
+    "db_to_temporal_gap_repaired": true,
+    "running_cancel_converged": true,
+    "ttl_enforced_while_worker_down": true,
+    "lost_supervisor_not_replayed": true,
+    "cleanup_failure_not_marked_complete": true,
+    "cleanup_retry_converged": true,
+    "no_trial_containers_or_networks": true,
+    "artifact_saved": true,
+    "one_actual_fixture_invocation": true,
+    "events_correlated": true
+  },
+  "elapsed_seconds": 93.31,
+  "trials": [
+    {
+      "trial_id": "fc245e37-50c6-5799-85e4-a57409f47f71",
+      "operation_id": "43c810e9-3ed7-538f-aa02-9bce4d297fd9",
+      "attempt_id": "595ae59b-6e3d-5363-a602-ed87ad51523f",
+      "execution_id": "ca1a2c58-6b9a-575c-9485-4d12491261f7",
+      "epoch": 1,
+      "stage": 1,
+      "status": "succeeded",
+      "cancel_requested": false,
+      "cleanup": "complete",
+      "result": {
+        "usage": null,
+        "reason": "verified",
+        "status": "succeeded",
+        "billing": "no-model",
+        "rewards": {
+          "reward": 1.0
+        },
+        "cost_usd": 0,
+        "artifacts": "fc245e37-50c6-5799-85e4-a57409f47f71/executions/ca1a2c58-6b9a-575c-9485-4d12491261f7",
+        "usage_status": "not_applicable",
+        "checkpoint_id": "39f0cac1-55bc-5369-9226-d64467304c54",
+        "workspace_digest": "a450afc0ff17806dde332dae423517b5b9f9c7ba5df4001f964dc3604e78c74f"
+      },
+      "latest_checkpoint": "39f0cac1-55bc-5369-9226-d64467304c54",
+      "recoveries": 0
+    },
+    {
+      "trial_id": "ba665f1d-9130-53b0-878a-9c1b424c87b1",
+      "operation_id": "5a4a6fe9-85ea-5752-8c76-8697067ac97f",
+      "attempt_id": "6ae62f13-0a41-537c-8227-63ac931c1cf5",
+      "execution_id": "5d6c2f6a-369b-5afe-a3f0-c7383bcee698",
+      "epoch": 1,
+      "stage": 1,
+      "status": "cancelled",
+      "cancel_requested": true,
+      "cleanup": "complete",
+      "result": {
+        "usage": null,
+        "reason": "cancelled",
+        "status": "cancelled",
+        "billing": "no-model",
+        "cost_usd": 0,
+        "artifacts": "ba665f1d-9130-53b0-878a-9c1b424c87b1/executions/5d6c2f6a-369b-5afe-a3f0-c7383bcee698",
+        "usage_status": "not_applicable"
+      },
+      "latest_checkpoint": null,
+      "recoveries": 0
+    },
+    {
+      "trial_id": "160a14b9-d80c-5dfd-8010-e491f4f9462f",
+      "operation_id": "f769ad4f-25b8-559f-8f07-06ee51bf1222",
+      "attempt_id": "579a70c2-7926-5eb9-b97e-64c4fb509423",
+      "execution_id": "99411d49-8748-52a1-97b4-23ae60540f8c",
+      "epoch": 1,
+      "stage": 1,
+      "status": "succeeded",
+      "cancel_requested": false,
+      "cleanup": "complete",
+      "result": {
+        "usage": null,
+        "reason": "verified",
+        "status": "succeeded",
+        "billing": "no-model",
+        "rewards": {
+          "reward": 1.0
+        },
+        "cost_usd": 0,
+        "artifacts": "160a14b9-d80c-5dfd-8010-e491f4f9462f/executions/99411d49-8748-52a1-97b4-23ae60540f8c",
+        "usage_status": "not_applicable",
+        "checkpoint_id": "3d66fe1f-84a1-540e-97d9-e54de93a80d3",
+        "workspace_digest": "a450afc0ff17806dde332dae423517b5b9f9c7ba5df4001f964dc3604e78c74f"
+      },
+      "latest_checkpoint": "3d66fe1f-84a1-540e-97d9-e54de93a80d3",
+      "recoveries": 0
+    },
+    {
+      "trial_id": "25482c2e-93f0-5803-ab9a-be960da30f0f",
+      "operation_id": "15497e6b-cc31-507a-a7b0-4e8517bad64e",
+      "attempt_id": "edd7b881-6842-5b12-b59a-2dcadd91e0fb",
+      "execution_id": "a5a58b60-dc8e-5b66-a394-c16665ccbde1",
+      "epoch": 1,
+      "stage": 1,
+      "status": "cancelled",
+      "cancel_requested": true,
+      "cleanup": "complete",
+      "result": {
+        "usage": null,
+        "reason": "Fenced",
+        "status": "cancelled",
+        "billing": "no-model",
+        "cost_usd": 0,
+        "artifacts": "25482c2e-93f0-5803-ab9a-be960da30f0f/executions/a5a58b60-dc8e-5b66-a394-c16665ccbde1",
+        "usage_status": "not_applicable"
+      },
+      "latest_checkpoint": null,
+      "recoveries": 0
+    },
+    {
+      "trial_id": "3aa04d6d-0c2a-5b30-8871-456b7b83fb6a",
+      "operation_id": "3109c2a9-6d63-5f37-a25a-32aec6f86c76",
+      "attempt_id": "7c299e0e-167c-589d-966f-a3deb47067b1",
+      "execution_id": "fd4f440f-de4c-532b-bad2-2cd5174ccd43",
+      "epoch": 1,
+      "stage": 1,
+      "status": "failed",
+      "cancel_requested": false,
+      "cleanup": "complete",
+      "result": {
+        "usage": null,
+        "reason": "ttl_expired",
+        "status": "failed",
+        "billing": "no-model",
+        "cost_usd": 0,
+        "artifacts": "3aa04d6d-0c2a-5b30-8871-456b7b83fb6a/executions/fd4f440f-de4c-532b-bad2-2cd5174ccd43",
+        "usage_status": "not_applicable"
+      },
+      "latest_checkpoint": null,
+      "recoveries": 0
+    },
+    {
+      "trial_id": "b416f8a5-95b7-522b-aaac-26ef3ceabbe0",
+      "operation_id": "e2000109-05eb-5ad5-815d-255752499dba",
+      "attempt_id": "44764ff1-3212-5433-a624-aa738724076c",
+      "execution_id": "6475a9b4-57db-594e-ae08-30772252020d",
+      "epoch": 1,
+      "stage": 1,
+      "status": "failed",
+      "cancel_requested": false,
+      "cleanup": "complete",
+      "result": {
+        "usage": null,
+        "reason": "supervisor_lost",
+        "status": "failed",
+        "billing": "no-model",
+        "cost_usd": 0,
+        "artifacts": "b416f8a5-95b7-522b-aaac-26ef3ceabbe0/executions/6475a9b4-57db-594e-ae08-30772252020d",
+        "usage_status": "not_applicable"
+      },
+      "latest_checkpoint": null,
+      "recoveries": 0
+    },
+    {
+      "trial_id": "4e474aef-00f1-5738-98e3-6d503f0d991b",
+      "operation_id": "f97d66bd-9db1-5cea-b77e-1c60e032820a",
+      "attempt_id": "f647e1d2-23ec-5523-8b89-809676131371",
+      "execution_id": "53c7202a-3df2-5575-8001-19aca5af1545",
+      "epoch": 1,
+      "stage": 1,
+      "status": "cancelled",
+      "cancel_requested": true,
+      "cleanup": "complete",
+      "result": {
+        "usage": null,
+        "reason": "cancelled",
+        "status": "cancelled",
+        "billing": "no-model",
+        "cost_usd": 0,
+        "artifacts": "4e474aef-00f1-5738-98e3-6d503f0d991b/executions/53c7202a-3df2-5575-8001-19aca5af1545",
+        "usage_status": "not_applicable"
+      },
+      "latest_checkpoint": null,
+      "recoveries": 0
+    }
+  ],
+  "recorded_on": "2026-10-09",
+  "source_report": "work/m1-regression-20261009-1/report.json",
+  "source_report_sha256": "8cb6643c787454c6f7871fae52ec6edfee21b172b073d627802eec792dc4ce16",
+  "versions": {
+    "harbor": "0.24.0",
+    "codex_cli": "0.160.1",
+    "temporal_sdk": "1.34.0",
+    "temporal_cli": "1.9.1",
+    "temporal_server": "1.32.0",
+    "postgres": "17.6",
+    "psycopg": "3.3.6",
+    "docker_engine": "28.5.1",
+    "platform": "linux/arm64 containers on macOS"
+  },
+  "scope": "M1 real-service/model-free regression against M2 runtime v2",
+  "not_tested": [
+    "host/disk/power loss",
+    "multi-host execution or resource fencing",
+    "hard supervisor kill during sandbox creation",
+    "arbitrary external tool effects",
+    "strict token or monetary admission",
+    "second agent or real experiment branching"
+  ]
+}

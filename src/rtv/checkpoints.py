@@ -70,10 +70,15 @@ class CheckpointManifest:
     directories: tuple[str, ...]
     files: tuple[FileEntry, ...]
     schema_version: int = 1
+    context: dict[str, Any] | None = None
 
     def __post_init__(self) -> None:
-        if type(self.schema_version) is not int or self.schema_version != 1:
+        if type(self.schema_version) is not int or self.schema_version not in (1, 2):
             raise CheckpointError("Unsupported manifest schema version")
+        if self.schema_version == 2 and not isinstance(self.context, dict):
+            raise CheckpointError("Version 2 requires recovery context")
+        if self.schema_version == 1 and self.context is not None:
+            raise CheckpointError("Version 1 does not support recovery context")
         if type(self.event_cursor) is not int or self.event_cursor < 0:
             raise CheckpointError("Invalid event cursor")
         if not isinstance(self.summary, str):
@@ -89,7 +94,7 @@ class CheckpointManifest:
                     raise CheckpointError(f"Missing or conflicting parent directory for {path}")
 
     def to_dict(self) -> dict[str, Any]:
-        return {
+        result = {
             "schema_version": self.schema_version,
             "checkpoint_id": str(self.checkpoint_id),
             "source": self.source.to_dict(),
@@ -98,6 +103,9 @@ class CheckpointManifest:
             "directories": list(self.directories),
             "files": [asdict(entry) for entry in self.files],
         }
+        if self.schema_version == 2:
+            result["context"] = self.context
+        return result
 
     @classmethod
     def from_dict(cls, value: dict[str, Any]) -> "CheckpointManifest":
@@ -111,8 +119,10 @@ class CheckpointManifest:
                 "directories",
                 "files",
             }
+            if isinstance(value, dict) and value.get("schema_version") == 2:
+                required.add("context")
             if not isinstance(value, dict) or set(value) != required:
-                raise CheckpointError("Manifest fields do not match schema version 1")
+                raise CheckpointError("Manifest fields do not match its schema version")
             if not isinstance(value["directories"], list) or not isinstance(value["files"], list):
                 raise CheckpointError("Manifest directories and files must be arrays")
             return cls(
@@ -123,6 +133,7 @@ class CheckpointManifest:
                 directories=tuple(value["directories"]),
                 files=tuple(FileEntry(**entry) for entry in value["files"]),
                 schema_version=value["schema_version"],
+                context=value.get("context"),
             )
         except (KeyError, TypeError, ValueError, AttributeError) as exc:
             raise CheckpointError(f"Invalid checkpoint manifest: {exc}") from exc

@@ -1,4 +1,4 @@
-"""Short idempotent control operations, safe after Activity response loss."""
+"""Retryable control operations, epoch takeover and orphan reconciliation."""
 
 import json
 import subprocess
@@ -6,77 +6,124 @@ import sys
 import threading
 from datetime import UTC, datetime
 
-from rtv.runtime import sandbox
-from rtv.runtime.config import TERMINAL, Settings
-from rtv.runtime.files import atomic_json, lock
+from rtv.runtime import checkpoint, sandbox
+from rtv.runtime.config import TERMINAL, Settings, execution_dir
+from rtv.runtime.files import lock
 from rtv.runtime.store import Store
 from rtv.runtime.supervisor import empty_result
 
 
-def reconcile(settings: Settings, trial_id: str, *, launch: bool = True) -> dict:
+def recover(settings, row, key, *, recovery=True):
+    store = Store(settings)
+    if store.recovery_result(row["trial_id"], key):
+        return store.get(row["trial_id"])
+    # Verify the exact committed input before transferring authority. The new
+    # execution verifies again at restore; corruption can never trigger a turn.
+    if not row["latest_checkpoint"]:
+        raise ValueError("No committed checkpoint")
+    from pathlib import Path
+    from tempfile import TemporaryDirectory
+
+    cp = store.checkpoint(row["latest_checkpoint"])
+    if cp["stage"] >= row["spec"].get("stages", 1):
+        raise ValueError("All planned stages already completed")
+    with TemporaryDirectory(dir=settings.root, prefix="recovery-check-") as temporary:
+        checkpoint.validate(settings, cp, Path(temporary) / "bundle")
+    store.advance(row, key, recovery=recovery)
+    return store.get(row["trial_id"])
+
+
+def reconcile(settings: Settings, trial_id: str, *, launch=True):
     store = Store(settings)
     row = store.get(trial_id)
-    if row["status"] in TERMINAL:
-        return summary(row)
-    output = settings.root / trial_id
-    output.mkdir(parents=True, exist_ok=True, mode=0o700)
-    with lock(output / "control.lock") as acquired:
+    trial_dir = settings.root / trial_id
+    trial_dir.mkdir(parents=True, exist_ok=True, mode=0o700)
+    with lock(trial_dir / "control.lock") as acquired:
         if not acquired:
             return summary(row)
+        row = store.get(trial_id)
+        # Retired identities stay queryable. Sweep them even after an earlier
+        # cleanup acknowledgement, including delayed creation by an old client.
+        for old in store.executions(trial_id):
+            if old["execution_id"] != row["execution_id"]:
+                sandbox.cleanup(old)
+                store.cleaned(old["execution_id"])
+        if row["status"] in TERMINAL:
+            return summary(row)
+        if row["status"] == "checkpointed":
+            return summary(recover(settings, row, "stage:" + row["execution_id"], recovery=False))
+        output = execution_dir(settings, row)
+        output.mkdir(parents=True, exist_ok=True, mode=0o700)
         with lock(output / "runner.lock") as idle:
-            if not idle:
-                # A restarted worker observes the same IDs without relaunching.
-                return summary(store.get(trial_id))
             row = store.get(trial_id)
-            if row["status"] in TERMINAL:
+            # Loss of worker alone leaves the supervisor's DB lease valid.
+            if not idle and row["lease_valid"]:
                 return summary(row)
-            result_file = output / "result.json"
-            if not result_file.exists():
-                reason = None
-                if row["cancel_requested"]:
-                    reason = "cancelled"
-                elif datetime.now(UTC) >= row["deadline"]:
-                    reason = "ttl_expired"
-                elif (output / "started.json").exists():
-                    reason = "supervisor_lost"
-                if reason:
-                    atomic_json(result_file, empty_result(row, reason))
-                elif launch:
-                    # Candidate processes may race before acquiring runner.lock.
-                    # Only the lock holder can publish the durable start intent;
-                    # that intent forbids replay even if the holder later dies.
+            if not idle and row["execution_state"] == "queued":
+                return summary(row)
+            result = None
+            # A committed boundary wins over a lost upload/commit/result reply.
+            if row["latest_checkpoint"]:
+                cp = store.checkpoint(row["latest_checkpoint"])
+                if cp["execution_id"] == row["execution_id"]:
+                    result = {**cp["context"]["result"], "checkpoint_id": cp["checkpoint_id"]}
+            if result is None and (output / "result.json").exists():
+                result = json.loads((output / "result.json").read_text())
+            reason = None
+            if row["cancel_requested"]:
+                reason = "cancelled"
+            elif datetime.now(UTC) >= row["deadline"]:
+                reason = "ttl_expired"
+            elif result is None and row["execution_state"] == "running":
+                reason = "supervisor_lost" if idle else "lease_expired"
+            elif result is None and row["execution_state"] == "queued":
+                if launch:
                     with (output / "supervisor.log").open("ab") as log:
                         process = subprocess.Popen(
-                            [sys.executable, "-m", "rtv.runtime.supervisor", trial_id],
+                            [
+                                sys.executable,
+                                "-m",
+                                "rtv.runtime.supervisor",
+                                trial_id,
+                                row["execution_id"],
+                            ],
                             stdin=subprocess.DEVNULL,
                             stdout=log,
                             stderr=log,
                             start_new_session=True,
                             close_fds=True,
                         )
-                    # Reap completed children while the worker remains alive.
                     threading.Thread(target=process.wait, daemon=True).start()
-                    return summary(row)
-                else:
-                    return summary(row)
-            result = json.loads(result_file.read_text())
+                return summary(row)
+            if (
+                reason in {"supervisor_lost", "lease_expired"}
+                and row["latest_checkpoint"]
+                and row["recoveries"] < row["spec"].get("max_recoveries", 0)
+            ):
+                return summary(recover(settings, row, "loss:" + row["execution_id"]))
+            result = empty_result(row, reason) if reason else result
+            if result is None:
+                return summary(row)
             sandbox.cleanup(row)
-            store.finish(trial_id, result)
+            store.finish(row, result, controller=True)
             return summary(store.get(trial_id))
 
 
-def summary(row: dict) -> dict:
+def summary(row):
     return {
-        key: row[key]
-        for key in (
+        k: row[k]
+        for k in (
             "trial_id",
             "operation_id",
             "attempt_id",
             "execution_id",
             "epoch",
+            "stage",
             "status",
             "cancel_requested",
             "cleanup",
             "result",
+            "latest_checkpoint",
+            "recoveries",
         )
     }

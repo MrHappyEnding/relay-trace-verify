@@ -2,9 +2,9 @@
 
 [![中文](assets/lang-zh.svg)](roadmap.md) [![English](assets/lang-en.svg)](roadmap.en.md)
 
-Status: F0, first-adapter M0 and single-host M1 accepted · 2026-10-08
+Status: F0, first-adapter M0 and single-host M1/M2 accepted · 2026-10-09
 
-The initial framework completes F0 below. M0 is accepted within the first Codex adapter’s stated scope; M1 is implemented on one host; M2–M4 remain unimplemented and are ordered to reduce risk. Local fixtures and mocked protocol tests do not replace real-container or real-agent compatibility tests. Reproduction and original implementation both remain in scope; see the [learning plan](learning-plan.en.md).
+The initial framework completes F0 below. M0 is accepted within the first Codex adapter’s stated scope; M1/M2 are implemented on one host; M3–M4 remain unimplemented and are ordered to reduce risk. Local fixtures and mocked protocol tests do not replace real-container or real-agent compatibility tests. Reproduction and original implementation both remain in scope; see the [learning plan](learning-plan.en.md).
 
 ## F0: Framework skeleton
 
@@ -47,13 +47,15 @@ See [M1 acceptance](m1.en.md) for implementation, 22 real-service checks and 7 r
 
 ## M2: Checkpoints and reliable recovery
 
-- [ ] Manifest schema, content validation, quiescence barrier, and immutable artifact storage.
-- [ ] Conditional checkpoint commits, epoch fencing, and recovery into independent workspaces.
-- [ ] Handling of unresolved tool operations and UNKNOWN costs.
-- [ ] Fault injection at commit windows, during disconnection, and when old workers return.
-- [ ] Collection of unreferenced artifacts and protection of branch references.
+- [x] Manifest schema, content validation, quiescence barrier, and immutable artifact storage.
+- [x] Conditional checkpoint commits, epoch fencing, and recovery into independent workspaces.
+- [x] Handling of unresolved tool operations and UNKNOWN costs.
+- [x] Fault injection at commit windows, during disconnection, and when old workers return.
+- [x] Collection of unreferenced artifacts and protection of branch references.
 
 **Acceptance evidence**: incomplete artifacts cannot be restored; committed files match after recovery; old epochs cannot publish; cumulative cost does not reset; and lost-work windows are recorded.
+
+Accepted within the local scope: [M2 guide](m2.en.md), 40 runtime/protocol checks and 10 real-Codex checks. The ledger covers stage calls; per-tool external effects remain outside the guarantee. Branch reference protection is a pin/GC primitive; actual branches remain M3. Artifacts are local, without object-store replication or verified power-loss durability.
 
 ## M3: Two-agent handoff and experiment branching
 
@@ -90,4 +92,4 @@ Tool-boundary checkpoints, more agents, trajectory judges calibrated against lab
 | Control language | Python | Harbor integration cost and typed contracts |
 | First execution backend | Local containers | Validate the protocol before distributed faults |
 
-Next: M2 conditional commits, epoch fencing, checkpoint recovery and uncertain usage attribution. The second agent remains scheduled for M3.
+Next: M3 adds the second agent, isolated branches from the same checkpoint, handoff context strategies, and cost/trajectory comparisons.

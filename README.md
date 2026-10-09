@@ -6,7 +6,7 @@
 
 面向长程 Coding Agent 的可恢复执行与分支实验系统。
 
-**状态：F0、首个 Codex 适配器的 M0，以及单机范围 M1 已验收。** 已实现 Temporal + PostgreSQL 持久控制面、幂等提交、查询 / 取消、独立 supervisor、worker 重启接管和清理重试。真实服务故障测试与一次 Codex 跨 worker 重启均通过；分布式 fencing、检查点自动恢复和第二种 agent 留给 M2–M4。见 [M1 指南与证据](docs/m1.md)。
+**状态：F0–M2 已在声明范围内验收。** 单机 runtime 已支持条件检查点提交、epoch 所有权校验、独立工作区恢复、累计用量账本与引用回收。40 项恢复 / 协议检查、10 项真实 Codex 检查和 22 项 M1 回归检查通过；第二种 agent 与分支实验进入 M3，多主机验证留给 M4。见 [M2 指南与证据](docs/m2.md)。
 
 RTV 同时用于学习复现、系统实现和自主探索。已有方案会保留为学习材料与对照基线，参考来源和复现范围见[学习与资源计划](docs/learning-plan.md)。目前没有模型效果或分布式可靠性结论。
 
@@ -54,11 +54,13 @@ RTV 围绕三个能力展开：
 | [Codex 恢复实验](docs/codex-m0.md) | 首个真实 agent、原生会话 / 语义交接、恢复边界与用量证据 |
 | [M0 验收与恢复边界](docs/m0-boundaries.md) | ATIF 信息损失、真实取消与回滚、镜像生命周期和能力声明 |
 | [M1 持久执行](docs/m1.md) | 本机部署、任务提交 / 取消、故障注入、真实 Codex 与边界 |
+| [M2 检查点与恢复](docs/m2.md) | 条件提交、epoch、原生会话恢复、UNKNOWN 用量、引用 GC 与验收 |
 | [学习与资源计划](docs/learning-plan.md) | 开源参考、复现目标、lab GPU 与费用约定 |
 | [系统设计](docs/design.md) | 对象关系、不变量、检查点协议、故障处理、预算与能力矩阵 |
 | [实验协议](docs/experiments.md) | 配对分支、预算口径、基线、统计及结果产物 |
 | [里程碑](docs/roadmap.md) | 实现顺序、验收证据与待决策项 |
 | [ADR 0001](docs/adr/0001-runtime-boundary.md) | Harbor / Temporal / 自研 runtime 的职责边界 |
+| [ADR 0003](docs/adr/0003-fenced-checkpoints.md) | M2 所有权、检查点提交与回收决策 |
 
 ## 预期架构
 
@@ -75,7 +77,7 @@ flowchart TD
     OBJ --> EXP
 ```
 
-图中表示完整目标架构。M1 已实现本机持久编排；当前产物存于本地，分布式所有权、对象存储和完整预算账本仍待实现。
+图中表示完整目标架构。M2 已实现本机持久编排、数据库 epoch 校验、检查点恢复与阶段调用用量账本；产物仍存于本地。对象存储、多主机资源 fencing、严格预算准入与实验分支尚未实现。
 
 ## 技术边界
 

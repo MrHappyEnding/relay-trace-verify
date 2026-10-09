@@ -2,6 +2,8 @@
 
 [![中文](assets/lang-zh.svg)](framework.md) [![English](assets/lang-en.svg)](framework.en.md)
 
+本页描述 F0/M0 同步教学 Runner。当前持久 runtime 的 manifest v2、条件提交、epoch 校验、恢复、用量账本和引用 GC 见 [M2](m2.md)；下文 F0 限制不代表完整 runtime 能力。
+
 状态：本地框架与首个 Codex 的 M0 验收完成 · 2026-10-08
 
 ## 1. 当前代码

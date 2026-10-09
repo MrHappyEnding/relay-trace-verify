@@ -6,7 +6,7 @@ import os
 import stat
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 from rtv.checkpoints import CheckpointError, CheckpointManifest, CheckpointRef, FileEntry
 from rtv.domain import ExecutionRef
@@ -25,7 +25,9 @@ class LocalCheckpointStore:
 
     The caller must establish quiescence. Only regular files and directories are supported.
     The reference digest protects manifest integrity; it is not an authenticity signature.
-    Concurrent writers and host power-loss durability are outside this local prototype.
+    Files and directory entries are fsynced before returning. Host power loss has not
+    been tested. The M2 runtime supplies database ownership, conditional publication,
+    and GC above this primitive; this class alone does not coordinate writers.
     """
 
     def __init__(self, root: Path):
@@ -33,16 +35,27 @@ class LocalCheckpointStore:
         self.root.mkdir(parents=True, exist_ok=True)
 
     def commit(
-        self, workspace: Path, execution: ExecutionRef, *, event_cursor: int, summary: str
+        self,
+        workspace: Path,
+        execution: ExecutionRef,
+        *,
+        event_cursor: int,
+        summary: str,
+        context: dict | None = None,
+        checkpoint_id: UUID | None = None,
     ) -> CheckpointRef:
         if workspace.is_symlink() or not workspace.is_dir():
             raise CheckpointError("Workspace must be a real directory")
         workspace = workspace.resolve()
         if _is_within(self.root, workspace) or _is_within(workspace, self.root):
             raise CheckpointError("Workspace and checkpoint store must be disjoint")
-        checkpoint_id = uuid4()
+        checkpoint_id = checkpoint_id or uuid4()
+        if not isinstance(checkpoint_id, UUID):
+            raise CheckpointError("Checkpoint ID must be a UUID")
         destination = self.root / str(checkpoint_id)
-        with TemporaryDirectory(prefix=".pending-", dir=self.root) as temporary:
+        if destination.exists() or destination.is_symlink():
+            raise FileExistsError("Immutable checkpoint already exists")
+        with TemporaryDirectory(prefix=f".pending-{checkpoint_id}-", dir=self.root) as temporary:
             staging = Path(temporary)
             snapshot = staging / "files"
             snapshot.mkdir()
@@ -70,15 +83,40 @@ class LocalCheckpointStore:
                 summary=summary,
                 directories=tuple(directories),
                 files=tuple(entries),
+                schema_version=2 if context is not None else 1,
+                context=context,
             )
             data = json.dumps(manifest.to_dict(), sort_keys=True, indent=2).encode("utf-8")
             (staging / "manifest.json").write_bytes(data)
+            # Sync children before publishing the directory entry. Database commit
+            # is a separate step in the M2 protocol, never inferred from rename.
+            for path in staging.rglob("*"):
+                if path.is_file():
+                    with path.open("rb") as stream:
+                        os.fsync(stream.fileno())
+            for path in [
+                *sorted((p for p in staging.rglob("*") if p.is_dir()), reverse=True),
+                staging,
+            ]:
+                descriptor = os.open(path, os.O_RDONLY)
+                try:
+                    os.fsync(descriptor)
+                finally:
+                    os.close(descriptor)
             os.rename(staging, destination)
+            descriptor = os.open(self.root, os.O_RDONLY)
+            try:
+                os.fsync(descriptor)
+            finally:
+                os.close(descriptor)
         return CheckpointRef(checkpoint_id, _sha256(data))
 
     def load(self, reference: CheckpointRef) -> CheckpointManifest:
+        path = self.root / str(reference.checkpoint_id) / "manifest.json"
+        if any(part.is_symlink() for part in (path, *path.parents)):
+            raise CheckpointError("Manifest path contains a symbolic link")
         try:
-            data = (self.root / str(reference.checkpoint_id) / "manifest.json").read_bytes()
+            data = path.read_bytes()
         except FileNotFoundError as exc:
             raise CheckpointError("Checkpoint has not been committed or does not exist") from exc
         if _sha256(data) != reference.manifest_sha256:
