@@ -67,7 +67,7 @@ Accepted within the local scope: [M2 guide](m2.en.md), 40 runtime/protocol check
 
 **Acceptance evidence**: A-continue, B-workspace, and B-summary can be rerun; branches cannot contaminate one another's files; source state, costs, and final verification are fully traceable.
 
-**Current evidence**: the [M3 guide](m3.en.md) records 47 zero-cost checks. These cover implementation with scripted models. Real Codex → mini-swe-agent handoffs, API usage and native A continuation still await approval and credentials; M3 is not fully accepted.
+**Current evidence**: the [M3 guide](m3.en.md) records 48 zero-cost checks. These cover implementation with scripted models. Real Codex → mini-swe-agent handoffs, API usage and native A continuation still await provider revalidation after the transport fix; two attempts are documented and M3 is not fully accepted.
 
 ## M4: Multi-worker validation and complete report
 

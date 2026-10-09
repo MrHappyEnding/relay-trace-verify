@@ -3,6 +3,7 @@
 import asyncio
 import json
 import os
+import re
 import threading
 from dataclasses import dataclass
 from pathlib import Path
@@ -13,6 +14,45 @@ MINI_MODEL = "gpt-5.4-mini-2026-03-17"
 REQUEST_BYTES = 40000
 MAX_OUTPUT = 4096
 RESERVATION_USD = 0.062
+
+
+def api_error_details(exc):
+    """Keep diagnostic enums, never raw response messages, headers or credentials."""
+    details = {"exception": type(exc).__name__}
+    status = getattr(exc, "status_code", None)
+    if type(status) is int and 100 <= status <= 599:
+        details["http_status"] = status
+    allowed = {
+        "insufficient_quota",
+        "credit_balance_exhausted",
+        "rate_limit_exceeded",
+        "slow_down",
+        "organization_spend_limit_exceeded",
+        "project_spend_limit_exceeded",
+        "organization_usage_limit_exceeded",
+        "invalid_api_key",
+        "model_not_found",
+        "context_length_exceeded",
+        "server_is_overloaded",
+        "rate_limit_error",
+        "invalid_request_error",
+        "server_error",
+        "service_unavailable_error",
+    }
+    for name in ("code", "type"):
+        value = getattr(exc, name, None)
+        if isinstance(value, str) and value in allowed:
+            details[name] = value
+    param = getattr(exc, "param", None)
+    if isinstance(param, str) and re.fullmatch(
+        r"(?:input|model|tools|max_output_tokens|reasoning|include|store)[A-Za-z0-9_.\[\]]{0,120}",
+        param,
+    ):
+        details["param"] = param
+    request_id = getattr(exc, "request_id", None)
+    if isinstance(request_id, str) and re.fullmatch(r"req_[A-Za-z0-9_-]{1,120}", request_id):
+        details["request_id"] = request_id
+    return details
 
 
 def measured_usage(data):
@@ -39,10 +79,20 @@ def measured_usage(data):
 
 
 def api_input(messages):
+    def clean(value):
+        # SDK output models materialize absent optional fields as None. The input
+        # schema accepts omission but rejects null for e.g. reasoning.status and
+        # function_call.namespace. Preserve non-null phase and opaque reasoning.
+        if isinstance(value, dict):
+            return {k: clean(v) for k, v in value.items() if k != "extra" and v is not None}
+        if isinstance(value, list):
+            return [clean(v) for v in value]
+        return value
+
     result = []
     for message in messages:
         items = message.get("output", []) if message.get("object") == "response" else [message]
-        result.extend({k: v for k, v in item.items() if k != "extra"} for item in items)
+        result.extend(clean(item) for item in items)
     return result
 
 
@@ -156,8 +206,9 @@ async def execute_mini(env, instruction, output, *, settings, row, operation, sc
                         include=["reasoning.encrypted_content"],
                     )
                 except Exception as exc:
-                    store.settle_call(row, request, None)
-                    raise RuntimeError("API outcome unknown: " + type(exc).__name__) from None
+                    failure = api_error_details(exc)
+                    store.settle_call(row, request, None, failure=failure)
+                    raise RuntimeError("API outcome unknown: " + json.dumps(failure)) from None
                 data = response.model_dump(mode="json")
                 usage, cost = measured_usage(data)
                 store.settle_call(row, request, usage, cost_usd=cost)

@@ -45,7 +45,7 @@ protocols or agent handoffs. Prior mechanisms remain as learning and reproductio
 
 ## Consequences and evidence
 
-The local protocol passes 47 zero-cost checks. Evidence separates real services, scripted models and
+The local protocol passes 48 zero-cost checks. Evidence separates real services, scripted models and
 synthetic accounting; see [M3](../m3.en.md). Both scaffold and model change on one development task;
 this validates functionality, not framework or relay performance. Hidden verifier feedback is not
 passed to B. Agent-issued test observations can appear in portable context, a policy difference to

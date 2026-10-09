@@ -24,6 +24,12 @@ def main(args):
         raise ValueError(
             "Requires both model opt-ins and --approved-budget-usd 2 after owner approval"
         )
+    from rtv.mini_agent import RESERVATION_USD
+
+    if not 1 <= args.api_call_limit <= 8 or not 0 <= args.prior_reserved_usd < 2:
+        raise ValueError("Invalid bounded rerun allowance")
+    if args.prior_reserved_usd + 3 * args.api_call_limit * RESERVATION_USD > 2:
+        raise ValueError("Prior reservations plus this run would exceed the approved $2 total")
     auth = validate_auth(args.auth_file)
     if (
         args.api_key_file.is_symlink()
@@ -101,6 +107,9 @@ def main(args):
         cp = store.checkpoint(source["latest_checkpoint"])
         check("real_source_sealed", cp["context"]["adapter"] == "codex")
         branches = plan(spec, adapter="mini", model=MINI_MODEL, portable=True, ttl=600)
+        for branch in branches:
+            if branch["spec"]["adapter"] == "mini":
+                branch["spec"]["api_call_limit"] = args.api_call_limit
         eid = store.create_experiment(source, "m3-real-paired", branches, 600)
 
         def finished():
@@ -136,15 +145,17 @@ def main(args):
         check("all_verifiers_isolated", all(r["result"]["verification"]["isolated"] for r in rows))
         ledger = [store.ledger(r["trial_id"]) for r in rows]
         api_ops = [o for entry in ledger for o in entry["operations"] if o["kind"] == "mini-api"]
-        check("api_calls_bounded_without_retries", 3 <= len(api_ops) <= 24)
+        check("api_calls_bounded_without_retries", 3 <= len(api_ops) <= 3 * args.api_call_limit)
         check("api_usage_known", all(o["state"] == "known" and o["usage"] for o in api_ops))
         check(
             "api_cost_within_approved_budget",
-            sum(o["cost_usd"] for o in api_ops) <= args.approved_budget_usd,
+            args.prior_reserved_usd + sum(o["cost_usd"] for o in api_ops)
+            <= args.approved_budget_usd,
         )
         check(
             "reserved_cost_within_approved_budget",
-            sum(o["reserved_usd"] for o in api_ops) <= args.approved_budget_usd,
+            args.prior_reserved_usd + sum(o["reserved_usd"] for o in api_ops)
+            <= args.approved_budget_usd,
         )
         prefix = store.ledger(source["trial_id"])["known_usage"]
         check(
@@ -190,6 +201,8 @@ def main(args):
             "checks": checks,
             "experiment_id": eid,
             "approved_api_budget_usd": args.approved_budget_usd,
+            "prior_reserved_usd": args.prior_reserved_usd,
+            "api_call_limit_per_branch": args.api_call_limit,
             "model": MINI_MODEL,
             "source_model": DEFAULT_MODEL,
             "elapsed_seconds": round(time.monotonic() - began, 2),
@@ -220,4 +233,6 @@ if __name__ == "__main__":
     parser.add_argument("--allow-model-calls", action="store_true")
     parser.add_argument("--allow-api-calls", action="store_true")
     parser.add_argument("--approved-budget-usd", type=float, required=True)
+    parser.add_argument("--prior-reserved-usd", type=float, default=0)
+    parser.add_argument("--api-call-limit", type=int, default=8)
     main(parser.parse_args())

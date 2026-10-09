@@ -7,7 +7,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from rtv.mini_agent import MINI_MODEL, api_input, measured_usage
+from rtv.mini_agent import MINI_MODEL, api_error_details, api_input, measured_usage
 from rtv.runtime.handoff import plan, target_spec
 
 
@@ -105,9 +105,102 @@ def test_invalid_ttl_and_policy_rejected_without_docker(source):
         target_spec(source, "mini-fixture", None, "full-process-memory")
 
 
-@pytest.mark.parametrize("lost_reply", [False, True])
+def test_api_projection_omits_null_fields_and_preserves_reasoning_phase_and_tool_pair():
+    items = [
+        {
+            "type": "reasoning",
+            "id": "r",
+            "summary": [],
+            "status": None,
+            "encrypted_content": "opaque-reasoning",
+        },
+        {
+            "type": "message",
+            "id": "m",
+            "role": "assistant",
+            "status": "completed",
+            "phase": "commentary",
+            "content": [
+                {"type": "output_text", "text": "working", "annotations": [], "logprobs": None}
+            ],
+        },
+        {
+            "type": "function_call",
+            "id": "f",
+            "name": "bash",
+            "call_id": "call-1",
+            "arguments": '{"command":"echo null"}',
+            "namespace": None,
+            "caller": None,
+        },
+    ]
+    result = api_input(
+        [
+            {"object": "response", "output": items},
+            {"type": "function_call_output", "call_id": "call-1", "output": "null"},
+        ]
+    )
+    assert "status" not in result[0]
+    assert result[0]["encrypted_content"] == "opaque-reasoning"
+    assert result[1]["phase"] == "commentary"
+    assert "logprobs" not in result[1]["content"][0]
+    assert "namespace" not in result[2] and "caller" not in result[2]
+    assert result[2]["arguments"] == items[2]["arguments"]
+    assert result[2]["call_id"] == result[3]["call_id"]
+    assert items[0]["status"] is None  # Never mutate the archived response.
+
+
+@pytest.mark.parametrize("kind", ["reasoning", "function_call"])
+def test_sdk_output_to_input_contract_rejects_original_nulls_and_accepts_projection(kind):
+    pytest.importorskip("openai")
+    from openai.types.responses.response_function_tool_call_param import (
+        ResponseFunctionToolCallParam,
+    )
+    from openai.types.responses.response_reasoning_item_param import ResponseReasoningItemParam
+    from pydantic import TypeAdapter, ValidationError
+
+    if kind == "reasoning":
+        item = {
+            "type": kind,
+            "id": "r",
+            "summary": [],
+            "status": None,
+            "encrypted_content": "opaque-reasoning",
+        }
+        schema = ResponseReasoningItemParam
+    else:
+        item = {"type": kind, "name": "bash", "call_id": "c", "arguments": "{}", "namespace": None}
+        schema = ResponseFunctionToolCallParam
+    validator = TypeAdapter(schema)
+    with pytest.raises(ValidationError):
+        validator.validate_python(item)
+    projected = api_input([{"object": "response", "output": [item]}])[0]
+    validated = validator.validate_python(projected)
+    assert json.loads(validator.dump_json(validated)) == projected
+
+
+def test_api_error_diagnostics_exclude_arbitrary_provider_text():
+    error = SimpleNamespace(
+        status_code=429,
+        code="insufficient_quota",
+        type="insufficient_quota",
+        message="private response contents",
+        request_id="req_example-123",
+        headers={"authorization": "secret"},
+    )
+    details = api_error_details(error)
+    assert details["http_status"] == 429
+    assert details["code"] == "insufficient_quota"
+    assert details["request_id"] == "req_example-123"
+    assert "private" not in json.dumps(details)
+    assert "secret" not in json.dumps(details)
+    error.code = error.type = error.request_id = "unexpected-sensitive-text"
+    assert api_error_details(error) == {"exception": "SimpleNamespace", "http_status": 429}
+
+
+@pytest.mark.parametrize("failure_kind", [None, "timeout", "quota"])
 def test_real_mini_loop_with_mocked_transport_accounts_before_parse_and_never_retries(
-    tmp_path, monkeypatch, lost_reply
+    tmp_path, monkeypatch, failure_kind
 ):
     pytest.importorskip("psycopg")
     # Set before importing upstream, which otherwise reads its global dotenv file.
@@ -116,7 +209,7 @@ def test_real_mini_loop_with_mocked_transport_accounts_before_parse_and_never_re
     pytest.importorskip("minisweagent")
     from rtv.mini_agent import execute_mini
 
-    calls, settled, clients = [], [], []
+    calls, settled, clients, failures = [], [], [], []
 
     class Store:
         def __init__(self, settings):
@@ -131,8 +224,10 @@ def test_real_mini_loop_with_mocked_transport_accounts_before_parse_and_never_re
             assert len(settled) == len(calls)
             return f"request-{n}"
 
-        def settle_call(self, row, request, usage, *, cost_usd=None):
+        def settle_call(self, row, request, usage, *, cost_usd=None, failure=None):
             settled.append((request, usage, cost_usd))
+            if failure:
+                failures.append(failure)
 
     class Client:
         def __init__(self, **kwargs):
@@ -145,8 +240,19 @@ def test_real_mini_loop_with_mocked_transport_accounts_before_parse_and_never_re
         def create(self, **kwargs):
             calls.append(kwargs)
             assert kwargs["max_output_tokens"] == 4096
-            if lost_reply:
+            if failure_kind == "timeout":
                 raise TimeoutError("lost response; must not retry")
+            if failure_kind == "quota":
+                import httpx
+                from openai import RateLimitError
+
+                raise RateLimitError(
+                    "private-provider-text",
+                    response=httpx.Response(
+                        429, request=httpx.Request("POST", "https://api.openai.com/v1/responses")
+                    ),
+                    body={"code": "insufficient_quota", "type": "insufficient_quota"},
+                )
             # First response is billed but malformed; second submits successfully.
             data = {
                 "object": "response",
@@ -182,11 +288,15 @@ def test_real_mini_loop_with_mocked_transport_accounts_before_parse_and_never_re
         row={"spec": {"model": MINI_MODEL}},
         operation="stage",
     )
-    if lost_reply:
+    if failure_kind:
         with pytest.raises(RuntimeError, match="API outcome unknown"):
             asyncio.run(invocation)
         assert len(calls) == 1
         assert settled == [("request-1", None, None)]
+        if failure_kind == "quota":
+            assert failures[0]["http_status"] == 429
+            assert failures[0]["code"] == "insufficient_quota"
+            assert "private-provider-text" not in (tmp_path / "mini-trajectory.json").read_text()
     else:
         result = asyncio.run(invocation)
         assert result.exit_status == "Submitted"

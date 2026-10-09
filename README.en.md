@@ -6,7 +6,7 @@
 
 A recoverable execution and branching experiment system for long-running coding agents.
 
-**Status: F0–M2 accepted within their stated scopes; M3 implementation and zero-cost acceptance complete, real two-agent validation pending.** M3 adds idempotent handoff, four branches from one checkpoint, isolated verification, prefix attribution and a bilingual read-only viewer. Its 47 checks use real containers and the upstream mini-swe-agent loop with a scripted provider; they do not establish real-model behavior. See the [M3 guide and evidence](docs/m3.en.md).
+**Status: F0–M2 accepted within their stated scopes; M3 implementation and zero-cost acceptance complete, real two-agent validation pending.** M3 adds idempotent handoff, four branches from one checkpoint, isolated verification, prefix attribution and a bilingual read-only viewer. Its 48 checks use real containers and the upstream mini-swe-agent loop with a scripted provider; they do not establish real-model behavior. See the [M3 guide and evidence](docs/m3.en.md).
 
 RTV supports learning through reproduction, system implementation, and original exploration. Existing approaches remain learning material and comparison baselines; see the [learning and resource plan](docs/learning-plan.en.md) for sources and scope. No model-performance or distributed-reliability claims have been established.
 

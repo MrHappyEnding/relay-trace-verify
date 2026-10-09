@@ -296,7 +296,7 @@ class Store:
             self._event(c, row, "agent.started", {"call_operation_id": operation})
         return operation
 
-    def settle_call(self, expected, operation, usage, *, cost_usd=None):
+    def settle_call(self, expected, operation, usage, *, cost_usd=None, failure=None):
         if usage is not None and (
             not isinstance(usage, dict) or any(type(v) is not int or v < 0 for v in usage.values())
         ):
@@ -322,8 +322,15 @@ class Store:
                     raise ValueError("Conflicting settled usage")
                 return
             c.execute(
-                "UPDATE operations SET state=%s,usage=%s,cost_usd=%s WHERE operation_id=%s",
-                (state, Jsonb(usage), cost_usd, operation),
+                "UPDATE operations SET state=%s,usage=%s,cost_usd=%s,"
+                "reason=COALESCE(%s,reason) WHERE operation_id=%s",
+                (
+                    state,
+                    Jsonb(usage),
+                    cost_usd,
+                    json.dumps(failure, sort_keys=True) if failure else None,
+                    operation,
+                ),
             )
             c.execute(
                 "UPDATE trials SET ledger_revision=ledger_revision+1 WHERE trial_id=%s",
@@ -337,6 +344,7 @@ class Store:
                     "call_operation_id": operation,
                     "usage": usage,
                     "late_observation": current["execution_id"] != expected["execution_id"],
+                    **({"api_error": failure} if failure else {}),
                 },
             )
 

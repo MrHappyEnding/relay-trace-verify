@@ -336,6 +336,23 @@ def main(output):
             synthetic, request, {"input_tokens": 100, "output_tokens": 10}, cost_usd=0.00012
         )
         second = store.begin_model_call(synthetic, op, 2, 0.062)
+        api_failure = {
+            "exception": "RateLimitError",
+            "http_status": 429,
+            "code": "insufficient_quota",
+        }
+        store.settle_call(synthetic, second, None, failure=api_failure)
+        failed_request = next(
+            o
+            for o in store.ledger(synthetic["trial_id"])["operations"]
+            if o["operation_id"] == second
+        )
+        check(
+            "sanitized_api_error_persisted_with_unknown_usage",
+            json.loads(failed_request["reason"]) == api_failure
+            and failed_request["state"] == "unknown"
+            and failed_request["reserved_usd"] == 0.062,
+        )
         rejected(
             "budget_prevents_third_request", lambda: store.begin_model_call(synthetic, op, 3, 0.062)
         )

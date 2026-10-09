@@ -1,0 +1,133 @@
+{
+  "status": "failed",
+  "mode": "real-codex-and-mini-swe-paired-development-task",
+  "checks": {
+    "real_source_sealed": true,
+    "four_branches_verified": false
+  },
+  "experiment_id": "6e3f8960-eb25-5fca-9988-626414a7a891",
+  "approved_api_budget_usd": 2.0,
+  "model": "gpt-5.4-mini-2026-03-17",
+  "source_model": "gpt-6-astra",
+  "elapsed_seconds": 70.85,
+  "warning": "Models and scaffolds both change; no causal scaffold or success-rate conclusion.",
+  "observed_api_cost_usd": 0,
+  "unknown_operations": 6,
+  "recorded_on": "2026-10-09",
+  "tested_commit": "7929579",
+  "source_report": "work/m3-real-20261009-1/report.json",
+  "source_report_sha256": "a8c2da8a53d806a9701347982909f7598d28df6442e1fecfb1a44434af6a5dcd",
+  "post_run_read_only_checks": {
+    "source_codex_stage_committed": true,
+    "native_branch_verified": true,
+    "native_session_preserved": true,
+    "native_prefix_usage_not_double_counted": true,
+    "common_source_checkpoint": true,
+    "four_completed_context_transfers": true,
+    "no_automatic_api_retries": true,
+    "all_execution_resources_removed": true
+  },
+  "branches": [
+    {
+      "label": "A-continue",
+      "status": "succeeded",
+      "policy": "native",
+      "handoff_state": "completed",
+      "context_bytes": 0,
+      "losses": [],
+      "api_requests": 0,
+      "api_exception": null,
+      "known_usage": {
+        "input_tokens": 37592,
+        "output_tokens": 323,
+        "cached_input_tokens": 35840,
+        "reasoning_output_tokens": 0,
+        "cache_write_input_tokens": 0
+      },
+      "prefix_usage": {
+        "input_tokens": 47791,
+        "output_tokens": 359,
+        "cached_input_tokens": 33152,
+        "reasoning_output_tokens": 0,
+        "cache_write_input_tokens": 0
+      },
+      "observed_api_cost_usd": 0,
+      "usage_status": "known-subscription",
+      "cleanup": "complete"
+    },
+    {
+      "label": "B-summary",
+      "status": "failed",
+      "policy": "summary",
+      "handoff_state": "completed",
+      "context_bytes": 396,
+      "losses": [
+        "Source statement is not independently verified.",
+        "Omitted full conversation, tool logs and native state."
+      ],
+      "api_requests": 1,
+      "api_exception": "API outcome unknown: RateLimitError",
+      "known_usage": {},
+      "prefix_usage": {
+        "input_tokens": 47791,
+        "output_tokens": 359,
+        "cached_input_tokens": 33152,
+        "reasoning_output_tokens": 0,
+        "cache_write_input_tokens": 0
+      },
+      "observed_api_cost_usd": 0,
+      "usage_status": "unknown",
+      "cleanup": "complete"
+    },
+    {
+      "label": "B-trajectory",
+      "status": "failed",
+      "policy": "portable",
+      "handoff_state": "completed",
+      "context_bytes": 10805,
+      "losses": [
+        "Text-only ATIF projection, not target-native import.",
+        "No source reasoning fields, metrics, native runtime state, or hidden verifier output."
+      ],
+      "api_requests": 1,
+      "api_exception": "API outcome unknown: RateLimitError",
+      "known_usage": {},
+      "prefix_usage": {
+        "input_tokens": 47791,
+        "output_tokens": 359,
+        "cached_input_tokens": 33152,
+        "reasoning_output_tokens": 0,
+        "cache_write_input_tokens": 0
+      },
+      "observed_api_cost_usd": 0,
+      "usage_status": "unknown",
+      "cleanup": "complete"
+    },
+    {
+      "label": "B-workspace",
+      "status": "failed",
+      "policy": "task-only",
+      "handoff_state": "completed",
+      "context_bytes": 0,
+      "losses": [],
+      "api_requests": 1,
+      "api_exception": "API outcome unknown: RateLimitError",
+      "known_usage": {},
+      "prefix_usage": {
+        "input_tokens": 47791,
+        "output_tokens": 359,
+        "cached_input_tokens": 33152,
+        "reasoning_output_tokens": 0,
+        "cache_write_input_tokens": 0
+      },
+      "observed_api_cost_usd": 0,
+      "usage_status": "unknown",
+      "cleanup": "complete"
+    }
+  ],
+  "api_requests": 3,
+  "api_reserved_usd": 0.186,
+  "billing_note": "Observed API cost is zero, but all three rejected requests lack usage; no zero-invoice claim. Six unknown operations comprise three stage records plus three request records.",
+  "failure_detail": "All three first API requests raised RateLimitError (HTTP 429). Provider code/body was not retained by this version, so credit/quota and rate-limit causes cannot be distinguished.",
+  "replayed_paid_calls": 0
+}

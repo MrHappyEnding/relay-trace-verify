@@ -44,6 +44,7 @@
     "corrupt_preparation_cannot_transfer_authority": true,
     "cancel_wins_before_activation": true,
     "cancelled_handoff_never_starts_target": true,
+    "sanitized_api_error_persisted_with_unknown_usage": true,
     "budget_prevents_third_request": true,
     "known_usage_retained_with_unknown_request": true,
     "late_api_observation_counted_once": true,
@@ -51,10 +52,10 @@
     "report_links_source_handoffs_cost_and_results": true,
     "all_task_and_verifier_resources_removed": true
   },
-  "elapsed_seconds": 116.84,
+  "elapsed_seconds": 103.82,
   "recorded_on": "2026-10-09",
-  "source_report": "work/m3-acceptance-20261009-3/report.json",
-  "source_report_sha256": "53a38f3e4cc245c728b427ca202d3130eadd2729d3a262f010fdeb4262cbaf3d",
+  "source_report": "work/m3-acceptance-20261009-4/report.json",
+  "source_report_sha256": "9328297d4a5322633770bdf8cda96989a72211871161b06eb326e75c4c4fdc7c",
   "versions": {
     "harbor": "0.24.0",
     "mini-swe-agent": "2.4.6",
@@ -74,13 +75,14 @@
       "budget_prevents_third_request",
       "known_usage_retained_with_unknown_request",
       "late_api_observation_counted_once",
-      "late_request_does_not_change_terminal_status"
+      "late_request_does_not_change_terminal_status",
+      "sanitized_api_error_persisted_with_unknown_usage"
     ],
     "other_checks": "real PostgreSQL / Temporal / local artifacts and Docker; scripted source and mini provider; deliberately injected control failures"
   },
   "verification": {
-    "runtime_unit_tests": "92 passed, 1 opt-in Docker test skipped; container scripts run separately",
-    "python_311_core": "72 passed, optional runtime tests skipped",
+    "runtime_unit_tests": "97 passed, 1 opt-in Docker test skipped; container scripts run separately",
+    "python_311_core": "74 passed, 24 optional integration tests skipped",
     "ruff": "check and format passed",
     "billing": "zero paid API calls and zero subscription calls"
   }
