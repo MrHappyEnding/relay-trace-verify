@@ -10,7 +10,7 @@ from rtv.harbor_probe import HARBOR_VERSION
 def capability_report() -> dict:
     return {
         "schema_version": 3,
-        "scope": "M0–M3 local trusted tasks; M3 real cross-agent validation pending",
+        "scope": "M0–M3 local trusted tasks; real cross-agent development-task acceptance passed",
         "codex": {
             "cli_version": CODEX_VERSION,
             "harbor_version": HARBOR_VERSION,
@@ -68,7 +68,7 @@ def capability_report() -> dict:
             ),
         },
         "runtime": {
-            "milestone": "M3 single-host protocol and scripted-model acceptance",
+            "milestone": "M3 single-host protocol and real two-agent acceptance",
             "control": "Temporal 1.34.0 SDK + PostgreSQL product metadata",
             "metadata_schema": "rtv3 (M1/M2 metadata is retained, not migrated)",
             "worker_restart": "take over observation of a surviving local supervisor/sandbox",
@@ -94,13 +94,17 @@ def capability_report() -> dict:
                 "docs/evidence/m2-runtime-arm64-20261009.json",
                 "docs/evidence/m2-codex-arm64-20261009.json",
                 "docs/evidence/m3-runtime-arm64-20261009.json",
+                "docs/evidence/m3-real-arm64-20261009.json",
             ],
         },
         "mini": {
             "version": "2.4.6",
             "configured_model": "gpt-5.4-mini-2026-03-17",
-            "real_model_verified": False,
-            "verified_scope": "upstream DefaultAgent with scripted provider and Harbor tools",
+            "real_model_verified": True,
+            "verified_scope": (
+                "upstream DefaultAgent with pinned real API model and Harbor tools; "
+                "one trusted development task, three context policies"
+            ),
             "native_session_import": False,
             "portable_context": "text projection, not native tool-history import",
             "transport": "host-side Responses API; credentials not mounted into sandbox",
@@ -108,18 +112,23 @@ def capability_report() -> dict:
             "budget": "non-reusable $0.062 reservation per request, $0.50 per branch; no retries",
             "strict_budget_admission": False,
             "budget_scope": "pinned transport reservation; not a provider invoice guarantee",
+            "evidence": "docs/evidence/m3-real-arm64-20261009.json",
         },
         "relay": {
             "policies": ["native", "task-only", "summary", "portable"],
             "handoff": "same Trial, new Attempt; prepared context before atomic authority transfer",
             "fork": "independent Trials from one sealed checkpoint; referenced prefix operations",
             "verification": "fresh sandbox, declared workspace only, no network",
-            "real_cross_agent_verified": False,
-            "evidence": "docs/evidence/m3-runtime-arm64-20261009.json",
+            "real_cross_agent_verified": True,
+            "verified_scope": "Codex-to-mini workspace/summary/text projection on one fixed task",
+            "evidence": [
+                "docs/evidence/m3-runtime-arm64-20261009.json",
+                "docs/evidence/m3-real-arm64-20261009.json",
+            ],
         },
         "not_verified": [
-            "real mini-swe-agent model execution",
-            "real cross-model / cross-framework text ATIF handoff",
+            "mini native-session import",
+            "cross-agent benchmark success rates or cost advantages",
             "multimodal ATIF",
             "mid-tool continuation",
             "host loss / cross-host takeover",

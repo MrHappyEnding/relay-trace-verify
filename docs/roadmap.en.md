@@ -2,9 +2,9 @@
 
 [![中文](assets/lang-zh.svg)](roadmap.md) [![English](assets/lang-en.svg)](roadmap.en.md)
 
-Status: F0, first-adapter M0 and single-host M1/M2 accepted · 2026-10-09
+Status: F0–M3 accepted within their stated local scopes · 2026-10-09
 
-The initial framework completes F0 below. M0 is accepted within the first Codex adapter’s stated scope; M1/M2 are implemented on one host; M3 implementation and scripted-model acceptance are complete, with real two-agent validation pending; M4 remains unimplemented. Local fixtures and mocked protocol tests do not replace real-container or real-agent compatibility tests. Reproduction and original implementation both remain in scope; see the [learning plan](learning-plan.en.md).
+The initial framework completes F0 below. M0 is accepted within the first Codex adapter’s stated scope; M1/M2 are implemented on one host; M3 protocol, scripted-model and real two-agent development-task acceptance are complete; M4 remains unimplemented. Local fixtures and mocked protocol tests do not replace real-container or real-agent compatibility tests. Reproduction and original implementation both remain in scope; see the [learning plan](learning-plan.en.md).
 
 ## F0: Framework skeleton
 
@@ -67,7 +67,7 @@ Accepted within the local scope: [M2 guide](m2.en.md), 40 runtime/protocol check
 
 **Acceptance evidence**: A-continue, B-workspace, and B-summary can be rerun; branches cannot contaminate one another's files; source state, costs, and final verification are fully traceable.
 
-**Current evidence**: the [M3 guide](m3.en.md) records 48 zero-cost checks. These cover implementation with scripted models. Real Codex → mini-swe-agent handoffs, API usage and native A continuation still await provider revalidation after the transport fix; two attempts are documented and M3 is not fully accepted.
+**Current evidence**: the [M3 guide](m3.en.md) records 48 zero-cost protocol checks and 14 real-model checks. Native Codex continuation and all three mini-swe-agent handoffs complete one fixed task, with isolated verification, API usage, prefix attribution and cleanup checked. Three failed attempts and the passing fourth attempt remain documented. The local functional scope is accepted; benchmark performance is not established.
 
 ## M4: Multi-worker validation and complete report
 
@@ -94,4 +94,4 @@ Tool-boundary checkpoints, more agents, trajectory judges calibrated against lab
 | Control language | Python | Harbor integration cost and typed contracts |
 | First execution backend | Local containers | Validate the protocol before distributed faults |
 
-Next: approve the API budget and configure credentials for M3 real two-agent validation on a fixed development task. M4 still needs separate planning for multiple hosts and formal experiments.
+Next is M4: select the remote backend and resource lifecycle boundaries, freeze tasks, budgets and statistical rules, then run multi-worker faults and formal paired experiments. The current $8 authorization covers this M3 debugging session; new M4 costs require a separate estimate.

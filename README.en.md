@@ -6,7 +6,7 @@
 
 A recoverable execution and branching experiment system for long-running coding agents.
 
-**Status: F0–M2 accepted within their stated scopes; M3 implementation and zero-cost acceptance complete, real two-agent validation pending.** M3 adds idempotent handoff, four branches from one checkpoint, isolated verification, prefix attribution and a bilingual read-only viewer. Its 48 checks use real containers and the upstream mini-swe-agent loop with a scripted provider; they do not establish real-model behavior. See the [M3 guide and evidence](docs/m3.en.md).
+**Status: F0–M3 accepted within the local trusted-development-task scope.** M3 adds idempotent handoff, four branches from one checkpoint, isolated verification, prefix attribution and a bilingual read-only viewer. It passes 48 zero-cost protocol checks and 14 real-model checks: native Codex continuation and mini-swe-agent workspace, summary and text-trajectory handoffs all complete the task. This validates functionality, not relay success-rate or cost advantages. See the [M3 guide and evidence](docs/m3.en.md).
 
 RTV supports learning through reproduction, system implementation, and original exploration. Existing approaches remain learning material and comparison baselines; see the [learning and resource plan](docs/learning-plan.en.md) for sources and scope. No model-performance or distributed-reliability claims have been established.
 
@@ -78,7 +78,7 @@ flowchart TD
     OBJ --> EXP
 ```
 
-This diagram shows the target architecture. M3 implements local handoff and experiment branches on M2 epochs, checkpoints and accounting, with separate mini API request entries. Artifacts remain local. Object storage, multi-host resource fencing and general strict budget admission remain unimplemented; real two-agent validation is pending.
+This diagram shows the target architecture. M3 implements local handoff and experiment branches on M2 epochs, checkpoints and accounting, with separate mini API request entries. Artifacts remain local. Object storage, multi-host resource fencing and general strict budget admission remain unimplemented. Real two-agent functionality is validated on one fixed development task.
 
 ## Technical boundaries
 

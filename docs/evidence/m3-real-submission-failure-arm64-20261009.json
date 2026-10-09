@@ -1,0 +1,102 @@
+{
+  "status": "failed",
+  "mode": "real-codex-and-mini-swe-paired-development-task",
+  "checks": {
+    "real_source_sealed": true,
+    "four_branches_verified": false
+  },
+  "experiment_id": "b0477782-cb2f-5e4a-8154-5b21fefeb873",
+  "approved_api_budget_usd": 8.0,
+  "prior_reserved_usd": 0.558,
+  "api_call_limit_per_branch": 8,
+  "model": "gpt-5.4-mini-2026-03-17",
+  "source_model": "gpt-6-astra",
+  "elapsed_seconds": 109.09,
+  "warning": "Models and scaffolds both change; no causal scaffold or success-rate conclusion.",
+  "observed_api_cost_usd": 0.0241575,
+  "unknown_operations": 0,
+  "recorded_on": "2026-10-09",
+  "source_report": "work/m3-real-20261009-3/report.json",
+  "source_report_sha256": "25da3084cca2f148c8c8cfd6b126ca28005aa6d5ab69da3136ba9cfe67239367",
+  "branches": [
+    {
+      "label": "A-continue",
+      "status": "succeeded",
+      "reward": {
+        "reward": 1.0
+      },
+      "agent_exit_status": null,
+      "requests": 0,
+      "known_usage": {
+        "input_tokens": 37634,
+        "output_tokens": 354,
+        "cached_input_tokens": 36096,
+        "reasoning_output_tokens": 0,
+        "cache_write_input_tokens": 0
+      },
+      "observed_api_cost_usd": 0,
+      "api_reserved_usd": 0,
+      "unknown_api_requests": 0,
+      "cleanup": "complete"
+    },
+    {
+      "label": "B-summary",
+      "status": "succeeded",
+      "reward": {
+        "reward": 1.0
+      },
+      "agent_exit_status": "Submitted",
+      "requests": 6,
+      "known_usage": {
+        "input_tokens": 8790,
+        "output_tokens": 890,
+        "cached_input_tokens": 3840
+      },
+      "observed_api_cost_usd": 0.0080055,
+      "api_reserved_usd": 0.372,
+      "unknown_api_requests": 0,
+      "cleanup": "complete"
+    },
+    {
+      "label": "B-trajectory",
+      "status": "succeeded",
+      "reward": {
+        "reward": 1.0
+      },
+      "agent_exit_status": "Submitted",
+      "requests": 3,
+      "known_usage": {
+        "input_tokens": 11767,
+        "output_tokens": 562,
+        "cached_input_tokens": 8960
+      },
+      "observed_api_cost_usd": 0.00530625,
+      "api_reserved_usd": 0.186,
+      "unknown_api_requests": 0,
+      "cleanup": "complete"
+    },
+    {
+      "label": "B-workspace",
+      "status": "failed",
+      "reward": {
+        "reward": 1.0
+      },
+      "agent_exit_status": "LimitsExceeded",
+      "requests": 8,
+      "known_usage": {
+        "input_tokens": 11227,
+        "output_tokens": 1307,
+        "cached_input_tokens": 5120
+      },
+      "observed_api_cost_usd": 0.01084575,
+      "api_reserved_usd": 0.496,
+      "unknown_api_requests": 0,
+      "cleanup": "complete"
+    }
+  ],
+  "api_requests": 17,
+  "api_reserved_usd": 1.054,
+  "all_branch_resources_removed": true,
+  "finding": "All four workspaces pass isolated verification; A, B-summary and B-trajectory completed successfully. B-workspace reached LimitsExceeded after its wrapped submission command was not recognized. RTV compared literal command text, whereas upstream mini-swe-agent checks the first output line and exit code. This is a failed functional acceptance, not a successful relay result.",
+  "billing_note": "Observed usage-derived API cost; all API requests in this attempt have known usage. Reservations are not provider charges."
+}

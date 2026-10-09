@@ -96,6 +96,28 @@ def api_input(messages):
     return result
 
 
+def check_submission(output):
+    """Adapt mini-swe-agent 2.4.6 LocalEnvironment._check_finished to Harbor output."""
+    from minisweagent.exceptions import Submitted
+
+    # Match upstream's output protocol, not the spelling of the shell command.
+    # https://github.com/SWE-agent/mini-swe-agent/blob/v2.4.6/src/minisweagent/environments/local.py
+    lines = output.get("output", "").lstrip().splitlines(keepends=True)
+    if (
+        lines
+        and lines[0].strip() == "COMPLETE_TASK_AND_SUBMIT_FINAL_OUTPUT"
+        and output["returncode"] == 0
+    ):
+        submission = "".join(lines[1:])
+        raise Submitted(
+            {
+                "role": "exit",
+                "content": submission,
+                "extra": {"exit_status": "Submitted", "submission": submission},
+            }
+        )
+
+
 @dataclass
 class MiniResult:
     rollout: Path
@@ -112,7 +134,7 @@ async def execute_mini(env, instruction, output, *, settings, row, operation, sc
     import minisweagent
     import yaml
     from minisweagent.agents.default import DefaultAgent
-    from minisweagent.exceptions import FormatError, Submitted
+    from minisweagent.exceptions import FormatError
     from minisweagent.models.utils.actions_toolcall_response import (
         BASH_TOOL_RESPONSE_API,
         format_toolcall_observation_messages,
@@ -261,24 +283,18 @@ async def execute_mini(env, instruction, output, *, settings, row, operation, sc
             command = action.get("command")
             if not isinstance(command, str):
                 raise ValueError("Expected bash command text")
-            if command.strip() == "echo COMPLETE_TASK_AND_SUBMIT_FINAL_OUTPUT":
-                raise Submitted(
-                    {
-                        "role": "exit",
-                        "content": "",
-                        "extra": {"exit_status": "Submitted", "submission": ""},
-                    }
-                )
 
             async def invoke():
                 return await env.exec(command=command, cwd="/workspace", timeout_sec=30)
 
             reply = asyncio.run_coroutine_threadsafe(invoke(), loop).result(timeout=40)
-            return {
+            observation = {
                 "output": ((reply.stdout or "") + (reply.stderr or ""))[:20000],
                 "returncode": reply.return_code,
                 "exception_info": "",
             }
+            check_submission(observation)
+            return observation
 
         def get_template_vars(self, **kwargs):
             return {

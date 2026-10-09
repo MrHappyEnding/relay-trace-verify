@@ -52,10 +52,10 @@
     "report_links_source_handoffs_cost_and_results": true,
     "all_task_and_verifier_resources_removed": true
   },
-  "elapsed_seconds": 103.82,
+  "elapsed_seconds": 124.44,
   "recorded_on": "2026-10-09",
-  "source_report": "work/m3-acceptance-20261009-4/report.json",
-  "source_report_sha256": "9328297d4a5322633770bdf8cda96989a72211871161b06eb326e75c4c4fdc7c",
+  "source_report": "work/m3-acceptance-20261009-5/report.json",
+  "source_report_sha256": "90510e9017a711a6866fba18b8330e7daecc306bd147641b6ecd0dd0646ac291",
   "versions": {
     "harbor": "0.24.0",
     "mini-swe-agent": "2.4.6",
@@ -81,8 +81,8 @@
     "other_checks": "real PostgreSQL / Temporal / local artifacts and Docker; scripted source and mini provider; deliberately injected control failures"
   },
   "verification": {
-    "runtime_unit_tests": "97 passed, 1 opt-in Docker test skipped; container scripts run separately",
-    "python_311_core": "74 passed, 24 optional integration tests skipped",
+    "runtime_unit_tests": "107 passed, 1 opt-in Docker test skipped; container scripts run separately",
+    "python_311_core": "74 passed, 34 optional integration tests skipped",
     "ruff": "check and format passed",
     "billing": "zero paid API calls and zero subscription calls"
   }

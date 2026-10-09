@@ -1,0 +1,206 @@
+{
+  "status": "passed",
+  "mode": "real-codex-and-mini-swe-paired-development-task",
+  "checks": {
+    "real_source_sealed": true,
+    "four_branches_verified": true,
+    "one_common_source_checkpoint": true,
+    "native_codex_session_preserved": true,
+    "three_real_mini_branches": true,
+    "all_verifiers_isolated": true,
+    "api_calls_bounded_without_retries": true,
+    "api_usage_known": true,
+    "api_cost_within_approved_budget": true,
+    "reserved_cost_within_approved_budget": true,
+    "same_prefix_attributed_to_each_policy": true,
+    "native_prefix_not_double_counted": true,
+    "cross_framework_context_loss_declared": true,
+    "all_branch_resources_cleaned": true
+  },
+  "experiment_id": "0ea19677-3d5c-51e1-a6b6-8a66a20b2fe5",
+  "approved_api_budget_usd": 8.0,
+  "prior_reserved_usd": 1.612,
+  "api_call_limit_per_branch": 8,
+  "model": "gpt-5.4-mini-2026-03-17",
+  "source_model": "gpt-6-astra",
+  "elapsed_seconds": 113.29,
+  "warning": "Models and scaffolds both change; no causal scaffold or success-rate conclusion.",
+  "observed_api_cost_usd": 0.017028,
+  "unknown_operations": 0,
+  "api_requests": 12,
+  "unknown_api_requests": 0,
+  "api_reserved_usd": 0.744,
+  "cumulative_reserved_usd": 2.356,
+  "recorded_on": "2026-10-09",
+  "source_report": "work/m3-real-20261009-4/report.json",
+  "source_report_sha256": "6ef2affa04503f0ba2d57c7a61137994e40e1b2266bae6f56422feb8828a3029",
+  "versions": {
+    "harbor": "0.24.0",
+    "mini-swe-agent": "2.4.6",
+    "temporalio": "1.34.0",
+    "psycopg": "3.3.6",
+    "openai": "2.54.0"
+  },
+  "scope": "Single trusted development task; Codex CLI 0.160.1 native continuation and Codex-to-mini text-context transfer; linux/arm64 Docker on macOS.",
+  "source_checkpoint": "620ef645-461a-558f-be62-074355041537",
+  "task_digest": "816a94a6aa6921ef5a17ee018e19e78589b91caa7322d60afb7e0bb0d956d4c4",
+  "image_id": "sha256:1040c4c98544844b0003108d38f4bbbf6e0a89220cfacba7c6fe857b9737a36c",
+  "branches": [
+    {
+      "label": "A-continue",
+      "status": "succeeded",
+      "adapter": "codex",
+      "model": "gpt-6-astra",
+      "reward": {
+        "reward": 1.0
+      },
+      "isolated_verifier": true,
+      "workspace_digest": "82e71ab70e7f6dbfcb82103f1c83b3ef04c0e42b990832eb70e00cedc3f4d097",
+      "api_requests": 0,
+      "known_usage": {
+        "input_tokens": 37575,
+        "output_tokens": 299,
+        "cached_input_tokens": 35712,
+        "reasoning_output_tokens": 0,
+        "cache_write_input_tokens": 0
+      },
+      "prefix_usage": {
+        "input_tokens": 47816,
+        "output_tokens": 365,
+        "cached_input_tokens": 44800,
+        "reasoning_output_tokens": 0,
+        "cache_write_input_tokens": 0
+      },
+      "observed_api_cost_usd": 0,
+      "api_reserved_usd": 0,
+      "cleanup": "complete"
+    },
+    {
+      "label": "B-summary",
+      "status": "succeeded",
+      "adapter": "mini",
+      "model": "gpt-5.4-mini-2026-03-17",
+      "reward": {
+        "reward": 1.0
+      },
+      "isolated_verifier": true,
+      "workspace_digest": "82e71ab70e7f6dbfcb82103f1c83b3ef04c0e42b990832eb70e00cedc3f4d097",
+      "api_requests": 4,
+      "known_usage": {
+        "input_tokens": 5165,
+        "output_tokens": 636,
+        "cached_input_tokens": 1280
+      },
+      "prefix_usage": {
+        "input_tokens": 47816,
+        "output_tokens": 365,
+        "cached_input_tokens": 44800,
+        "reasoning_output_tokens": 0,
+        "cache_write_input_tokens": 0
+      },
+      "observed_api_cost_usd": 0.00587175,
+      "api_reserved_usd": 0.248,
+      "cleanup": "complete"
+    },
+    {
+      "label": "B-trajectory",
+      "status": "succeeded",
+      "adapter": "mini",
+      "model": "gpt-5.4-mini-2026-03-17",
+      "reward": {
+        "reward": 1.0
+      },
+      "isolated_verifier": true,
+      "workspace_digest": "82e71ab70e7f6dbfcb82103f1c83b3ef04c0e42b990832eb70e00cedc3f4d097",
+      "api_requests": 4,
+      "known_usage": {
+        "input_tokens": 16089,
+        "output_tokens": 527,
+        "cached_input_tokens": 12800
+      },
+      "prefix_usage": {
+        "input_tokens": 47816,
+        "output_tokens": 365,
+        "cached_input_tokens": 44800,
+        "reasoning_output_tokens": 0,
+        "cache_write_input_tokens": 0
+      },
+      "observed_api_cost_usd": 0.00579825,
+      "api_reserved_usd": 0.248,
+      "cleanup": "complete"
+    },
+    {
+      "label": "B-workspace",
+      "status": "succeeded",
+      "adapter": "mini",
+      "model": "gpt-5.4-mini-2026-03-17",
+      "reward": {
+        "reward": 1.0
+      },
+      "isolated_verifier": true,
+      "workspace_digest": "82e71ab70e7f6dbfcb82103f1c83b3ef04c0e42b990832eb70e00cedc3f4d097",
+      "api_requests": 4,
+      "known_usage": {
+        "input_tokens": 4558,
+        "output_tokens": 623,
+        "cached_input_tokens": 1280
+      },
+      "prefix_usage": {
+        "input_tokens": 47816,
+        "output_tokens": 365,
+        "cached_input_tokens": 44800,
+        "reasoning_output_tokens": 0,
+        "cache_write_input_tokens": 0
+      },
+      "observed_api_cost_usd": 0.005358,
+      "api_reserved_usd": 0.248,
+      "cleanup": "complete"
+    }
+  ],
+  "source_resources_removed": true,
+  "not_tested": [
+    "Success-rate or cost advantage across a benchmark",
+    "Mini native-session import",
+    "Cross-host execution fencing or host power loss",
+    "Same-model causal scaffold comparisons"
+  ],
+  "billing_note": "Usage-derived known API cost only; reservations are not invoice charges. Codex uses existing subscription and has no USD conversion.",
+  "cumulative_billing": {
+    "approved_usd": 8,
+    "attempts": [
+      {
+        "attempt": 1,
+        "api_requests": 3,
+        "observed_api_cost_usd": 0,
+        "reserved_usd": 0.186,
+        "unknown_api_requests": 3
+      },
+      {
+        "attempt": 2,
+        "api_requests": 6,
+        "observed_api_cost_usd": 0.0066765,
+        "reserved_usd": 0.372,
+        "unknown_api_requests": 3
+      },
+      {
+        "attempt": 3,
+        "api_requests": 17,
+        "observed_api_cost_usd": 0.0241575,
+        "reserved_usd": 1.054,
+        "unknown_api_requests": 0
+      },
+      {
+        "attempt": 4,
+        "api_requests": 12,
+        "observed_api_cost_usd": 0.017028,
+        "reserved_usd": 0.744,
+        "unknown_api_requests": 0
+      }
+    ],
+    "api_requests": 38,
+    "known_api_cost_usd": 0.047862,
+    "reserved_usd": 2.356,
+    "unknown_api_requests": 6,
+    "note": "Six earlier rejected requests lack usage; retain their reservations rather than assert zero cost."
+  }
+}

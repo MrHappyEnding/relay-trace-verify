@@ -2,6 +2,7 @@
 
 import argparse
 import json
+import math
 import os
 import subprocess
 import sys
@@ -20,16 +21,28 @@ from rtv.runtime.views import experiment_view
 
 
 def main(args):
-    if not args.allow_model_calls or not args.allow_api_calls or args.approved_budget_usd != 2:
+    if (
+        not args.allow_model_calls
+        or not args.allow_api_calls
+        or not math.isfinite(args.approved_budget_usd)
+        or args.approved_budget_usd <= 0
+    ):
         raise ValueError(
-            "Requires both model opt-ins and --approved-budget-usd 2 after owner approval"
+            "Requires both model opt-ins and a positive finite approved budget after owner approval"
         )
     from rtv.mini_agent import RESERVATION_USD
 
-    if not 1 <= args.api_call_limit <= 8 or not 0 <= args.prior_reserved_usd < 2:
+    if (
+        not 1 <= args.api_call_limit <= 8
+        or not math.isfinite(args.prior_reserved_usd)
+        or not 0 <= args.prior_reserved_usd < args.approved_budget_usd
+    ):
         raise ValueError("Invalid bounded rerun allowance")
-    if args.prior_reserved_usd + 3 * args.api_call_limit * RESERVATION_USD > 2:
-        raise ValueError("Prior reservations plus this run would exceed the approved $2 total")
+    if (
+        args.prior_reserved_usd + 3 * args.api_call_limit * RESERVATION_USD
+        > args.approved_budget_usd
+    ):
+        raise ValueError("Prior reservations plus this run would exceed the approved total")
     auth = validate_auth(args.auth_file)
     if (
         args.api_key_file.is_symlink()
@@ -220,6 +233,20 @@ def main(args):
             )
             report["unknown_operations"] = sum(
                 r["ledger"]["unknown_operations"] for r in details["trials"]
+            )
+            api_ops = [
+                o
+                for r in rows
+                for o in store.ledger(r["trial_id"])["operations"]
+                if o["kind"] == "mini-api"
+            ]
+            report["api_requests"] = len(api_ops)
+            report["unknown_api_requests"] = sum(o["state"] != "known" for o in api_ops)
+            report["api_reserved_usd"] = round(sum(o["reserved_usd"] for o in api_ops), 9)
+            report["cumulative_reserved_usd"] = round(
+                args.prior_reserved_usd
+                + sum(max(o["reserved_usd"], o["cost_usd"] or 0) for o in api_ops),
+                9,
             )
         (output / "report.json").write_text(json.dumps(report, indent=2) + "\n")
         print(json.dumps(report, indent=2))

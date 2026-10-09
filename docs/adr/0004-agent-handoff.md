@@ -2,7 +2,7 @@
 
 [![中文](../assets/lang-zh.svg)](0004-agent-handoff.md) [![English](../assets/lang-en.svg)](0004-agent-handoff.en.md)
 
-状态：已实现；真实双 agent 验收待运行 · 2026-10-09
+状态：已实现；本机真实双 agent 开发任务验收通过 · 2026-10-09
 
 ## 问题
 
@@ -29,7 +29,7 @@ M2 可以恢复同一 Attempt，但不能公平比较“原 agent 继续”和�
 
 | 来源 | 复用 / 学习范围 | RTV 的适配与限制 |
 | --- | --- | --- |
-| [mini-swe-agent v2.4.6](https://github.com/SWE-agent/mini-swe-agent/tree/v2.4.6) | DefaultAgent、提示模板、Responses 工具解析 / 观测格式 | 自定义宿主 Model 和 Harbor Environment；没有复制执行循环，也没有默认启用其本地 shell |
+| [mini-swe-agent v2.4.6](https://github.com/SWE-agent/mini-swe-agent/tree/v2.4.6) | DefaultAgent、提示模板、Responses 工具解析 / 观测格式、输出提交协议 | 自定义宿主 Model 和 Harbor Environment；没有复制执行循环，也没有默认启用其本地 shell |
 | [Harbor ATIF](https://docs.harborframework.com/agents/atif) | 源轨迹结构与 Codex 转换器 | portable 为有损文本投影；目标原生会话导入没有实现 |
 | [Harbor trajectory loading](https://docs.harborframework.com/jobs/loading-trajectories) | 轨迹加载与环境恢复应分开建模 | 检查点 manifest 与独立工作区仍由 RTV 管理 |
 | [Temporal Activities](https://docs.temporal.io/activity-definition) | 持久化控制编排与可重试 Activity | 幂等业务键、控制权事务、API 请求不重放与成本归因由 RTV 管理 |
@@ -40,7 +40,7 @@ Handoff 状态机、源引用保护、故障收敛、配对前缀归因是本仓
 
 ## 后果与证据
 
-本机协议有 48 项零费用检查；真实服务、脚本模型与合成费用记录明确区分，见
+本机协议有 48 项零费用检查，另有 14 项真实模型检查通过；真实服务、脚本模型、合成费用与真实用量明确区分，见
 [M3](../m3.md)。两种 scaffold 与模型同时改变，且只有一个开发任务；只能用于功能
 验收，不能得出框架或接力效果结论。源隐藏测试反馈不传入 B，但 agent 自行执行的测试
 观测可能存在于 portable 中，属于策略差异，应在正式实验中冻结并记录。

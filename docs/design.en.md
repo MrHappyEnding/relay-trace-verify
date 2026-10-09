@@ -134,7 +134,7 @@ These capabilities must be probed and tested; they are not guarantees about any 
 | Incremental events and token/cost accounting | Label completeness and estimation sources |
 | Request-cost upper bounds and call interception | Enforce strict admission when supported; otherwise declare soft limits |
 
-The first verified integration is Codex CLI 0.160.1 + `gpt-6-astra` through Harbor 0.24.0; see the [experiment](codex-m0.en.md). M3 pins mini-swe-agent 2.4.6 as the second scaffold. Its scripted-provider loop is verified; real API acceptance is pending. See [M3](m3.en.md). Start with stage-boundary handoffs rather than assuming every CLI can pause after any tool call.
+The first verified integration is Codex CLI 0.160.1 + `gpt-6-astra` through Harbor 0.24.0; see the [experiment](codex-m0.en.md). M3 pins mini-swe-agent 2.4.6 as the second scaffold. Its scripted and real-API loops are verified, including three context policies and native A continuation on one development task. See [M3](m3.en.md). Start with stage-boundary handoffs rather than assuming every CLI can pause after any tool call.
 
 ## 8. Budget model
 

@@ -2,13 +2,37 @@
 
 import asyncio
 import json
+import runpy
 from contextlib import contextmanager
+from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
 
-from rtv.mini_agent import MINI_MODEL, api_error_details, api_input, measured_usage
+from rtv.mini_agent import (
+    MINI_MODEL,
+    api_error_details,
+    api_input,
+    check_submission,
+    measured_usage,
+)
 from rtv.runtime.handoff import plan, target_spec
+
+
+@pytest.mark.parametrize("approved,prior", [(0, 0), (float("nan"), 0), (8, 7), (8, float("nan"))])
+def test_smoke_budget_rejects_invalid_or_excess_carryover_before_credentials(approved, prior):
+    pytest.importorskip("psycopg")
+    script = runpy.run_path(str(Path(__file__).parents[1] / "scripts/m3_model_smoke.py"))
+    args = SimpleNamespace(
+        allow_model_calls=True,
+        allow_api_calls=True,
+        approved_budget_usd=approved,
+        prior_reserved_usd=prior,
+        api_call_limit=8,
+    )
+    # Deliberately no credential or output paths: refusal must precede their access.
+    with pytest.raises(ValueError):
+        script["main"](args)
 
 
 @pytest.fixture
@@ -264,7 +288,10 @@ def test_real_mini_loop_with_mocked_transport_accounts_before_parse_and_never_re
                         "name": "bash",
                         "call_id": "submit",
                         "arguments": json.dumps(
-                            {"command": "echo COMPLETE_TASK_AND_SUBMIT_FINAL_OUTPUT"}
+                            {
+                                "command": "cd /workspace && "
+                                "echo COMPLETE_TASK_AND_SUBMIT_FINAL_OUTPUT"
+                            }
                         ),
                     }
                 ],
@@ -280,8 +307,18 @@ def test_real_mini_loop_with_mocked_transport_accounts_before_parse_and_never_re
     monkeypatch.setenv("RTV_ALLOW_API_CALLS", "1")
     monkeypatch.setenv("OPENAI_API_KEY", "test-only-never-sent")
     monkeypatch.delenv("RTV_API_KEY_FILE", raising=False)
+
+    class Environment:
+        async def exec(self, *, command, cwd, timeout_sec):
+            assert command == "cd /workspace && echo COMPLETE_TASK_AND_SUBMIT_FINAL_OUTPUT"
+            assert cwd == "/workspace"
+            assert len(settled) == 2  # Bill the response before executing its tool.
+            return SimpleNamespace(
+                stdout="COMPLETE_TASK_AND_SUBMIT_FINAL_OUTPUT\n", stderr="", return_code=0
+            )
+
     invocation = execute_mini(
-        None,
+        Environment(),
         "Test submission",
         tmp_path,
         settings=None,
@@ -307,3 +344,34 @@ def test_real_mini_loop_with_mocked_transport_accounts_before_parse_and_never_re
         )
         assert "test-only-never-sent" not in result.rollout.read_text()
     assert clients[0].closed
+
+
+@pytest.mark.parametrize(
+    "text,returncode,submission",
+    [
+        ("COMPLETE_TASK_AND_SUBMIT_FINAL_OUTPUT\n", 0, ""),
+        ("\n  COMPLETE_TASK_AND_SUBMIT_FINAL_OUTPUT\npatch\n", 0, "patch\n"),
+        ("COMPLETE_TASK_AND_SUBMIT_FINAL_OUTPUT\n", 1, None),
+        ("log\nCOMPLETE_TASK_AND_SUBMIT_FINAL_OUTPUT\n", 0, None),
+        ("COMPLETE_TASK_AND_SUBMIT_FINAL_OUTPUT_suffix\n", 0, None),
+        ("", 0, None),
+    ],
+)
+def test_submission_matches_upstream_output_protocol(
+    tmp_path, monkeypatch, text, returncode, submission
+):
+    monkeypatch.setenv("MSWEA_GLOBAL_CONFIG_DIR", str(tmp_path / "mini-config"))
+    monkeypatch.setenv("MSWEA_SILENT_STARTUP", "1")
+    pytest.importorskip("minisweagent")
+    from minisweagent.environments.local import LocalEnvironment
+    from minisweagent.exceptions import Submitted
+
+    output = {"output": text, "returncode": returncode}
+    upstream = LocalEnvironment()
+    for check in (check_submission, upstream._check_finished):
+        if submission is None:
+            check(output)
+        else:
+            with pytest.raises(Submitted) as caught:
+                check(output)
+            assert caught.value.messages[0]["extra"]["submission"] == submission

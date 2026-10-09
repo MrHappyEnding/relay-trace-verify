@@ -2,7 +2,7 @@
 
 [![中文](../assets/lang-zh.svg)](0004-agent-handoff.md) [![English](../assets/lang-en.svg)](0004-agent-handoff.en.md)
 
-Status: implemented; real two-agent acceptance pending · 2026-10-09
+Status: implemented; real two-agent local development-task acceptance passed · 2026-10-09
 
 ## Problem
 
@@ -33,7 +33,7 @@ mix verified facts with source-agent judgments. Copying cumulative usage double-
 
 | Source | Reused or studied | RTV adaptation and limits |
 | --- | --- | --- |
-| [mini-swe-agent v2.4.6](https://github.com/SWE-agent/mini-swe-agent/tree/v2.4.6) | DefaultAgent, templates, Responses action parser and observations | Host Model and Harbor Environment; upstream loop is reused, upstream local shell is not enabled |
+| [mini-swe-agent v2.4.6](https://github.com/SWE-agent/mini-swe-agent/tree/v2.4.6) | DefaultAgent, templates, Responses action parser, observations and output submission protocol | Host Model and Harbor Environment; upstream loop is reused, upstream local shell is not enabled |
 | [Harbor ATIF](https://docs.harborframework.com/agents/atif) | Source trajectory format and Codex converter | Lossy text projection; no target-native import |
 | [Harbor trajectory loading](https://docs.harborframework.com/jobs/loading-trajectories) | Model trajectory loading separately from environment restore | RTV owns checkpoint manifests and independent workspaces |
 | [Temporal Activities](https://docs.temporal.io/activity-definition) | Durable control orchestration and retryable Activities | RTV owns business keys, authority transactions, non-replayed API requests and attribution |
@@ -45,8 +45,8 @@ protocols or agent handoffs. Prior mechanisms remain as learning and reproductio
 
 ## Consequences and evidence
 
-The local protocol passes 48 zero-cost checks. Evidence separates real services, scripted models and
-synthetic accounting; see [M3](../m3.en.md). Both scaffold and model change on one development task;
+The local protocol passes 48 zero-cost checks, alongside 14 passing real-model checks. Evidence
+separates real services, scripted models, synthetic accounting and real usage; see [M3](../m3.en.md). Both scaffold and model change on one development task;
 this validates functionality, not framework or relay performance. Hidden verifier feedback is not
 passed to B. Agent-issued test observations can appear in portable context, a policy difference to
 freeze and record in formal experiments.
