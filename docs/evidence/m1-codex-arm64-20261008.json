@@ -1,0 +1,65 @@
+{
+  "mode": "real-codex-temporal-worker-restart",
+  "checks": {
+    "codex_turn_active_before_restart": true,
+    "same_sandbox_after_worker_sigkill": true,
+    "duplicate_real_request_same_execution": true,
+    "real_codex_task_verified": true,
+    "one_native_session_start": true,
+    "observed_usage_preserved": true,
+    "no_remaining_task_resources": true
+  },
+  "status": "passed",
+  "elapsed_seconds": 31.91,
+  "trial": {
+    "trial_id": "bc96710e-7b4b-5526-b91f-ee824d696902",
+    "operation_id": "f12a0051-ca31-5cab-ad86-2c3afa806d36",
+    "attempt_id": "454ec762-64f6-593d-811f-bbb5b118b24a",
+    "execution_id": "46b2b809-b507-5882-8ef2-591f210ac9a5",
+    "epoch": 1,
+    "status": "succeeded",
+    "cancel_requested": false,
+    "cleanup": "complete",
+    "result": {
+      "usage": {
+        "input_tokens": 47769,
+        "output_tokens": 352,
+        "cached_input_tokens": 44800,
+        "reasoning_output_tokens": 0,
+        "cache_write_input_tokens": 0
+      },
+      "reason": "verified",
+      "status": "succeeded",
+      "billing": "existing-chatgpt-subscription",
+      "rewards": {
+        "reward": 1.0
+      },
+      "cost_usd": null,
+      "artifacts": "bc96710e-7b4b-5526-b91f-ee824d696902",
+      "session_id": "01a11f64-4524-7d01-9526-472557c10d8f",
+      "usage_status": "known",
+      "workspace_digest": "82e71ab70e7f6dbfcb82103f1c83b3ef04c0e42b990832eb70e00cedc3f4d097"
+    }
+  },
+  "recorded_on": "2026-10-08",
+  "source_report": "work/m1-codex-20261008-1/report.json",
+  "versions": {
+    "harbor": "0.24.0",
+    "codex_cli": "0.160.1",
+    "temporal_sdk": "1.34.0",
+    "temporal_cli": "1.9.1",
+    "temporal_server": "1.32.0",
+    "postgres": "17.6",
+    "psycopg": "3.3.6",
+    "docker_engine": "28.5.1",
+    "platform": "linux/arm64 containers on macOS"
+  },
+  "scope": "single host; trusted fixtures; existing supervisor takeover; no distributed fencing",
+  "not_tested": [
+    "host/disk loss",
+    "multi-host execution",
+    "supervisor loss during sandbox creation",
+    "automatic checkpoint recovery",
+    "strict token or monetary admission"
+  ]
+}

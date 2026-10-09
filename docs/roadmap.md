@@ -2,9 +2,9 @@
 
 [![中文](assets/lang-zh.svg)](roadmap.md) [![English](assets/lang-en.svg)](roadmap.en.md)
 
-状态：F0 完成，首个 Codex 适配器 M0 验收完成；M1 待开始 · 2026-10-08
+状态：F0、首个 Codex 适配器 M0、单机范围 M1 验收完成 · 2026-10-08
 
-首版框架已完成 F0，M0 已在首个 Codex 适配器的限定范围完成；M1–M4 尚未实现，顺序按风险消除安排。本地 fixture 和模拟协议测试不能替代实际容器及真实 agent 兼容性验证。参考复现与自主实现均保留，详见[学习计划](learning-plan.md)。
+首版框架已完成 F0，M0 已在首个 Codex 适配器的限定范围完成；M1 已在单机范围实现；M2–M4 尚未实现，顺序按风险消除安排。本地 fixture 和模拟协议测试不能替代实际容器及真实 agent 兼容性验证。参考复现与自主实现均保留，详见[学习计划](learning-plan.md)。
 
 ## F0：框架骨架
 
@@ -31,17 +31,19 @@
 
 **验收证据**：两个隔离沙箱之间的恢复示例、文件 digest 对照、兼容性记录，以及明确拒绝不支持能力的行为。M0 不要求复杂网页或 Kubernetes。
 
-当前命令、协议和证据见 [M0 指南](m0.md)。脚本容器往返及首个真实 Codex 的原生恢复 / 新会话交接均已通过，见 [Codex 证据](codex-m0.md)；后续 ATIF 与真实取消 / 回滚证据见 [M0 验收](m0-boundaries.md)。进程内存恢复、worker 崩溃及严格预算仍不支持。
+当前命令、协议和证据见 [M0 指南](m0.md)。脚本容器往返及首个真实 Codex 的原生恢复 / 新会话交接均已通过，见 [Codex 证据](codex-m0.md)；后续 ATIF 与真实取消 / 回滚证据见 [M0 验收](m0-boundaries.md)。进程内存恢复与严格预算仍不支持；worker 重启接管见 [M1](m1.md)。
 
 ## M1：单 agent 持久执行
 
-- [ ] Trial / Attempt / Execution 对象、状态迁移与稳定 operation ID。
-- [ ] Temporal Workflow 与可查询、可重复调用的控制 Activities。
-- [ ] 提交、状态查询、取消、最终验证与产物保存。
-- [ ] 从第一天关联控制事件、执行事件、成本与结果。
-- [ ] worker 重启后的核对与沙箱接管，TTL 和清理重试。
+- [x] Trial / Attempt / Execution 对象、状态迁移与稳定 operation ID。
+- [x] Temporal Workflow 与可查询、可重复调用的控制 Activities。
+- [x] 提交、状态查询、取消、最终验证与产物保存。
+- [x] 从第一天关联控制事件、执行事件、成本与结果。
+- [x] worker 重启后的核对与沙箱接管，TTL 和清理重试。
 
 **验收证据**：重复提交不会创建重复有效执行；取消能收敛；重启后可核对已有沙箱；测试结束后无遗留任务资源。
+
+实际实现、22 项真实服务检查和 7 项真实 Codex 检查见 [M1 验收](m1.md)。范围为单机存活 supervisor 的接管，不包含丢失执行的自动重放。
 
 ## M2：检查点与可靠恢复
 
@@ -88,4 +90,4 @@
 | 控制语言 | Python | 与 Harbor 接入成本及类型契约 |
 | 首个执行后端 | 本地容器 | 先验证协议，再验证分布式故障 |
 
-下一项实际工作是 M1：稳定 operation ID、Temporal 编排、状态查询 / 取消与 worker 重启核对；第二种 agent 仍放在 M3。
+下一项实际工作是 M2：持久条件提交、epoch fencing、检查点恢复和未决用量归因；第二种 agent 仍放在 M3。

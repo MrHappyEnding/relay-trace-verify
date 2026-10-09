@@ -16,7 +16,15 @@ from rtv.harbor_probe import HARBOR_VERSION, _container_ids, _docker, doctor, tr
 from rtv.storage import LocalCheckpointStore
 
 
-def make_environment(task: Any, output: Path, role: str, image_id: str | None = None) -> Any:
+def make_environment(
+    task: Any,
+    output: Path,
+    role: str,
+    image_id: str | None = None,
+    *,
+    session_id: str | None = None,
+    environment_type: Any = None,
+) -> Any:
     from harbor.environments.docker.docker import DockerEnvironment
     from harbor.models.trial.paths import EnvironmentPaths, TrialPaths
 
@@ -26,10 +34,10 @@ def make_environment(task: Any, output: Path, role: str, image_id: str | None = 
     if image_id:
         config = config.model_copy(update={"docker_image": image_id})
     remote = EnvironmentPaths.for_os(config.os)
-    return DockerEnvironment(
+    return (environment_type or DockerEnvironment)(
         environment_dir=task.paths.environment_dir,
         environment_name=task.short_name,
-        session_id=f"rtv-codex-{uuid4().hex}",
+        session_id=session_id or f"rtv-codex-{uuid4().hex}",
         trial_paths=paths,
         task_env_config=config,
         network_policy=config.resolve_baseline(),

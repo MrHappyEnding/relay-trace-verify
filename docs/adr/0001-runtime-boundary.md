@@ -3,7 +3,7 @@
 [![中文](../assets/lang-zh.svg)](0001-runtime-boundary.md) [![English](../assets/lang-en.svg)](0001-runtime-boundary.en.md)
 
 - 日期：2026-10-07
-- 状态：Proposed
+- 状态：Accepted（M0 验证后；M1 本机实现补充见 ADR 0002）
 
 ## 背景
 

@@ -109,3 +109,5 @@ Optional Harbor tests use the real Task parser with mocked container transport, 
 A separately executed real Docker smoke verified file recovery, workspace isolation and Harbor verification; see the [M0 guide](m0.en.md). The first real Codex native recovery and fresh-session handoff also passed; see the [Codex guide](codex-m0.en.md). Mocked faults cover timeout, cancellation, unquiesced snapshot refusal, corruption and cleanup leaks. This evidence does not establish handoff gains, general sandbox security, workflow crash recovery, budget caps or multi-worker correctness; follow the [roadmap](roadmap.en.md).
 
 See [M0 acceptance](m0-boundaries.en.md) for the final scope, `capabilities` / `codex-atif-audit` / `codex-boundaries` commands and image retention. The synchronous Runner remains a fixture; durable orchestration begins at M1.
+
+M1 now adds the durable control plane in `src/rtv/runtime/`, retaining the synchronous fixture above for learning and protocol tests. See the [M1 guide](m1.en.md) for deployment and verified worker takeover.

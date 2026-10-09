@@ -2,9 +2,9 @@
 
 [![中文](assets/lang-zh.svg)](roadmap.md) [![English](assets/lang-en.svg)](roadmap.en.md)
 
-Status: F0 complete; M0 accepted for the first Codex adapter; M1 next · 2026-10-08
+Status: F0, first-adapter M0 and single-host M1 accepted · 2026-10-08
 
-The initial framework completes F0 below. M0 is accepted within the first Codex adapter’s stated scope; M1–M4 remain unimplemented and are ordered to reduce risk. Local fixtures and mocked protocol tests do not replace real-container or real-agent compatibility tests. Reproduction and original implementation both remain in scope; see the [learning plan](learning-plan.en.md).
+The initial framework completes F0 below. M0 is accepted within the first Codex adapter’s stated scope; M1 is implemented on one host; M2–M4 remain unimplemented and are ordered to reduce risk. Local fixtures and mocked protocol tests do not replace real-container or real-agent compatibility tests. Reproduction and original implementation both remain in scope; see the [learning plan](learning-plan.en.md).
 
 ## F0: Framework skeleton
 
@@ -31,17 +31,19 @@ See the [framework development guide](framework.en.md) for the current implement
 
 **Acceptance evidence**: a recovery example between two isolated sandboxes, file-digest comparisons, compatibility records, and explicit rejection of unsupported capabilities. M0 does not require a complex web interface or Kubernetes.
 
-See the [M0 guide](m0.en.md) for commands, protocol, and evidence. Scripted container recovery and the first real Codex native recovery/fresh-session handoff passed; see [Codex evidence](codex-m0.en.md). Follow-up ATIF and real cancellation/rollback evidence is in [M0 acceptance](m0-boundaries.en.md). Process-memory recovery, worker crashes and strict budgets remain unsupported.
+See the [M0 guide](m0.en.md) for commands, protocol, and evidence. Scripted container recovery and the first real Codex native recovery/fresh-session handoff passed; see [Codex evidence](codex-m0.en.md). Follow-up ATIF and real cancellation/rollback evidence is in [M0 acceptance](m0-boundaries.en.md). Process-memory recovery and strict budgets remain unsupported; see [M1](m1.en.md) for worker takeover.
 
 ## M1: Durable single-agent execution
 
-- [ ] Trial/Attempt/Execution objects, state transitions, and stable operation IDs.
-- [ ] Temporal Workflows and control Activities whose results can be queried and safely retried.
-- [ ] Submission, status queries, cancellation, final verification, and artifact persistence.
-- [ ] Link control events, execution events, costs, and results from day one.
-- [ ] Reconciliation and sandbox takeover after worker restart, TTLs, and cleanup retries.
+- [x] Trial/Attempt/Execution objects, state transitions, and stable operation IDs.
+- [x] Temporal Workflows and control Activities whose results can be queried and safely retried.
+- [x] Submission, status queries, cancellation, final verification, and artifact persistence.
+- [x] Link control events, execution events, costs, and results from day one.
+- [x] Reconciliation and sandbox takeover after worker restart, TTLs, and cleanup retries.
 
 **Acceptance evidence**: duplicate submissions do not create duplicate valid executions; cancellation converges; existing sandboxes can be reconciled after restart; and tests leave no task resources behind.
+
+See [M1 acceptance](m1.en.md) for implementation, 22 real-service checks and 7 real-Codex checks. Scope: takeover of a surviving supervisor on one host, without automatic replay of lost executions.
 
 ## M2: Checkpoints and reliable recovery
 
@@ -88,4 +90,4 @@ Tool-boundary checkpoints, more agents, trajectory judges calibrated against lab
 | Control language | Python | Harbor integration cost and typed contracts |
 | First execution backend | Local containers | Validate the protocol before distributed faults |
 
-Next: M1 stable operation IDs, Temporal orchestration, query/cancel behavior and worker-restart reconciliation. The second agent remains scheduled for M3.
+Next: M2 conditional commits, epoch fencing, checkpoint recovery and uncertain usage attribution. The second agent remains scheduled for M3.

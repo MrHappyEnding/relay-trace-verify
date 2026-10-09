@@ -3,7 +3,7 @@
 [![中文](../assets/lang-zh.svg)](0001-runtime-boundary.md) [![English](../assets/lang-en.svg)](0001-runtime-boundary.en.md)
 
 - Date: 2026-10-07
-- Status: Proposed
+- Status: Accepted after M0; ADR 0002 refines the local M1 implementation
 
 ## Context
 

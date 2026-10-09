@@ -15,6 +15,9 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="rtv", description="Relay Trace Verify local framework")
     parser.add_argument("--version", action="version", version=f"RTV {__version__}")
     commands = parser.add_subparsers(dest="command", required=True)
+    from rtv.runtime.cli import add_parser
+
+    add_parser(commands)
     commands.add_parser(
         "capabilities", help="Show the tested M0 compatibility and snapshot contract"
     )
@@ -57,6 +60,10 @@ def main(argv: list[str] | None = None) -> int:
     audit.add_argument("--model", default=DEFAULT_MODEL)
     args = parser.parse_args(argv)
     try:
+        if args.command == "runtime":
+            from rtv.runtime.cli import run
+
+            return run(args)
         if args.command == "capabilities":
             from rtv.capabilities import capability_report
 

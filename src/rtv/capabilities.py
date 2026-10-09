@@ -66,12 +66,24 @@ def capability_report() -> dict:
                 "single-process atomic rename; no host-power-loss or distributed guarantees"
             ),
         },
+        "runtime": {
+            "milestone": "M1 single-host trusted fixtures",
+            "control": "Temporal 1.34.0 SDK + PostgreSQL product metadata",
+            "worker_restart": "take over observation of a surviving local supervisor/sandbox",
+            "supervisor_loss": "fail and clean up; do not replay a possibly charged turn",
+            "automatic_checkpoint_recovery": False,
+            "distributed_fencing": False,
+            "evidence": [
+                "docs/evidence/m1-runtime-arm64-20261008.json",
+                "docs/evidence/m1-codex-arm64-20261008.json",
+            ],
+        },
         "not_verified": [
             "other agents",
             "cross-model / cross-framework ATIF",
             "multimodal ATIF",
             "mid-tool continuation",
-            "worker crash recovery",
+            "host loss / cross-host takeover",
             "distributed fencing",
         ],
     }

@@ -1,0 +1,200 @@
+{
+  "mode": "real-services-model-free",
+  "model_calls": 0,
+  "status": "passed",
+  "checks": {
+    "worker_sigkill_did_not_stop_sandbox": true,
+    "duplicate_submission_same_identity": true,
+    "conflicting_duplicate_rejected": true,
+    "worker_restart_trial_verified": true,
+    "same_supervisor_after_restart": true,
+    "single_effective_agent_start": true,
+    "workflow_history_replays": true,
+    "workflow_converged_after_response_loss": true,
+    "temporal_activity_retried": true,
+    "workflow_query_matches_product": true,
+    "closed_trial_not_reexecuted": true,
+    "queued_cancel_no_execution": true,
+    "db_to_temporal_gap_repaired": true,
+    "running_cancel_converged": true,
+    "ttl_enforced_while_worker_down": true,
+    "lost_supervisor_not_replayed": true,
+    "cleanup_failure_not_marked_complete": true,
+    "cleanup_retry_converged": true,
+    "no_trial_containers_or_networks": true,
+    "artifact_saved": true,
+    "one_actual_fixture_invocation": true,
+    "events_correlated": true
+  },
+  "elapsed_seconds": 90.39,
+  "trials": [
+    {
+      "trial_id": "1e0e9f9b-8fe9-5a8c-8128-37ac2e3e9060",
+      "operation_id": "89f4a800-58b7-5441-b149-68b9a1159401",
+      "attempt_id": "07e63689-1279-5868-ab54-fc4e2f1906d4",
+      "execution_id": "bb02e5cb-9d2d-542d-850f-54be2732fb8b",
+      "epoch": 1,
+      "status": "succeeded",
+      "cancel_requested": false,
+      "cleanup": "complete",
+      "result": {
+        "usage": null,
+        "reason": "verified",
+        "status": "succeeded",
+        "billing": "no-model",
+        "rewards": {
+          "reward": 1.0
+        },
+        "cost_usd": 0,
+        "artifacts": "1e0e9f9b-8fe9-5a8c-8128-37ac2e3e9060",
+        "usage_status": "not_applicable",
+        "workspace_digest": "a450afc0ff17806dde332dae423517b5b9f9c7ba5df4001f964dc3604e78c74f"
+      }
+    },
+    {
+      "trial_id": "b3d7d035-3cce-51ae-852a-7a02ad8d2330",
+      "operation_id": "4b38add2-3fb2-53a4-ba5c-652413197dcb",
+      "attempt_id": "77808a87-ef20-5529-89ca-7d120674905f",
+      "execution_id": "0ccfd638-ec79-5711-a25a-f9539d5704ee",
+      "epoch": 1,
+      "status": "cancelled",
+      "cancel_requested": true,
+      "cleanup": "complete",
+      "result": {
+        "usage": null,
+        "reason": "cancelled",
+        "status": "cancelled",
+        "billing": "no-model",
+        "cost_usd": 0,
+        "artifacts": "b3d7d035-3cce-51ae-852a-7a02ad8d2330",
+        "usage_status": "not_applicable"
+      }
+    },
+    {
+      "trial_id": "49734bfe-f6d9-524a-8bfb-3db8e16cc8d1",
+      "operation_id": "8bcaf007-362b-56df-8d5e-d5ccd673736c",
+      "attempt_id": "fe340fa9-4f6b-5f3f-9ac2-cc30d1598f6d",
+      "execution_id": "6cf121fd-f752-58d2-8371-e934042d7673",
+      "epoch": 1,
+      "status": "succeeded",
+      "cancel_requested": false,
+      "cleanup": "complete",
+      "result": {
+        "usage": null,
+        "reason": "verified",
+        "status": "succeeded",
+        "billing": "no-model",
+        "rewards": {
+          "reward": 1.0
+        },
+        "cost_usd": 0,
+        "artifacts": "49734bfe-f6d9-524a-8bfb-3db8e16cc8d1",
+        "usage_status": "not_applicable",
+        "workspace_digest": "a450afc0ff17806dde332dae423517b5b9f9c7ba5df4001f964dc3604e78c74f"
+      }
+    },
+    {
+      "trial_id": "aaad97ca-c741-5d5e-8710-a45fa8be1391",
+      "operation_id": "c34ede5f-f3f0-535a-9005-6b0e6bd6be7c",
+      "attempt_id": "15324ebc-8473-509c-8ca1-651730a92f31",
+      "execution_id": "7e97653d-e5c4-5f0b-a16d-bf98b8595e36",
+      "epoch": 1,
+      "status": "cancelled",
+      "cancel_requested": true,
+      "cleanup": "complete",
+      "result": {
+        "usage": null,
+        "reason": "cancelled",
+        "status": "cancelled",
+        "billing": "no-model",
+        "cost_usd": 0,
+        "artifacts": "aaad97ca-c741-5d5e-8710-a45fa8be1391",
+        "usage_status": "not_applicable"
+      }
+    },
+    {
+      "trial_id": "324e6de7-c4f4-5215-8136-0d4ea68d4f86",
+      "operation_id": "1de91e5b-4060-553c-aa51-04ae0bde0087",
+      "attempt_id": "6649d0de-8190-5fcb-8a15-01953a06f793",
+      "execution_id": "234fbddc-833e-51bf-90dc-7197eea6fa7a",
+      "epoch": 1,
+      "status": "failed",
+      "cancel_requested": false,
+      "cleanup": "complete",
+      "result": {
+        "usage": null,
+        "reason": "ttl_expired",
+        "status": "failed",
+        "billing": "no-model",
+        "cost_usd": 0,
+        "artifacts": "324e6de7-c4f4-5215-8136-0d4ea68d4f86",
+        "usage_status": "not_applicable"
+      }
+    },
+    {
+      "trial_id": "43dab6b4-8096-584f-92a6-6b04e4c46aa3",
+      "operation_id": "41df3863-e284-5f95-ba8c-4400ab910fae",
+      "attempt_id": "d2bf803d-0cba-578b-864c-1ffbcbceabcb",
+      "execution_id": "8c43ab38-f20e-566f-ae58-c5b55dde3683",
+      "epoch": 1,
+      "status": "failed",
+      "cancel_requested": false,
+      "cleanup": "complete",
+      "result": {
+        "usage": null,
+        "reason": "supervisor_lost",
+        "status": "failed",
+        "billing": "no-model",
+        "cost_usd": 0,
+        "artifacts": "43dab6b4-8096-584f-92a6-6b04e4c46aa3",
+        "usage_status": "not_applicable"
+      }
+    },
+    {
+      "trial_id": "48e7e7e9-4ce2-59de-b162-a135cb15a5f8",
+      "operation_id": "ab6dfd52-8179-5b00-b1f0-f8302b3eb201",
+      "attempt_id": "8d5ff51e-5e5f-52d3-b0cd-d601c6170ca1",
+      "execution_id": "7389478d-9fdb-5982-a6c8-221e70beb8a3",
+      "epoch": 1,
+      "status": "cancelled",
+      "cancel_requested": true,
+      "cleanup": "complete",
+      "result": {
+        "usage": null,
+        "reason": "cancelled",
+        "status": "cancelled",
+        "billing": "no-model",
+        "cost_usd": 0,
+        "artifacts": "48e7e7e9-4ce2-59de-b162-a135cb15a5f8",
+        "usage_status": "not_applicable"
+      }
+    }
+  ],
+  "recorded_on": "2026-10-08",
+  "source_report": "work/m1-acceptance-20261008-2/report.json",
+  "versions": {
+    "harbor": "0.24.0",
+    "codex_cli": "0.160.1",
+    "temporal_sdk": "1.34.0",
+    "temporal_cli": "1.9.1",
+    "temporal_server": "1.32.0",
+    "postgres": "17.6",
+    "psycopg": "3.3.6",
+    "docker_engine": "28.5.1",
+    "platform": "linux/arm64 containers on macOS"
+  },
+  "scope": "single host; trusted fixtures; existing supervisor takeover; no distributed fencing",
+  "not_tested": [
+    "host/disk loss",
+    "multi-host execution",
+    "supervisor loss during sandbox creation",
+    "automatic checkpoint recovery",
+    "strict token or monetary admission"
+  ],
+  "supplemental_checks": {
+    "native_temporal_cancellation": {
+      "passed": true,
+      "source_report": "work/m1-native-cancel-20261008-1/result.json"
+    }
+  }
+}

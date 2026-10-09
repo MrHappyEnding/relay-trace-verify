@@ -109,3 +109,5 @@ work/demo/
 另行执行的真实 Docker smoke 已验证容器间文件恢复、工作区隔离和 Harbor verifier，记录见 [M0 指南](m0.md)。首个真实 Codex 的原生恢复与新会话交接也已通过，见 [Codex 指南](codex-m0.md)；模拟故障测试覆盖超时、取消、拒绝不静止快照、损坏和清理残留。这些证据不能证明接力收益、通用沙箱安全性、故障后的工作流自动恢复、预算上限或多 worker 正确性，仍按[实施路线](roadmap.md)逐步验证。
 
 M0 的最终限定范围验收、`capabilities` / `codex-atif-audit` / `codex-boundaries` 命令与镜像保留策略见 [M0 验收](m0-boundaries.md)。当前同步 Runner 仍是 fixture；持久编排从 M1 开始。
+
+M1 已另增 `src/rtv/runtime/` 持久控制面，保留上述同步 fixture 用于教学和协议单测。部署及已验证的 worker 重启接管见 [M1 指南](m1.md)。

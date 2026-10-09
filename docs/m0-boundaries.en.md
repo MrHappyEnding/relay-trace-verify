@@ -5,7 +5,7 @@
 2026-10-08: **M0 acceptance is complete within the first Codex adapter's stated
 scope.** Native recovery and semantic handoff are now supplemented with same-model
 ATIF import, cancellation during a real tool call, checkpoint rollback, image
-lifecycle handling and explicit capabilities. M1–M4 are not implemented; this is
+lifecycle handling and explicit capabilities. This page records M0; see [M1](m1.en.md) for subsequent worker takeover; this is
 not automatic recovery after a worker crash.
 
 ## Reproduce
@@ -126,7 +126,7 @@ tool processes are outside the snapshot.
   or invented dollar price. Wall-clock termination includes stop/cleanup grace
   periods and is not strict token/dollar admission.
 
-Next is **M1 durable single-agent execution**: stable operation IDs, Temporal
+The subsequent **[M1 durable single-agent execution](m1.en.md)** now covers stable operation IDs, Temporal
 orchestration, query/cancel behavior, then sandbox reconciliation after worker
 restart. The second agent remains planned for M3.
 

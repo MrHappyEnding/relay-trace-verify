@@ -4,7 +4,7 @@
 
 2026-10-08：**首个 Codex 适配器的 M0 限定范围验收完成**。在已验证的原生恢复和
 语义交接基础上，补齐同模型 ATIF 导入、真实工具运行中的取消与检查点回滚、镜像
-生命周期和能力声明。M1–M4 尚未实现；这不是 worker 崩溃后的自动恢复系统。
+生命周期和能力声明。本页仅记录 M0；后续 worker 接管能力见 [M1](m1.md)。
 
 ## 复现
 
@@ -108,7 +108,7 @@ uv run --no-sync rtv codex-atif-audit \
 - 使用现有 ChatGPT 订阅，无额外付费 API；美元成本不估造。wall clock 终止还包含
   停止 / 清理等待窗口，不提供严格 token 或金额准入。
 
-下一步进入 **M1：单 agent 持久执行**，先落实稳定 operation ID、Temporal 编排、
+后续已完成 **[M1：单 agent 持久执行](m1.md)**，先落实稳定 operation ID、Temporal 编排、
 状态查询和取消，再验证 worker 重启后的沙箱核对。第二种 agent 仍安排在 M3。
 
 参考：[Harbor 轨迹加载](https://docs.harborframework.com/jobs/loading-trajectories)、
