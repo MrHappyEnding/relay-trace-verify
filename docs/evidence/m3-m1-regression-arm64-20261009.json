@@ -1,0 +1,47 @@
+{
+  "mode": "real-services-model-free",
+  "model_calls": 0,
+  "status": "passed",
+  "checks": {
+    "worker_sigkill_did_not_stop_sandbox": true,
+    "duplicate_submission_same_identity": true,
+    "conflicting_duplicate_rejected": true,
+    "worker_restart_trial_verified": true,
+    "same_supervisor_after_restart": true,
+    "single_effective_agent_start": true,
+    "workflow_history_replays": true,
+    "workflow_converged_after_response_loss": true,
+    "temporal_activity_retried": true,
+    "workflow_query_matches_product": true,
+    "closed_trial_not_reexecuted": true,
+    "queued_cancel_no_execution": true,
+    "db_to_temporal_gap_repaired": true,
+    "running_cancel_converged": true,
+    "ttl_enforced_while_worker_down": true,
+    "lost_supervisor_not_replayed": true,
+    "cleanup_failure_not_marked_complete": true,
+    "cleanup_retry_converged": true,
+    "no_trial_containers_or_networks": true,
+    "artifact_saved": true,
+    "one_actual_fixture_invocation": true,
+    "events_correlated": true
+  },
+  "elapsed_seconds": 94.56,
+  "recorded_on": "2026-10-09",
+  "source_report": "work/m3-m1-regression-20261009-1/report.json",
+  "source_report_sha256": "97388b7df47ab16314908db8b58687699d211b0aa9106627ec3398787af7edda",
+  "versions": {
+    "harbor": "0.24.0",
+    "mini-swe-agent": "2.4.6",
+    "temporalio": "1.34.0",
+    "psycopg": "3.3.6",
+    "openai": "2.54.0"
+  },
+  "scope": "single-host local trusted development task, linux/arm64 Docker containers on macOS; no real model calls",
+  "not_tested": [
+    "real mini model calls or real cross-framework handoff",
+    "provider-side billing, cancellation or availability",
+    "multi-host fencing, host/disk/power loss",
+    "formal benchmark quality or causal scaffold effects"
+  ]
+}

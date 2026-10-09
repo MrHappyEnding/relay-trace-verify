@@ -158,7 +158,7 @@ def main(output: Path):
 
         async def workflow_evidence():
             client = await Client.connect(settings.temporal)
-            handle = client.get_workflow_handle("rtv2-" + row["trial_id"])
+            handle = client.get_workflow_handle("rtv3-" + row["trial_id"])
             result = await asyncio.wait_for(handle.result(), 90)
             history = await handle.fetch_history()
             (output / "temporal-history.json").write_text(history.to_json())

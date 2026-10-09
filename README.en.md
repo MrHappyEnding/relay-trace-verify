@@ -6,7 +6,7 @@
 
 A recoverable execution and branching experiment system for long-running coding agents.
 
-**Status: F0–M2 accepted within their stated scopes.** The single-host runtime supports conditional checkpoint commits, epoch ownership checks, independent workspace recovery, cumulative usage and reference-aware collection. Passed: 40 recovery/protocol checks, 10 real-Codex checks and 22 M1 regression checks. The second agent and branches enter M3; multi-host validation remains M4. See the [M2 guide and evidence](docs/m2.en.md).
+**Status: F0–M2 accepted within their stated scopes; M3 implementation and zero-cost acceptance complete, real two-agent validation pending.** M3 adds idempotent handoff, four branches from one checkpoint, isolated verification, prefix attribution and a bilingual read-only viewer. Its 47 checks use real containers and the upstream mini-swe-agent loop with a scripted provider; they do not establish real-model behavior. See the [M3 guide and evidence](docs/m3.en.md).
 
 RTV supports learning through reproduction, system implementation, and original exploration. Existing approaches remain learning material and comparison baselines; see the [learning and resource plan](docs/learning-plan.en.md) for sources and scope. No model-performance or distributed-reliability claims have been established.
 
@@ -55,6 +55,7 @@ RTV focuses on three capabilities:
 | [M0 acceptance and recovery boundaries](docs/m0-boundaries.en.md) | ATIF information loss, real cancellation/rollback, image lifecycle and capabilities |
 | [M1 durable execution](docs/m1.en.md) | Local services, submit/cancel, fault injection, real Codex and boundaries |
 | [M2 checkpoints and recovery](docs/m2.en.md) | Conditional commits, epochs, native resume, UNKNOWN usage, reference GC and acceptance |
+| [M3 handoff and branches](docs/m3.en.md) | Second agent, context policies, isolated verification, viewer and API budget |
 | [Learning and resource plan](docs/learning-plan.en.md) | Open-source references, reproduction goals, lab GPUs, and spending agreement |
 | [System design](docs/design.en.md) | Object relationships, invariants, checkpoint protocol, failure handling, budgets, and adapter capabilities |
 | [Experiment protocol](docs/experiments.en.md) | Paired branches, budget accounting, baselines, statistics, and result artifacts |
@@ -77,7 +78,7 @@ flowchart TD
     OBJ --> EXP
 ```
 
-This diagram shows the complete target architecture. M2 implements local durable orchestration, database epoch checks, checkpoint recovery and a stage-call usage ledger. Artifacts remain local. Object storage, multi-host resource fencing, strict budget admission and experiment branches remain unimplemented.
+This diagram shows the target architecture. M3 implements local handoff and experiment branches on M2 epochs, checkpoints and accounting, with separate mini API request entries. Artifacts remain local. Object storage, multi-host resource fencing and general strict budget admission remain unimplemented; real two-agent validation is pending.
 
 ## Technical boundaries
 

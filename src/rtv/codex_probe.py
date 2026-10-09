@@ -24,6 +24,7 @@ def make_environment(
     *,
     session_id: str | None = None,
     environment_type: Any = None,
+    network_policy: Any = None,
 ) -> Any:
     from harbor.environments.docker.docker import DockerEnvironment
     from harbor.models.trial.paths import EnvironmentPaths, TrialPaths
@@ -40,7 +41,7 @@ def make_environment(
         session_id=session_id or f"rtv-codex-{uuid4().hex}",
         trial_paths=paths,
         task_env_config=config,
-        network_policy=config.resolve_baseline(),
+        network_policy=network_policy or config.resolve_baseline(),
         mounts=[
             {"type": "bind", "source": str(host), "target": str(target)}
             for host, target in [

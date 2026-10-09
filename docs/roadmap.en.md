@@ -4,7 +4,7 @@
 
 Status: F0, first-adapter M0 and single-host M1/M2 accepted · 2026-10-09
 
-The initial framework completes F0 below. M0 is accepted within the first Codex adapter’s stated scope; M1/M2 are implemented on one host; M3–M4 remain unimplemented and are ordered to reduce risk. Local fixtures and mocked protocol tests do not replace real-container or real-agent compatibility tests. Reproduction and original implementation both remain in scope; see the [learning plan](learning-plan.en.md).
+The initial framework completes F0 below. M0 is accepted within the first Codex adapter’s stated scope; M1/M2 are implemented on one host; M3 implementation and scripted-model acceptance are complete, with real two-agent validation pending; M4 remains unimplemented. Local fixtures and mocked protocol tests do not replace real-container or real-agent compatibility tests. Reproduction and original implementation both remain in scope; see the [learning plan](learning-plan.en.md).
 
 ## F0: Framework skeleton
 
@@ -59,13 +59,15 @@ Accepted within the local scope: [M2 guide](m2.en.md), 40 runtime/protocol check
 
 ## M3: Two-agent handoff and experiment branching
 
-- [ ] Idempotent Handoff, target preparation, and transfer of execution control.
-- [ ] Task-only, summary, and portable-trajectory context strategies.
-- [ ] Isolated branches from the same checkpoint.
-- [ ] Paired experiments, prefix-cost attribution, and independent verification.
-- [ ] Minimal interface for state, checkpoint lineage, handoff trajectories, and results.
+- [x] Idempotent Handoff, target preparation, and transfer of execution control.
+- [x] Task-only, summary, and portable-trajectory context strategies.
+- [x] Isolated branches from the same checkpoint.
+- [x] Paired experiments, prefix-cost attribution, and independent verification.
+- [x] Minimal interface for state, checkpoint lineage, handoff trajectories, and results.
 
 **Acceptance evidence**: A-continue, B-workspace, and B-summary can be rerun; branches cannot contaminate one another's files; source state, costs, and final verification are fully traceable.
+
+**Current evidence**: the [M3 guide](m3.en.md) records 47 zero-cost checks. These cover implementation with scripted models. Real Codex → mini-swe-agent handoffs, API usage and native A continuation still await approval and credentials; M3 is not fully accepted.
 
 ## M4: Multi-worker validation and complete report
 
@@ -92,4 +94,4 @@ Tool-boundary checkpoints, more agents, trajectory judges calibrated against lab
 | Control language | Python | Harbor integration cost and typed contracts |
 | First execution backend | Local containers | Validate the protocol before distributed faults |
 
-Next: M3 adds the second agent, isolated branches from the same checkpoint, handoff context strategies, and cost/trajectory comparisons.
+Next: approve the API budget and configure credentials for M3 real two-agent validation on a fixed development task. M4 still needs separate planning for multiple hosts and formal experiments.

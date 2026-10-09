@@ -165,7 +165,7 @@ def main(output):
 
         async def history():
             client = await Client.connect(settings.temporal)
-            handle = client.get_workflow_handle("rtv2-" + row["trial_id"])
+            handle = client.get_workflow_handle("rtv3-" + row["trial_id"])
             result = await asyncio.wait_for(handle.result(), 45)
             hist = await handle.fetch_history()
             await Replayer(workflows=[TrialWorkflow]).replay_workflow(hist)
@@ -192,7 +192,7 @@ def main(output):
 
         async def closed_controller():
             client = await Client.connect(settings.temporal)
-            handle = client.get_workflow_handle("rtv2-" + manual["trial_id"])
+            handle = client.get_workflow_handle("rtv3-" + manual["trial_id"])
             await asyncio.wait_for(handle.result(), 30)
             return (await handle.describe()).run_id
 

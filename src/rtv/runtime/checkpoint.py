@@ -43,10 +43,20 @@ def validate(settings, cp, destination):
 
 def restore(settings, row, destination):
     cp = Store(settings).checkpoint(row["resume_from"])
-    if cp["trial_id"] != row["trial_id"]:
+    from rtv.runtime.handoff import load_context
+    from rtv.runtime.relay_store import RelayStore
+
+    handoff = RelayStore(settings).handoff(row["handoff_id"]) if row["handoff_id"] else None
+    transferred = handoff and handoff["checkpoint_id"] == cp["checkpoint_id"]
+    if cp["trial_id"] != row["trial_id"] and not transferred:
         raise ValueError("Recovery checkpoint belongs to a different trial")
+    policy = load_context(settings, row)["policy"] if transferred else "native"
     context = cp["context"]
-    for key in ("task_digest", "image_id", "adapter", "model"):
+    for key in (
+        ("task_digest", "image_id")
+        if transferred
+        else ("task_digest", "image_id", "adapter", "model")
+    ):
         if context[key] != row["spec"][key]:
             raise ValueError(f"Recovery compatibility mismatch: {key}")
     if context["harbor_version"] != HARBOR_VERSION:
@@ -54,7 +64,7 @@ def restore(settings, row, destination):
     _docker("image", "inspect", row["spec"]["image_id"])
     validate(settings, cp, destination)
     native = None
-    if row["spec"]["adapter"] == "codex":
+    if row["spec"]["adapter"] == "codex" and policy == "native":
         native = validate_bundle(destination, model=row["spec"]["model"])
     return cp, native
 

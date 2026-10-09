@@ -50,6 +50,37 @@ def reconcile(settings: Settings, trial_id: str, *, launch=True):
                 store.cleaned(old["execution_id"])
         if row["status"] in TERMINAL:
             return summary(row)
+        if row["status"] in {"sealed", "preparing"}:
+            expired = datetime.now(UTC) >= row["deadline"]
+            if not row["cancel_requested"] and not expired:
+                if row["status"] == "sealed":
+                    return summary(row)
+                from rtv.runtime.handoff import prepare
+                from rtv.runtime.relay_store import RelayStore
+
+                relays = RelayStore(settings)
+                h = relays.pending_handoff(trial_id)
+                if h:
+                    try:
+                        prepare(settings, h["handoff_id"])
+                        return summary(store.get(trial_id))
+                    except Exception as exc:
+                        if relays.handoff(h["handoff_id"])["state"] == "completed":
+                            return summary(store.get(trial_id))
+                        relays.abort(h["handoff_id"], type(exc).__name__)
+                        if h["kind"] == "relay":
+                            return summary(store.get(trial_id))
+                        sandbox.cleanup(row)
+                        store.finish(
+                            row, empty_result(row, "handoff_prepare_failed"), controller=True
+                        )
+                        return summary(store.get(trial_id))
+        if row["cancel_requested"]:
+            from rtv.runtime.relay_store import RelayStore
+
+            h = RelayStore(settings).pending_handoff(trial_id)
+            if h:
+                RelayStore(settings).abort(h["handoff_id"], "cancelled")
         if row["status"] == "checkpointed":
             return summary(recover(settings, row, "stage:" + row["execution_id"], recovery=False))
         output = execution_dir(settings, row)

@@ -1,4 +1,4 @@
-"""Version 2 state: epoch-fenced writes, immutable checkpoints, cumulative usage."""
+"""Version 3 state: epoch-fenced writes, immutable checkpoints, cumulative usage."""
 
 import hashlib
 import json
@@ -19,12 +19,19 @@ CREATE TABLE IF NOT EXISTS trials (
  cancel_requested BOOL NOT NULL DEFAULT FALSE, cleanup TEXT NOT NULL DEFAULT 'pending',
  created_at TIMESTAMPTZ NOT NULL DEFAULT clock_timestamp(), deadline TIMESTAMPTZ NOT NULL,
  result JSONB, latest_checkpoint TEXT, recoveries INT NOT NULL DEFAULT 0,
- ledger_revision BIGINT NOT NULL DEFAULT 0
+ ledger_revision BIGINT NOT NULL DEFAULT 0, parent_checkpoint TEXT,
+ experiment_id TEXT, branch_label TEXT, prefix_operations JSONB NOT NULL DEFAULT '[]'
 );
 ALTER TABLE trials ADD COLUMN IF NOT EXISTS artifacts_retired BOOL NOT NULL DEFAULT FALSE;
+CREATE TABLE IF NOT EXISTS attempts (
+ attempt_id TEXT PRIMARY KEY, trial_id TEXT NOT NULL REFERENCES trials(trial_id),
+ spec JSONB NOT NULL, created_at TIMESTAMPTZ NOT NULL DEFAULT clock_timestamp()
+);
 CREATE TABLE IF NOT EXISTS executions (
  execution_id TEXT PRIMARY KEY, trial_id TEXT NOT NULL REFERENCES trials(trial_id),
- epoch INT NOT NULL, stage INT NOT NULL, resume_from TEXT, state TEXT NOT NULL DEFAULT 'queued',
+ attempt_id TEXT NOT NULL REFERENCES attempts(attempt_id), spec JSONB NOT NULL,
+ handoff_id TEXT, epoch INT NOT NULL, stage INT NOT NULL, resume_from TEXT,
+ state TEXT NOT NULL DEFAULT 'queued',
  cleanup TEXT NOT NULL DEFAULT 'pending', lease_until TIMESTAMPTZ, result JSONB,
  operation_id TEXT UNIQUE NOT NULL, created_at TIMESTAMPTZ NOT NULL DEFAULT clock_timestamp(),
  UNIQUE(trial_id,epoch)
@@ -37,7 +44,8 @@ CREATE TABLE IF NOT EXISTS events (
 CREATE TABLE IF NOT EXISTS operations (
  operation_id TEXT PRIMARY KEY, trial_id TEXT NOT NULL REFERENCES trials(trial_id),
  execution_id TEXT NOT NULL REFERENCES executions(execution_id), kind TEXT NOT NULL,
- state TEXT NOT NULL DEFAULT 'pending', usage JSONB, reason TEXT,
+ state TEXT NOT NULL DEFAULT 'pending', usage JSONB, reason TEXT, cost_usd DOUBLE PRECISION,
+ parent_operation TEXT REFERENCES operations(operation_id), reserved_usd DOUBLE PRECISION,
  created_at TIMESTAMPTZ NOT NULL DEFAULT clock_timestamp()
 );
 CREATE TABLE IF NOT EXISTS checkpoints (
@@ -52,6 +60,23 @@ CREATE TABLE IF NOT EXISTS checkpoint_refs (
  checkpoint_id TEXT NOT NULL REFERENCES checkpoints(checkpoint_id),
  owner TEXT NOT NULL, PRIMARY KEY(checkpoint_id,owner)
 );
+CREATE TABLE IF NOT EXISTS experiments (
+ experiment_id TEXT PRIMARY KEY, root TEXT NOT NULL, request_hash TEXT NOT NULL,
+ source_checkpoint TEXT NOT NULL REFERENCES checkpoints(checkpoint_id), config JSONB NOT NULL,
+ created_at TIMESTAMPTZ NOT NULL DEFAULT clock_timestamp()
+);
+CREATE TABLE IF NOT EXISTS handoffs (
+ handoff_id TEXT PRIMARY KEY, root TEXT NOT NULL, request_hash TEXT NOT NULL,
+ kind TEXT NOT NULL, source_trial TEXT NOT NULL REFERENCES trials(trial_id),
+ source_execution TEXT NOT NULL, source_attempt TEXT NOT NULL, source_epoch INT NOT NULL,
+ checkpoint_id TEXT NOT NULL REFERENCES checkpoints(checkpoint_id),
+ target_trial TEXT NOT NULL REFERENCES trials(trial_id), target_attempt TEXT NOT NULL,
+ target_execution TEXT NOT NULL, target_spec JSONB NOT NULL, policy TEXT NOT NULL,
+ state TEXT NOT NULL DEFAULT 'requested', prepared JSONB, error TEXT,
+ created_at TIMESTAMPTZ NOT NULL DEFAULT clock_timestamp(), completed_at TIMESTAMPTZ
+);
+CREATE UNIQUE INDEX IF NOT EXISTS one_pending_handoff ON handoffs(target_trial)
+ WHERE state IN ('requested','prepared');
         """
 
 
@@ -62,7 +87,7 @@ class Fenced(ValueError):
 def identity(root, key):
     if not key.strip() or len(key) > 200:
         raise ValueError("Idempotency key requires 1–200 characters")
-    operation = str(uuid5(NAMESPACE_URL, f"rtv:m2:{root}:{key}"))
+    operation = str(uuid5(NAMESPACE_URL, f"rtv:m3:{root}:{key}"))
     return {
         "operation_id": operation,
         **{
@@ -85,13 +110,13 @@ class Store:
             self.settings.dsn,
             row_factory=dict_row,
             connect_timeout=5,
-            options="-c statement_timeout=10000 -c search_path=rtv2",
+            options="-c statement_timeout=10000 -c search_path=rtv3",
         )
 
     def initialize(self):
         with self.connect() as c:
-            c.execute("SELECT pg_advisory_xact_lock(72002001)")
-            c.execute("CREATE SCHEMA IF NOT EXISTS rtv2")
+            c.execute("SELECT pg_advisory_xact_lock(72003001)")
+            c.execute("CREATE SCHEMA IF NOT EXISTS rtv3")
             c.execute(SCHEMA)
 
     def _row(self, c, trial_id, locking=False):
@@ -105,7 +130,8 @@ class Store:
             )
         row = c.execute(
             "SELECT t.*,e.stage,e.resume_from,e.state AS execution_state,e.lease_until,"
-            "e.cleanup AS execution_cleanup,(e.lease_until>clock_timestamp()) AS lease_valid "
+            "e.handoff_id,e.cleanup AS execution_cleanup,(e.lease_until>clock_timestamp())"
+            " AS lease_valid "
             "FROM trials t JOIN executions e ON e.execution_id=t.execution_id "
             "WHERE t.trial_id=%s AND t.root=%s" + (" FOR UPDATE OF e" if locking else ""),
             (trial_id, str(self.settings.root)),
@@ -169,9 +195,21 @@ class Store:
                 ),
             )
             c.execute(
-                "INSERT INTO executions(execution_id,trial_id,epoch,stage,operation_id) "
-                "VALUES(%s,%s,1,1,%s) ON CONFLICT DO NOTHING",
-                (ids["execution_id"], ids["trial_id"], ids["operation_id"]),
+                "INSERT INTO attempts(attempt_id,trial_id,spec) VALUES(%s,%s,%s) ON"
+                " CONFLICT DO NOTHING",
+                (ids["attempt_id"], ids["trial_id"], Jsonb(spec)),
+            )
+            c.execute(
+                "INSERT INTO"
+                " executions(execution_id,trial_id,attempt_id,spec,epoch,stage,operation_id) "
+                "VALUES(%s,%s,%s,%s,1,1,%s) ON CONFLICT DO NOTHING",
+                (
+                    ids["execution_id"],
+                    ids["trial_id"],
+                    ids["attempt_id"],
+                    Jsonb(spec),
+                    ids["operation_id"],
+                ),
             )
             row = self._row(c, ids["trial_id"], True)
             if row["spec_hash"] != spec_hash(spec):
@@ -185,7 +223,11 @@ class Store:
 
     def claim(self, expected):
         with self.owned(expected, live=False) as (c, row):
-            if row["execution_state"] != "queued" or row["cancel_requested"]:
+            if (
+                row["execution_state"] != "queued"
+                or row["status"] != "queued"
+                or row["cancel_requested"]
+            ):
                 return False
             c.execute(
                 "UPDATE executions SET state='running',lease_until=clock_timestamp()+"
@@ -225,6 +267,11 @@ class Store:
             row = self._row(c, trial_id, True)
             if row["status"] not in TERMINAL:
                 c.execute(
+                    "UPDATE handoffs SET state='aborted',error='cancelled' "
+                    "WHERE target_trial=%s AND state IN ('requested','prepared')",
+                    (trial_id,),
+                )
+                c.execute(
                     "UPDATE trials SET cancel_requested=TRUE,status='cancel_requested' "
                     "WHERE trial_id=%s",
                     (trial_id,),
@@ -249,7 +296,7 @@ class Store:
             self._event(c, row, "agent.started", {"call_operation_id": operation})
         return operation
 
-    def settle_call(self, expected, operation, usage):
+    def settle_call(self, expected, operation, usage, *, cost_usd=None):
         if usage is not None and (
             not isinstance(usage, dict) or any(type(v) is not int or v < 0 for v in usage.values())
         ):
@@ -265,14 +312,18 @@ class Store:
             ).fetchone()
             if not op:
                 raise ValueError("Unknown operation")
-            state = "known" if usage is not None or op["kind"] == "fixture" else "unknown"
+            state = (
+                "known"
+                if usage is not None or op["kind"] in {"fixture", "mini", "mini-fixture"}
+                else "unknown"
+            )
             if op["state"] == "known":
-                if op["usage"] != usage:
+                if op["usage"] != usage or op["cost_usd"] != cost_usd:
                     raise ValueError("Conflicting settled usage")
                 return
             c.execute(
-                "UPDATE operations SET state=%s,usage=%s WHERE operation_id=%s",
-                (state, Jsonb(usage), operation),
+                "UPDATE operations SET state=%s,usage=%s,cost_usd=%s WHERE operation_id=%s",
+                (state, Jsonb(usage), cost_usd, operation),
             )
             c.execute(
                 "UPDATE trials SET ledger_revision=ledger_revision+1 WHERE trial_id=%s",
@@ -281,7 +332,7 @@ class Store:
             self._event(
                 c,
                 expected,
-                "agent.completed",
+                "agent.completed" if not op["parent_operation"] else "model.completed:" + operation,
                 {
                     "call_operation_id": operation,
                     "usage": usage,
@@ -302,24 +353,83 @@ class Store:
                 (row["trial_id"],),
             )
 
-    def ledger(self, trial_id):
-        self.get(trial_id)
-        with self.connect() as c:
-            ops = c.execute(
-                "SELECT * FROM operations WHERE trial_id=%s ORDER BY created_at", (trial_id,)
-            ).fetchall()
+    @staticmethod
+    def totals(ops):
         totals = {}
         for op in ops:
             if op["state"] == "known":
                 for k, v in (op["usage"] or {}).items():
                     totals[k] = totals.get(k, 0) + v
+        metered = [o for o in ops if o["kind"] == "mini-api"]
+        unknown = sum(o["state"] == "unknown" for o in ops)
+        pending = sum(o["state"] == "pending" for o in ops)
+        billed = sum(o["cost_usd"] or 0 for o in metered if o["state"] == "known")
+        uncertain_cost = any(o["kind"] == "codex" for o in ops) or unknown or pending
         return {
             "known_usage": totals,
-            "unknown_operations": sum(o["state"] == "unknown" for o in ops),
-            "pending_operations": sum(o["state"] == "pending" for o in ops),
-            "operations": ops,
-            "cost_usd": None if any(o["kind"] == "codex" for o in ops) else 0,
+            "unknown_operations": unknown,
+            "pending_operations": pending,
+            "known_api_cost_usd": billed,
+            "cost_usd": None if uncertain_cost else billed,
         }
+
+    def ledger(self, trial_id):
+        row = self.get(trial_id)
+        with self.connect() as c:
+            ops = c.execute(
+                "SELECT * FROM operations WHERE trial_id=%s ORDER BY created_at", (trial_id,)
+            ).fetchall()
+            prefix = c.execute(
+                "SELECT * FROM operations WHERE operation_id=ANY(%s) ORDER BY created_at",
+                (row["prefix_operations"],),
+            ).fetchall()
+        return {
+            **self.totals(ops),
+            "operations": ops,
+            "prefix": self.totals(prefix),
+            "prefix_operation_ids": row["prefix_operations"],
+            "end_to_end": self.totals(prefix + ops),
+        }
+
+    def begin_model_call(self, expected, parent, index, reserve):
+        if type(index) is not int or index < 1 or not 0 < reserve <= 0.5:
+            raise ValueError("Invalid API admission reservation")
+        operation = str(uuid5(NAMESPACE_URL, parent + ":api:" + str(index)))
+        with self.owned(expected) as (c, row):
+            if not c.execute(
+                "SELECT 1 FROM operations WHERE operation_id=%s AND execution_id=%s "
+                "AND state='pending'",
+                (parent, row["execution_id"]),
+            ).fetchone():
+                raise Fenced("Stage invocation is not active")
+            charged = c.execute(
+                "SELECT COALESCE(SUM(reserved_usd),0) AS total, COUNT(*) AS n "
+                "FROM operations WHERE trial_id=%s AND kind='mini-api'",
+                (row["trial_id"],),
+            ).fetchone()
+            if charged["n"] >= row["spec"].get("api_call_limit", 8) or charged[
+                "total"
+            ] + reserve > row["spec"].get("api_budget_usd", 0):
+                raise ValueError("API admission budget exhausted; no request sent")
+            if not c.execute(
+                "INSERT INTO"
+                " operations(operation_id,trial_id,execution_id,kind,"
+                "parent_operation,reserved_usd) "
+                "VALUES(%s,%s,%s,'mini-api',%s,%s) ON CONFLICT DO NOTHING RETURNING operation_id",
+                (operation, row["trial_id"], row["execution_id"], parent, reserve),
+            ).fetchone():
+                raise Fenced("API request already admitted; retry forbidden")
+            c.execute(
+                "UPDATE trials SET ledger_revision=ledger_revision+1 WHERE trial_id=%s",
+                (row["trial_id"],),
+            )
+            self._event(
+                c,
+                row,
+                "model.started:" + operation,
+                {"call_operation_id": operation, "reserved_usd": reserve},
+            )
+        return operation
 
     def checkpoint_prepare(self, expected, context):
         checkpoint = str(uuid5(NAMESPACE_URL, expected["execution_id"] + ":checkpoint"))
@@ -398,9 +508,9 @@ class Store:
                 return
             self._unknown(c, row, result["reason"])
             status = "cancelled" if row["cancel_requested"] else result["status"]
-            if status not in TERMINAL | {"checkpointed"}:
+            if status not in TERMINAL | {"checkpointed", "sealed"}:
                 raise ValueError("Invalid outcome")
-            if status in {"checkpointed", "succeeded"}:
+            if status in {"checkpointed", "sealed", "succeeded"}:
                 if not c.execute(
                     "SELECT 1 FROM checkpoints WHERE checkpoint_id=%s AND execution_id=%s "
                     "AND state='committed'",
@@ -461,11 +571,15 @@ class Store:
             )
             c.execute(
                 "INSERT INTO "
-                "executions(execution_id,trial_id,epoch,stage,resume_from,operation_id) "
-                "VALUES(%s,%s,%s,%s,%s,%s)",
+                "executions(execution_id,trial_id,attempt_id,spec,handoff_id,epoch,stage,"
+                "resume_from,operation_id) "
+                "VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s)",
                 (
                     new_id,
                     row["trial_id"],
+                    row["attempt_id"],
+                    Jsonb(row["spec"]),
+                    row["handoff_id"],
                     row["epoch"] + 1,
                     cp["stage"] + 1,
                     cp["checkpoint_id"],
@@ -505,6 +619,11 @@ class Store:
             if row["status"] not in TERMINAL or row["cleanup"] != "complete":
                 raise ValueError("Only terminal, cleaned trials can release artifact references")
             c.execute("UPDATE trials SET artifacts_retired=TRUE WHERE trial_id=%s", (trial_id,))
+            c.execute(
+                "DELETE FROM checkpoint_refs WHERE owner IN "
+                "(SELECT 'handoff:' || handoff_id FROM handoffs WHERE target_trial=%s)",
+                (trial_id,),
+            )
 
     def executions(self, trial_id):
         trial = self.get(trial_id)
@@ -533,7 +652,7 @@ class Store:
         with self.connect() as c:
             ids = c.execute(
                 "SELECT trial_id FROM trials WHERE root=%s AND "
-                "(cleanup='pending' OR status='checkpointed' "
+                "(cleanup='pending' OR status IN ('checkpointed','sealed','preparing') "
                 "OR EXISTS (SELECT 1 FROM executions e WHERE "
                 "e.trial_id=trials.trial_id AND (e.cleanup='pending' OR e.state='retired')))",
                 (str(self.settings.root),),

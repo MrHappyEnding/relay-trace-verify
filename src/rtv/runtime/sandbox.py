@@ -45,14 +45,18 @@ def session(row: dict) -> str:
     return "rtv-m2-" + row["execution_id"].replace("-", "")
 
 
-def resources(row: dict) -> dict:
-    project = session(row)
+def project_resources(project: str) -> dict:
     return {
         "containers": _container_ids(project),
         "networks": _docker(
             "network", "ls", "-q", "--filter", f"label=com.docker.compose.project={project}"
         ).split(),
     }
+
+
+def resources(row: dict) -> dict:
+    groups = [project_resources(session(row)), project_resources(session(row) + "-verify")]
+    return {k: [v for group in groups for v in group[k]] for k in ("containers", "networks")}
 
 
 def stop(row: dict):
