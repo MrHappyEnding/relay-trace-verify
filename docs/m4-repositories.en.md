@@ -104,5 +104,5 @@ The frozen statistical protocol and selection are unchanged by these scripted re
 
 This stage uses zero API calls, $0 cloud spend and no GPUs. Subsequent task delivery, AMD64 images,
 resources and statistical linkage are covered in [Kubernetes repository integration](m4-repository-cluster.en.md).
-Model credentials remain disabled. Real dual-agent repository handoff and effectiveness still need separate
+Model credentials remain disabled by default; the subsequent [credential path and pilot launcher](m4-model-pilot.en.md) pass fake-credential acceptance. Real dual-agent repository handoff and effectiveness still need separate
 budget-approved acceptance. The other three development environments also remain to be checked.

@@ -26,14 +26,12 @@ def main(trial_id, execution_id):
         or row["execution_id"] != execution_id
     ):
         raise ValueError("Execution has no live resource allocation")
-    if row["spec"]["adapter"] not in {"fixture", "mini-fixture"}:
-        raise ValueError(
-            "M4 development runner is model-free; paid credential delivery is not enabled"
-        )
+    from rtv.cluster.credentials import supervisor_environment
     from rtv.cluster.repository import validate_spec
 
     pool = json.loads(os.environ["RTV_CLUSTER_POOL"])
     validate_spec(pool, row["spec"])
+    child_env = supervisor_environment(pool, settings.root, row)
     archive = Path(os.environ["RTV_IMAGES_ARCHIVE"])
     with archive.open("rb") as stream:
         if hashlib.file_digest(stream, "sha256").hexdigest() != os.environ["RTV_IMAGES_SHA256"]:
@@ -94,6 +92,7 @@ def main(trial_id, execution_id):
                 [sys.executable, "-m", "rtv.runtime.supervisor", trial_id, execution_id],
                 stdout=log,
                 stderr=log,
+                env=child_env,
             )
         child.wait()
         if child.returncode:

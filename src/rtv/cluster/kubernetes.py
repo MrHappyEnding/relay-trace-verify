@@ -9,7 +9,10 @@ from rtv.cluster.config import pool_label
 
 
 def job_manifest(settings, config, row, allocation):
+    from rtv.cluster.credentials import admitted_reference, mount_credential
+
     config.validate_root(settings)
+    reference = admitted_reference(config.frozen(), settings.root, row)
     labels = {"rtv.dev/pool": pool_label(settings), "rtv.dev/execution": row["execution_id"]}
     deadline = max(1, math.ceil((row["deadline"] - datetime.now(UTC)).total_seconds()))
     env = {
@@ -90,6 +93,7 @@ def job_manifest(settings, config, row, allocation):
             },
         },
     }
+    mount_credential(spec["template"]["spec"], reference)
     if allocation.get("avoid_nodes"):
         spec["template"]["spec"]["affinity"]["nodeAffinity"] = {
             "requiredDuringSchedulingIgnoredDuringExecution": {
@@ -189,6 +193,18 @@ class Kubernetes:
         from kubernetes.client.exceptions import ApiException
 
         name = manifest["metadata"]["name"]
+        access = getattr(self.config, "model_access", None)
+        if access:
+            from rtv.cluster.credentials import check_secret
+
+            for volume in manifest["spec"]["template"]["spec"]["volumes"]:
+                if volume.get("secret"):
+                    ref = next(
+                        r
+                        for r in access["secrets"].values()
+                        if r["name"] == volume["secret"]["secretName"]
+                    )
+                    check_secret(self, access, ref)
         existing = self.job(name)
         if existing is None:
             try:

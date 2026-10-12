@@ -14,7 +14,7 @@ Temporal 与 mini-swe-agent 执行循环。修复动作来自脚本和上游参�
 `cluster prepare-repository` 在共享目录创建独立的任务包。原始定义不变，交付后重新计算
 路径绑定的契约摘要；验证 task digest、不可变 agent/verifier 镜像 ID 与 AMD64 平台。
 Docker 镜像归档另有 SHA256，每个 Job 加载前校验，加载后再次检查仓库镜像身份。
-任务契约不包含 API key。控制器与 runner 都拒绝 `codex/mini` 真实模型 adapter。
+任务契约不包含 API key。默认池仍拒绝真实模型；后续 opt-in 通道见[模型凭据与 pilot](m4-model-pilot.md)。
 
 | 项目 | 仓库执行池 | 原有小型 fixture 池 |
 | --- | --- | --- |
@@ -38,7 +38,7 @@ Docker 镜像归档另有 SHA256，每个 Job 加载前校验，加载后再次�
 ## 从预先分配到观察记录
 
 `benchmark.execution.prepare_pair` 在提交任何 Trial 前生成 `run.json`，绑定原协议 SHA、
-任务 / repeat、分支顺序、Trial ID、上下文策略和执行 spec。这里只开放 pilot 的 oracle 控制。
+任务 / repeat、分支顺序、Trial ID、上下文策略和执行 spec。本页证据仅覆盖 pilot 的 oracle 控制；后续启动器另支持显式的 real-model 模式。
 源阶段为 300 秒，继续分支为 300 秒，fresh 为 600 秒；整个 Trial 的 1800 秒期限还包含
 镜像准备和验证。实验分支禁止自动恢复；额外的故障 Trial 独立运行，不替换实验样本。
 
@@ -100,5 +100,5 @@ macOS 宿主视图为 `0644`。因此验收分别比较同一视图的摘要：�
 
 本机两个节点共享同一 Docker Desktop 宿主和共享目录；Job 删除与换节点恢复不能证明
 物理宿主丢失后的高可用。外层 Pod 仍为 privileged，只支持可信本机开发控制。
-真实模型凭据传递、Codex 原生仓库会话、真实双 agent 效果与费用实验仍待完成；
+后续[模型凭据通道](m4-model-pilot.md)已通过假凭据测试；Codex 原生仓库会话、真实双 agent 效果与费用实验仍待完成；
 新增付费调用须先核价并批准。当前阶段 API 调用 0、云费用 $0、GPU 使用 0。

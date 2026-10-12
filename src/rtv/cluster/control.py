@@ -91,10 +91,12 @@ def reconcile(settings, trial_id, *, launch=True):
             if allocation is None:
                 if not launch:
                     return summary(row)
+                from rtv.cluster.credentials import admitted_reference
                 from rtv.cluster.repository import validate_spec
 
                 try:
                     validate_spec(config.frozen(), row["spec"])
+                    admitted_reference(config.frozen(), settings.root, row)
                 except ValueError:
                     store.finish(row, empty_result(row, "invalid_cluster_task"), controller=True)
                     return summary(store.get(trial_id))

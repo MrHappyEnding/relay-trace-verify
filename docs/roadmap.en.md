@@ -75,6 +75,7 @@ Accepted within the local scope: [M2 guide](m2.en.md), 40 runtime/protocol check
 - [x] Bounded concurrency, admission, node/worker recovery and cleanup in the local multi-node scope.
 - [x] Freeze tasks, execution caps, exclusions and statistics; revalidate and approve API reservations before paid execution.
 - [x] Kubernetes delivery, scripted relay, cross-node recovery and observation linkage for the first real repository; no real-model result yet.
+- [x] Run-bound model credentials, 17 real-cluster fake-credential checks and the real pilot launcher; no real-model result yet.
 - [ ] Run real-model experiments and system fault experiments; produce raw artifacts and reports.
 - [ ] Document deployment steps, operating costs, known limitations, and the full demonstration.
 
@@ -100,4 +101,4 @@ Tool-boundary checkpoints, more agents, trajectory judges calibrated against lab
 | Control language | Python | Harbor integration cost and typed contracts |
 | First execution backend | Local containers | Validate the protocol before distributed faults |
 
-Local real-repository checkpoints, independent restoration, verifier isolation and scripted branches pass [26 checks](m4-repositories.en.md). Kubernetes task delivery, resources, AMD64 execution and statistical linkage are covered in [cluster repository integration](m4-repository-cluster.en.md). Next: model credential delivery, Codex repository sessions/API compatibility and the remaining pilot environment preflights. The prior $8 approval covered M3 debugging; new M4 costs require a separate budget.
+Local real-repository checkpoints, independent restoration, verifier isolation and scripted branches pass [26 checks](m4-repositories.en.md). Kubernetes task delivery, resources, AMD64 execution and statistical linkage are covered in [cluster repository integration](m4-repository-cluster.en.md). The [model credential path and launcher](m4-model-pilot.en.md) pass zero-call acceptance. Next, after approval for this run: Codex repository sessions/API compatibility and the remaining pilot environment preflights. The prior $8 approval covered M3 debugging; new M4 costs require a separate budget.

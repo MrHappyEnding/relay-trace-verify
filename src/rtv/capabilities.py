@@ -105,7 +105,11 @@ def capability_report() -> dict:
             "cleanup": "UID-conditional deletion; retain reservation until Job and Pods absent",
             "recovery": "fresh Job/epoch/workspace from committed checkpoint, unchanged TTL",
             "model_calls_enabled": False,
-            "security_scope": "trusted local fixture/oracle controls; privileged outer DinD Pod",
+            "model_opt_in": "one approved pilot root, five frozen Trial specs, epoch 1 only",
+            "credential_projection_verified": "fake credentials on both local nodes; 17 checks",
+            "real_cluster_model_verified": False,
+            "credential_evidence": "docs/evidence/m4-credentials-arm64-20261012.json",
+            "security_scope": "trusted local experiments; privileged outer DinD Pod",
             "storage": "shared local bind volume; no host-loss or storage-HA claim",
             "evidence": "docs/evidence/m4-runtime-arm64-20261011.json",
             "repository_evidence": "docs/evidence/m4-repository-cluster-arm64-20261012.json",
@@ -136,7 +140,9 @@ def capability_report() -> dict:
             "real_model_benchmark_verified": False,
             "kubernetes_benchmark_verified": False,
             "kubernetes_repository_controls_verified": True,
-            "runtime_observation_linkage": "one oracle pilot pair; real-model importer disabled",
+            "runtime_observation_linkage": (
+                "one oracle pilot pair verified; real-model importer unit-tested, live run pending"
+            ),
             "paid_experiment_authorized": False,
             "repository_runtime": {
                 "scope": "one local Docker/Kubernetes SWE-bench pilot; scripted/oracle controls, "

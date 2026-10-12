@@ -16,7 +16,8 @@ evaluation set have not run.
 definitions remain intact; the delivered path gets a new contract digest. Task contents, immutable
 agent/verifier image IDs and the AMD64 platform remain bound. Each Job checks the Docker archive
 SHA256 before loading and checks repository image identities afterwards. Contracts contain no API
-keys. Both controller and runner reject real `codex/mini` adapters.
+keys. Default pools still reject real models; the subsequent opt-in path is described in
+[model credentials and pilot](m4-model-pilot.en.md).
 
 | Setting | Repository pool | Existing small-fixture pool |
 | --- | --- | --- |
@@ -42,7 +43,8 @@ contracts, recovery boundaries and observation linkage.
 
 `benchmark.execution.prepare_pair` writes `run.json` before submitting any Trial. It binds the
 original protocol SHA, task/repeat, branch order, Trial identities, context policies and execution
-specs. Only pilot oracle controls are enabled. Prefix and continuation stages get 300 seconds each;
+specs. This page covers pilot oracle controls; the subsequent launcher also supports an explicit
+real-model mode. Prefix and continuation stages get 300 seconds each;
 fresh gets 600 seconds. The absolute Trial deadline is 1800 seconds including preparation and
 verification. Experiment branches have no automatic recovery. A separate fault Trial cannot replace
 an assigned observation.
@@ -112,6 +114,7 @@ bounded independently. Heavy acceptance runs should be serialized on this develo
 
 Both Kubernetes nodes share one physical Docker Desktop host and local storage. Job deletion and
 node migration do not prove host-loss availability. Outer Pods remain privileged, for trusted local
-development controls only. Model credential delivery, native Codex repository sessions, real-agent
-effectiveness and cost experiments remain pending. New paid runs require pricing and approval.
+development experiments only. The subsequent [credential path](m4-model-pilot.en.md) passes
+fake-credential checks; native Codex repository sessions, real-agent effectiveness and cost
+experiments remain pending. New paid runs require pricing and approval.
 This stage uses zero API calls, $0 cloud spend and no GPUs.

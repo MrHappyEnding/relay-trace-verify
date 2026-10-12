@@ -1,4 +1,4 @@
-"""Pre-execution assignments and derived observations for model-free pilot runs."""
+"""Pre-execution assignments and homogeneous runtime observations for pilot runs."""
 
 import hashlib
 import json
@@ -11,12 +11,28 @@ from rtv.runtime.store import identity, spec_hash
 from rtv.runtime.tasks import contract
 
 
-def prepare_pair(protocol, source_spec, root, repeat=0):
+def prepare_pair(protocol, source_spec, root, repeat=0, *, mode="oracle"):
+    from rtv.codex_agent import DEFAULT_MODEL
+    from rtv.mini_agent import MINI_MODEL, RESERVATION_USD
+
     declared = contract(source_spec)
     if not declared or declared["protocol_sha256"] != protocol["protocol_sha256"]:
         raise ValueError("Repository task does not match the frozen protocol")
-    if source_spec["adapter"] != "fixture" or source_spec.get("max_recoveries") != 0:
-        raise ValueError("This pilot driver supports model-free controls without automatic retries")
+    if mode not in {"oracle", "real-model"}:
+        raise ValueError("Unsupported pilot evidence mode")
+    real = mode == "real-model"
+    if (
+        source_spec["adapter"] != ("codex" if real else "fixture")
+        or source_spec.get("max_recoveries") != 0
+    ):
+        raise ValueError("Pilot requires the matching source adapter without automatic retries")
+    if real and (
+        source_spec.get("model") != DEFAULT_MODEL
+        or any(k.startswith("scripted_") for k in source_spec)
+        or source_spec.get("ttl_seconds") != 1800
+        or not source_spec.get("isolated_verifier")
+    ):
+        raise ValueError("Real pilot requires pinned Codex, isolated verification and no controls")
     schedule = [
         r
         for r in matrix(protocol, "pilot")
@@ -32,10 +48,11 @@ def prepare_pair(protocol, source_spec, root, repeat=0):
         "pause_after_checkpoint": True,
         "agent_seconds": protocol["budget"]["prefix_seconds"],
         "api_budget_usd": 0,
-        "benchmark_assignment": {"pair_id": pair, "role": "prefix", "mode": "oracle"},
+        "benchmark_assignment": {"pair_id": pair, "role": "prefix", "mode": mode},
     }
     source_key = pair + ":prefix"
-    branches = {r["label"]: r for r in handoff_plan(source, adapter="mini-fixture", ttl=1800)}
+    target = "mini" if real else "mini-fixture"
+    branches = {r["label"]: r for r in handoff_plan(source, adapter=target, ttl=1800)}
     entries = []
     for assignment in schedule:
         label = assignment["branch"]
@@ -44,7 +61,8 @@ def prepare_pair(protocol, source_spec, root, repeat=0):
         eid = None if fresh else stable(root + ":experiment:" + key)
         spec = {
             **(source if fresh else branches[label]["spec"]),
-            "adapter": "mini-fixture" if fresh else branches[label]["spec"]["adapter"],
+            "adapter": target if fresh else branches[label]["spec"]["adapter"],
+            "model": (MINI_MODEL if real else None) if fresh else branches[label]["spec"]["model"],
             "stages": 1 if fresh else 2,
             "pause_after_checkpoint": False,
             "max_recoveries": 0,
@@ -52,8 +70,10 @@ def prepare_pair(protocol, source_spec, root, repeat=0):
                 "fresh_seconds" if fresh else "continuation_seconds"
             ],
             "api_call_limit": max(1, protocol["budget"]["api_requests"][label]),
-            "api_budget_usd": 0,
-            "benchmark_assignment": {**assignment, "mode": "oracle"},
+            "api_budget_usd": round(protocol["budget"]["api_requests"][label] * RESERVATION_USD, 9)
+            if real
+            else 0,
+            "benchmark_assignment": {**assignment, "mode": mode},
         }
         entries.append(
             {
@@ -67,7 +87,7 @@ def prepare_pair(protocol, source_spec, root, repeat=0):
         )
     body = {
         "schema_version": 1,
-        "mode": "oracle",
+        "mode": mode,
         "split": "pilot",
         "root": root,
         "protocol_sha256": protocol["protocol_sha256"],
@@ -84,7 +104,7 @@ def prepare_pair(protocol, source_spec, root, repeat=0):
 def validate_run(protocol, run):
     # Reconstruct all assignments, identities and budgets, not just a caller-supplied hash.
     expected = prepare_pair(
-        protocol, run["source"]["spec"], run["root"], run["entries"][0]["repeat"]
+        protocol, run["source"]["spec"], run["root"], run["entries"][0]["repeat"], mode=run["mode"]
     )
     if expected != run:
         raise ValueError("Frozen runtime assignment changed")
@@ -126,8 +146,16 @@ def collect(protocol, run, store, output):
         if spec_hash(row["spec"]) != spec_hash(expected["spec"]):
             raise ValueError("Runtime spec differs from its pre-execution assignment")
         ledger = store.ledger(row["trial_id"])
-        if any(o["kind"] in {"codex", "mini-api"} for o in ledger["operations"]):
+        kinds = {o["kind"] for o in ledger["operations"]}
+        if run["mode"] == "oracle" and kinds & {"codex", "mini-api"}:
             raise ValueError("Real model operations cannot enter an oracle report")
+        if run["mode"] == "real-model":
+            allowed = {"codex"} if row["spec"]["adapter"] == "codex" else {"mini", "mini-api"}
+            required = "codex" if row["spec"]["adapter"] == "codex" else "mini-api"
+            if kinds - allowed or (
+                outcome(row) in {"solved", "unsolved"} and required not in kinds
+            ):
+                raise ValueError("Real report requires matching model operations, never controls")
         events = store.events(row["trial_id"])
         if expected.get("policy"):
             transfers = [e for e in events if e["kind"] == "handoff.completed"]
@@ -203,7 +231,7 @@ def collect(protocol, run, store, output):
                         "protocol_sha256",
                     )
                 },
-                "mode": "oracle",
+                "mode": run["mode"],
                 "status": status,
                 "checkpoint_id": cp,
                 "trial_id": entry["trial_id"] if row else None,
@@ -224,7 +252,7 @@ def collect(protocol, run, store, output):
         )
     records_path = output / "records.jsonl"
     records_path.write_text("".join(json.dumps(r, sort_keys=True) + "\n" for r in records))
-    report = analyze(protocol, records, "pilot", mode="oracle")
+    report = analyze(protocol, records, "pilot", mode=run["mode"])
     export(report, output / "analysis", plan=protocol, records=records_path)
     provenance = {
         "run_sha256": run["run_sha256"],

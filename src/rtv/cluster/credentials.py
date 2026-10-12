@@ -1,0 +1,274 @@
+"""Run-scoped credential references. Secret values never enter experiment metadata.
+
+This is a trusted local cluster boundary, not isolation from namespace admins or
+the privileged DinD executor. Kubernetes Secret names alone are not identities.
+"""
+
+import base64
+import json
+import math
+import os
+import re
+import stat
+from pathlib import Path
+
+from rtv.codex_agent import DEFAULT_MODEL, validate_auth
+from rtv.mini_agent import MINI_MODEL, RESERVATION_USD
+
+MOUNT = "/run/rtv-model"
+LABEL = "rtv.dev/credential-run"
+ENV_KEYS = {
+    "OPENAI_API_KEY",
+    "OPENAI_BASE_URL",
+    "OPENAI_API_BASE",
+    "CODEX_AUTH_JSON_PATH",
+    "CODEX_FORCE_AUTH_JSON",
+    "RTV_ALLOW_MODEL_CALLS",
+    "RTV_ALLOW_API_CALLS",
+    "RTV_CODEX_AUTH_FILE",
+    "RTV_API_KEY_FILE",
+}
+
+
+def authorize(run, approved_budget_usd, references):
+    """Called only by the explicit, owner-approved launcher, after plan validation."""
+    from rtv.runtime.store import spec_hash
+
+    if run["mode"] != "real-model":
+        raise ValueError("Credential admission requires a real-model plan")
+    grants = {}
+    for entry in [run["source"], *run["entries"]]:
+        spec = entry["spec"]
+        validate_model_spec(spec)
+        grants[entry["trial_id"]] = {
+            "spec_hash": spec_hash(spec),
+            "adapter": spec["adapter"],
+            "requests": spec["api_call_limit"] if spec["adapter"] == "mini" else 0,
+        }
+    access = {
+        "schema_version": 1,
+        "run_sha256": run["run_sha256"],
+        "root": run["root"],
+        "approved_budget_usd": approved_budget_usd,
+        "grants": grants,
+        "secrets": references,
+    }
+    validate_access(access)
+    return access
+
+
+def validate_model_spec(spec):
+    adapter = spec["adapter"]
+    if adapter not in {"codex", "mini"} or spec.get("model") != {
+        "codex": DEFAULT_MODEL,
+        "mini": MINI_MODEL,
+    }.get(adapter):
+        raise ValueError("Cluster model run requires the pinned adapters and models")
+    if (
+        not spec.get("task_contract")
+        or spec.get("max_recoveries") != 0
+        or not spec.get("isolated_verifier")
+        or any(k.startswith("scripted_") for k in spec)
+        or spec.get("ttl_seconds") != 1800
+        or type(spec.get("agent_seconds")) is not int
+        or not 1 <= spec["agent_seconds"] <= 600
+    ):
+        raise ValueError("Model run requires a bounded repository spec without replay or controls")
+    if adapter == "mini":
+        calls, budget = spec.get("api_call_limit"), spec.get("api_budget_usd")
+        if (
+            type(calls) is not int
+            or not 1 <= calls <= 16
+            or budget != round(calls * RESERVATION_USD, 9)
+        ):
+            raise ValueError("API envelope must match the non-reusable request reservations")
+
+
+def validate_access(access):
+    if (
+        access.get("schema_version") != 1
+        or not re.fullmatch(r"[0-9a-f]{64}", access.get("run_sha256", ""))
+        or not Path(access.get("root", "")).is_absolute()
+    ):
+        raise ValueError("Invalid run-scoped model admission")
+    budget = access.get("approved_budget_usd")
+    if type(budget) not in (int, float) or not math.isfinite(budget) or not 0 < budget <= 8:
+        raise ValueError("One pilot approval must be finite and at most $8")
+    grants = access.get("grants", {})
+    if len(grants) != 5 or sorted(g.get("adapter", "") for g in grants.values()) != [
+        "codex",
+        "codex",
+        "mini",
+        "mini",
+        "mini",
+    ]:
+        raise ValueError("Admission must cover exactly the prefix and four pilot branches")
+    for trial, grant in grants.items():
+        if not re.fullmatch(r"[0-9a-f-]{36}", trial) or not re.fullmatch(
+            r"[0-9a-f]{64}", grant.get("spec_hash", "")
+        ):
+            raise ValueError("Invalid trial identity or spec hash")
+        n = grant.get("requests")
+        if type(n) is not int or (n not in {8, 16} if grant["adapter"] == "mini" else n != 0):
+            raise ValueError("Invalid pilot request allowance")
+    total = sum(g["requests"] for g in grants.values())
+    if total != 32 or round(total * RESERVATION_USD, 9) > budget:
+        raise ValueError("Pilot reservations exceed approval or differ from the frozen protocol")
+    if set(access.get("secrets", {})) != {"codex", "mini"}:
+        raise ValueError("Separate Codex and mini Secret references required")
+    for ref in access["secrets"].values():
+        if (
+            set(ref) != {"name", "uid"}
+            or not re.fullmatch(r"rtv-model-[a-z0-9-]{1,50}", ref["name"])
+            or not re.fullmatch(r"[a-zA-Z0-9-]{1,64}", ref["uid"])
+        ):
+            raise ValueError("Invalid immutable Secret reference")
+
+
+def admitted_reference(pool, root, row):
+    spec = row.get("spec", {})
+    if spec.get("adapter") not in {"codex", "mini"}:
+        return None
+    from rtv.runtime.store import spec_hash
+
+    access = pool.get("model_access")
+    if not access:
+        raise ValueError("Cluster model credential delivery is not enabled")
+    validate_access(access)
+    validate_model_spec(spec)
+    grant = access["grants"].get(row["trial_id"])
+    if (
+        str(root) != access["root"]
+        or row["epoch"] != 1
+        or not grant
+        or grant["spec_hash"] != spec_hash(spec)
+        or grant["adapter"] != spec["adapter"]
+        or grant["requests"] != (spec["api_call_limit"] if spec["adapter"] == "mini" else 0)
+    ):
+        raise ValueError("Execution is outside the approved identities, specs or first epoch")
+    return access["secrets"][spec["adapter"]]
+
+
+def mount_credential(pod, reference):
+    if reference is None:
+        return
+    pod["volumes"].append(
+        {
+            "name": "model-credential",
+            "secret": {
+                "secretName": reference["name"],
+                "defaultMode": 0o400,
+                "items": [{"key": "credential", "path": "credential"}],
+            },
+        }
+    )
+    pod["containers"][0]["volumeMounts"].append(
+        {
+            "name": "model-credential",
+            "mountPath": MOUNT,
+            "readOnly": True,
+        }
+    )
+
+
+def supervisor_environment(pool, root, row):
+    """Clear inherited auth, then opt in only the admitted adapter using a file path."""
+    env = {k: v for k, v in os.environ.items() if k not in ENV_KEYS}
+    if admitted_reference(pool, root, row):
+        path = Path(MOUNT) / "credential"
+        # Projected Secret files are symlinks managed by kubelet; validate the target.
+        info = path.stat()
+        if not stat.S_ISREG(info.st_mode) or info.st_mode & 0o077 or not 0 < info.st_size <= 262144:
+            raise ValueError("Missing or unsafe projected credential")
+        if row["spec"]["adapter"] == "codex":
+            validate_auth(path)
+            env.update(RTV_ALLOW_MODEL_CALLS="1", RTV_CODEX_AUTH_FILE=str(path))
+        else:
+            if not path.read_text().strip():
+                raise ValueError("Empty projected API credential")
+            env.update(RTV_ALLOW_API_CALLS="1", RTV_API_KEY_FILE=str(path))
+    return env
+
+
+def install_secret(kube, run_sha, adapter, path):
+    """Direct API create, never kubectl argv/stdin dumps or shared-volume staging."""
+    info = path.lstat()
+    if (
+        not stat.S_ISREG(info.st_mode)
+        or info.st_mode & 0o077
+        or not 0 < info.st_size <= 262144
+        or path.resolve().is_relative_to(Path(kube.config.shared_path).resolve())
+    ):
+        raise ValueError("Use a private regular credential file outside the cluster shared volume")
+    if adapter == "codex":
+        validate_auth(path)
+    elif adapter != "mini":
+        raise ValueError("Unknown credential adapter")
+    value = path.read_text().strip()
+    if not value:
+        raise ValueError("Empty credential")
+    name = f"rtv-model-{run_sha[:24]}-{adapter}"
+    body = {
+        "apiVersion": "v1",
+        "kind": "Secret",
+        "type": "Opaque",
+        "immutable": True,
+        "metadata": {"name": name, "labels": {LABEL: run_sha[:63]}},
+        "stringData": {"credential": value},
+    }
+    try:
+        result = kube.core.create_namespaced_secret(
+            kube.config.namespace, body, _request_timeout=(3, 10), _preload_content=False
+        )
+        meta = json.loads(result.data)["metadata"]
+    except Exception:
+        # Recover a lost create acknowledgement without creating/updating a second
+        # Secret. Compare in memory, never return the contents or a provider error.
+        try:
+            found = kube.core.read_namespaced_secret(
+                name, kube.config.namespace, _request_timeout=(3, 10), _preload_content=False
+            )
+            existing = json.loads(found.data)
+            if (
+                existing.get("immutable") is not True
+                or existing["metadata"].get("labels", {}).get(LABEL) != run_sha[:63]
+                or existing.get("data") != {"credential": base64.b64encode(value.encode()).decode()}
+            ):
+                raise ValueError("Secret differs")
+            meta = existing["metadata"]
+        except Exception:
+            raise RuntimeError(
+                "Secret create outcome unresolved; inspect owned Secret metadata before retrying"
+            ) from None
+    return {"name": meta["name"], "uid": meta["uid"]}
+
+
+def check_secret(kube, access, ref):
+    try:
+        response = kube.core.read_namespaced_secret(
+            ref["name"], kube.config.namespace, _request_timeout=(3, 10), _preload_content=False
+        )
+        data = json.loads(response.data)
+    except Exception:
+        raise ValueError("Credential Secret unavailable; no Job admitted") from None
+    meta = data["metadata"]
+    if (
+        meta["uid"] != ref["uid"]
+        or not data.get("immutable")
+        or meta.get("labels", {}).get(LABEL) != access["run_sha256"][:63]
+        or set(data.get("data", {})) != {"credential"}
+    ):
+        raise ValueError("Credential Secret identity, ownership or shape changed")
+
+
+def remove_secret(kube, access, ref):
+    check_secret(kube, access, ref)
+    try:
+        kube.core.delete_namespaced_secret(
+            ref["name"],
+            kube.config.namespace,
+            body={"preconditions": {"uid": ref["uid"]}},
+            _request_timeout=(3, 10),
+        )
+    except Exception:
+        raise RuntimeError("Credential Secret cleanup was not acknowledged") from None

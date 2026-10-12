@@ -91,5 +91,5 @@ Kubernetes 接入请使用新增的[仓库任务交付](m4-repository-cluster.md
 正式统计配置仍使用上一阶段的 SHA，不因这次脚本结果改变选题。
 
 本阶段 API 调用 0、云费用 $0、GPU 使用 0。后续的任务材料、AMD64 镜像、资源配置及统计关联
-见[Kubernetes 仓库接入](m4-repository-cluster.md)；真实模型凭据通道仍未启用。
+见[Kubernetes 仓库接入](m4-repository-cluster.md)；默认配置仍关闭模型；后续[凭据通道与 pilot 启动器](m4-model-pilot.md)已通过假凭据验收。
 真实双 agent 在这个仓库上的会话交接与效果仍待批准预算后的独立验收；其余 3 个开发任务也尚待环境检查。

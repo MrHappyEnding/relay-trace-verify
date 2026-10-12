@@ -3,8 +3,9 @@
 [![中文](assets/lang-zh.svg)](m4-benchmark.md) [![English](assets/lang-en.svg)](m4-benchmark.en.md)
 
 **Status: frozen task selection, statistical protocol and offline analysis are implemented;
-real-container verifier controls pass for one development task.** SWE-bench agent experiments,
-Kubernetes relay and recovery for these tasks remain unimplemented. This stage makes zero API calls
+real-container verifier controls pass for one development task.** Real-model SWE-bench experiments
+have not run. Subsequent [cluster repository work](m4-repository-cluster.en.md) verifies scripted
+relay and recovery. This stage makes zero API calls
 and provisions no cloud resources. M4 as a whole remains in progress.
 
 ## Sources and frozen identity

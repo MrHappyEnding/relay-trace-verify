@@ -27,6 +27,7 @@ class ClusterConfig:
     engine_disk_gib: int = 4
     image_load_seconds: int = 90
     repository_contract_sha256: str | None = None
+    model_access: dict | None = None
 
     def __post_init__(self):
         if not re.fullmatch(r"[a-z0-9][a-z0-9-]{0,61}[a-z0-9]", self.namespace):
@@ -56,6 +57,12 @@ class ClusterConfig:
             raise ValueError(
                 "Repository pool requires a pinned contract, 2 CPU, 5 GiB and 16 GiB disk"
             )
+        if self.model_access is not None:
+            from rtv.cluster.credentials import validate_access
+
+            validate_access(self.model_access)
+            if not self.repository_contract_sha256 or self.max_jobs != 1:
+                raise ValueError("Model pilot requires a single-job repository pool")
 
     @classmethod
     def load(cls):
@@ -66,6 +73,8 @@ class ClusterConfig:
             Path(self.shared_path).resolve()
         ):
             raise ValueError("Kubernetes execution requires rtv4 and a root on the shared volume")
+        if self.model_access and self.model_access["root"] != str(settings.root):
+            raise ValueError("Model admission belongs to another runtime root")
 
     def frozen(self):
         # Credentials and the host kubeconfig path are not part of an experiment.
@@ -73,6 +82,7 @@ class ClusterConfig:
             k: v
             for k, v in asdict(self).items()
             if k not in {"kubeconfig", "pod_database_url", "control_database_url"}
+            and not (k == "model_access" and v is None)
         }
 
 

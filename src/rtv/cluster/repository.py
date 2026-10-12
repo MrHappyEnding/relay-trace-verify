@@ -14,7 +14,11 @@ from rtv.runtime.tasks import contract, validate_contract
 
 def validate_spec(pool, spec):
     if spec["adapter"] not in {"fixture", "mini-fixture"}:
-        raise ValueError("Cluster model credential delivery is not enabled")
+        from rtv.cluster.credentials import validate_model_spec
+
+        if not pool.get("model_access"):
+            raise ValueError("Cluster model credential delivery is not enabled")
+        validate_model_spec(spec)
     declared = contract(spec)
     if declared is None:
         if pool.get("repository_contract_sha256"):
@@ -64,6 +68,7 @@ def prepare(config, declared, output):
         engine_disk_gib=16,
         image_load_seconds=300,
         repository_contract_sha256=delivered["contract_sha256"],
+        model_access=None,
     )
     (output / "contract.json").write_text(json.dumps(delivered, indent=2) + "\n")
     path = output / "config.json"

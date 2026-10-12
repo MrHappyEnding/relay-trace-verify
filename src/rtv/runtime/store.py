@@ -423,9 +423,13 @@ class Store:
                 "FROM operations WHERE trial_id=%s AND kind='mini-api'",
                 (row["trial_id"],),
             ).fetchone()
-            if charged["n"] >= row["spec"].get("api_call_limit", 8) or charged[
-                "total"
-            ] + reserve > row["spec"].get("api_budget_usd", 0):
+            # PostgreSQL sums float8 reservations sequentially: sixteen $0.062
+            # reservations can become $0.9920000000000004. Normalize only that
+            # accumulation to nanodollars; retain the independent request cap.
+            reserved_total = round(charged["total"] + reserve, 9)
+            if charged["n"] >= row["spec"].get("api_call_limit", 8) or reserved_total > row[
+                "spec"
+            ].get("api_budget_usd", 0):
                 raise ValueError("API admission budget exhausted; no request sent")
             if not c.execute(
                 "INSERT INTO"

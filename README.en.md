@@ -18,6 +18,9 @@ Subsequent [Kubernetes repository acceptance](docs/m4-repository-cluster.en.md) 
 task delivery, four-branch observation linkage and recovery on another node after Job loss.
 This covers scripted controls on one development repository only.
 
+[Model credentials and the pilot launcher](docs/m4-model-pilot.en.md) are implemented: 17 fake-credential
+checks pass across both nodes. The first real-model plan is frozen; paid execution has not started.
+
 RTV supports learning through reproduction, system implementation, and original exploration. Existing approaches remain learning material and comparison baselines; see the [learning and resource plan](docs/learning-plan.en.md) for sources and scope. No model-performance advantage or multi-physical-host reliability claim has been established.
 
 ## Quick start
@@ -70,6 +73,7 @@ RTV focuses on three capabilities:
 | [M4 real tasks and statistics](docs/m4-benchmark.en.md) | Frozen SWE-bench subset, paired protocol, offline controls, missing data and UNKNOWN costs |
 | [M4 repository integration](docs/m4-repositories.en.md) | Task contracts, directory-mode snapshots, hidden-test separation and scripted recovery |
 | [M4 repository Jobs and observations](docs/m4-repository-cluster.en.md) | Task delivery, resources, cross-node recovery and runtime-derived paired records |
+| [M4 model credentials and pilot](docs/m4-model-pilot.en.md) | Per-run admission, Secret projection, real-model launcher and cost boundaries |
 | [Learning and resource plan](docs/learning-plan.en.md) | Open-source references, reproduction goals, lab GPUs, and spending agreement |
 | [System design](docs/design.en.md) | Object relationships, invariants, checkpoint protocol, failure handling, budgets, and adapter capabilities |
 | [Experiment protocol](docs/experiments.en.md) | Paired branches, budget accounting, baselines, statistics, and result artifacts |
