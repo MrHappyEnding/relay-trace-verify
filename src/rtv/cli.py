@@ -21,6 +21,9 @@ def main(argv: list[str] | None = None) -> int:
     from rtv.cluster.cli import add_parser as add_cluster_parser
 
     add_cluster_parser(commands)
+    from rtv.benchmark.cli import add_parser as add_benchmark_parser
+
+    add_benchmark_parser(commands)
     commands.add_parser(
         "capabilities", help="Show the tested M0 compatibility and snapshot contract"
     )
@@ -63,6 +66,11 @@ def main(argv: list[str] | None = None) -> int:
     audit.add_argument("--model", default=DEFAULT_MODEL)
     args = parser.parse_args(argv)
     try:
+        if args.command == "benchmark":
+            from rtv.benchmark.cli import run as run_benchmark
+
+            return run_benchmark(args)
+
         if args.command == "cluster":
             from rtv.cluster.cli import run as run_cluster
 

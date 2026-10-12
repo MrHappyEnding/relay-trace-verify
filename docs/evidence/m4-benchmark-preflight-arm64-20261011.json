@@ -1,0 +1,95 @@
+{
+  "mode": "real-container-oracle-controls",
+  "paid_api_calls": 0,
+  "protocol_sha256": "dbd68d56849681a5ac991409743d0276ee8b5572992c3570a18ae532ab4cd8bb",
+  "task": "sympy__sympy-22914",
+  "platform": "linux/amd64",
+  "base_image": "swebench/sweb.eval.x86_64.sympy_1776_sympy-22914@sha256:60ed5f8510af33c88c1932aac9c22c9bdae5bfe2a673a9a662bac0fbe3102539",
+  "scope": "development task verifier/environment only; no agent efficacy or relay evidence",
+  "status": "passed",
+  "controls": {
+    "unmodified": {
+      "reward": 0,
+      "expected": 0,
+      "passed": true,
+      "verifier_exit_code": 1,
+      "base_commit": "c4e836cdf73fc6aa7bab6a86719a0f08861ffb1d",
+      "image_head": "7efc643deee7b83ae54909886fc4d12c9f90922d",
+      "base_tree": "8570ad33b6a6f9e4e6b84e8a9e48aee09954895d",
+      "network": "none"
+    },
+    "oracle": {
+      "reward": 1,
+      "expected": 1,
+      "passed": true,
+      "verifier_exit_code": 0,
+      "base_commit": "c4e836cdf73fc6aa7bab6a86719a0f08861ffb1d",
+      "image_head": "7efc643deee7b83ae54909886fc4d12c9f90922d",
+      "base_tree": "8570ad33b6a6f9e4e6b84e8a9e48aee09954895d",
+      "network": "none"
+    }
+  },
+  "cleanup": [
+    {
+      "container": "026f74416776d1ac209f8ab58dbacc99e83cb4432217fc57145586ede2e82b0f",
+      "removed": true
+    },
+    {
+      "container": "bb5572c84b2e92ecb34ad0b6cfb0279effe563d4a86c9ee38c59e4fdd2432ded",
+      "removed": true
+    }
+  ],
+  "build_dockerfile_sha256": "293e543cc2b48bc75d7c4c8c524545b3df90805210d6e505e2b77c8d1e79883b",
+  "verifier_image_id": "sha256:89e5927c59eff33b56af59ead33d53ea9b6751ff7a6700f1ff80b1312945bb55",
+  "parser_lock_captured": true,
+  "elapsed_seconds": 20.4,
+  "artifact_sha256": {
+    "parser.py.lock": "167e1d72536861b578b4d7620aae424b5ce8493d37741b5b5c92f9df2207ec89",
+    "build.log": "a047e5591c60d6c3d5da330c9cfdffe20b74db08f5e7ecde860daa94e7cf2533",
+    "unmodified/report.json": "d1cf2f37d1357e15f3814b001f9a1e7650fa5118e55160307d78fdda5143fa2c",
+    "unmodified/verifier.log": "d4406101de18df1abf1c812f7efd5f1929ec15f2168a99db9d10cb9083446833",
+    "unmodified/reward.txt": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "oracle/report.json": "579c18a7b4f620d14e1b510d8c6dde250c1e18c87295599316172c7dc4441d97",
+    "oracle/verifier.log": "31281e6346ab387d66b54a874558c106a13033da809f923c2475eabbdc8b70c1",
+    "oracle/oracle.log": "e4a68768b467d9e000ef34433b40ffa4e15dd42508d499cac6da73eb7a62ec02",
+    "oracle/reward.txt": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+    "build/Dockerfile": "293e543cc2b48bc75d7c4c8c524545b3df90805210d6e505e2b77c8d1e79883b",
+    "build/parser.py": "de1edf8b7a48bf4a83dbe084cee7dd3cfae998f8992ce4def34e22b90305f2e2"
+  },
+  "date": "2026-10-11",
+  "host": "macOS ARM64 / Docker Desktop 28.5.1; linux/amd64 container execution",
+  "raw_artifacts": "work/m4-benchmark/preflight-5",
+  "preflight_report_sha256": "d0d14b8babd5910896832123a1ae60234511c08ddd3b0d0cadf580672910188d",
+  "cloud_spend_usd": 0,
+  "real_model_benchmark_run": false,
+  "kubernetes_benchmark_run": false,
+  "pilot_environments_checked": 1,
+  "pilot_environments_planned": 4,
+  "attempt_history": [
+    {
+      "path": "work/m4-benchmark/preflight-1",
+      "status": "failed",
+      "reason": "Buildx activity-file write permission; no test containers started"
+    },
+    {
+      "path": "work/m4-benchmark/preflight-2",
+      "status": "failed",
+      "reason": "Image HEAD has an empty upstream packaging commit; corrected validation to clean worktree and identical base tree"
+    },
+    {
+      "path": "work/m4-benchmark/preflight-3",
+      "status": "passed",
+      "reason": "Both controls passed; dependency lock capture then added"
+    },
+    {
+      "path": "work/m4-benchmark/preflight-4",
+      "status": "failed",
+      "reason": "New checker incorrectly required exit zero for unresolved control; pinned upstream parser intentionally exits one"
+    },
+    {
+      "path": "work/m4-benchmark/preflight-5",
+      "status": "passed",
+      "reason": "Both controls, dependency lock capture and owned-container cleanup passed"
+    }
+  ]
+}

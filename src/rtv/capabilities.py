@@ -126,6 +126,20 @@ def capability_report() -> dict:
             "budget_scope": "pinned transport reservation; not a provider invoice guarantee",
             "evidence": "docs/evidence/m3-real-arm64-20261009.json",
         },
+        "benchmark": {
+            "protocol": "configs/benchmarks/swebench-verified-v1.json",
+            "selection": "4 development tasks; 20 evaluation tasks, 2 repeats",
+            "analysis": "paired task-cluster bootstrap; missing and UNKNOWN retained",
+            "verifier_control_tasks": ["sympy__sympy-22914"],
+            "verifier_scope": "offline AMD64 Docker controls on an ARM64 host; no agents",
+            "real_model_benchmark_verified": False,
+            "kubernetes_benchmark_verified": False,
+            "paid_execution_enabled": False,
+            "evidence": [
+                "docs/evidence/m4-benchmark-preflight-arm64-20261011.json",
+                "docs/evidence/m4-benchmark-protocol-20261011.json",
+            ],
+        },
         "relay": {
             "policies": ["native", "task-only", "summary", "portable"],
             "handoff": "same Trial, new Attempt; prepared context before atomic authority transfer",
