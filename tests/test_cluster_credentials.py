@@ -72,6 +72,36 @@ def test_real_plan_pins_models_and_budget_without_controls(tmp_path):
         validate_run(protocol, bad)
 
 
+def test_larger_envelope_is_frozen_reserved_and_bound_to_admission(tmp_path):
+    protocol, historical = real_pair(tmp_path)
+    source = {**historical["source"]["spec"], "api_envelope": "mini-160kb-v1"}
+    run = prepare_pair(protocol, source, tmp_path / "large", mode="real-model")
+    validate_run(protocol, historical)  # The omitted policy still means 40 KB / $0.062.
+    validate_run(protocol, run)
+    assert sum(e["spec"]["api_budget_usd"] for e in run["entries"]) == 5.12
+    refs = {a: {"name": f"rtv-model-test-{a}", "uid": f"uid-{a}"} for a in ("codex", "mini")}
+    with pytest.raises(ValueError, match="exceed approval"):
+        credentials.authorize(run, 2, refs)
+    access = credentials.authorize(run, 5.12, refs)
+    entry = next(e for e in run["entries"] if e["spec"]["adapter"] == "mini")
+    assert (
+        credentials.admitted_reference({"model_access": access}, run["root"], row(entry))
+        == refs["mini"]
+    )
+    # Lowering the grant's reservation policy cannot authorize a larger spec,
+    # even when the saved spec hash and run identities are left intact.
+    access["grants"][entry["trial_id"]]["api_envelope"] = "mini-40kb-v1"
+    with pytest.raises(ValueError, match="outside the approved"):
+        credentials.admitted_reference({"model_access": access}, run["root"], row(entry))
+    bad = deepcopy(run)
+    bad["entries"][0]["spec"]["api_envelope"] = "mini-40kb-v1"
+    with pytest.raises(ValueError, match="assignment changed"):
+        validate_run(protocol, bad)
+    source["api_envelope"] = "unbounded"
+    with pytest.raises(ValueError, match="Unknown immutable"):
+        prepare_pair(protocol, source, tmp_path / "bad", mode="real-model")
+
+
 @pytest.mark.parametrize("damage", ["budget", "trial", "epoch", "spec", "root", "adapter"])
 def test_admission_fails_closed(tmp_path, damage):
     _, run, config, settings = admission(tmp_path)

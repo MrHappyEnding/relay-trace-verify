@@ -2,6 +2,27 @@
 
 [![中文](assets/lang-zh.svg)](m4-model-pilot.md) [![English](assets/lang-en.svg)](m4-model-pilot.en.md)
 
+## 160 KB input policy (third run preparation)
+
+The owner increased the cumulative API budget for this stage from $8 to **$20**, including
+both previous attempts. The next run uses `mini-160kb-v1`: 160,000 input bytes, 4,096 output
+tokens, $0.16 reserved per request, and at most 32 requests, for a **$5.12** run allowance.
+Previous reservations are $1.178, so the full next allowance would total $6.298. Previous
+known API cost is $0.04215240; reservations are not actual charges. Explicit execution
+opt-ins remain required, with no automatic rerun.
+
+This revises the transport envelope while retaining models, task, sampling protocol, time
+limits, and branch order. The sampling protocol's $0.062 is the original planning estimate;
+the frozen spec's `api_envelope`, run SHA, preparation file, and credential admission bind
+the actual allowance. Historical specs without a policy retain `mini-40kb-v1` (40,000 bytes /
+$0.062), including M3 defaults, and reconstruct unchanged. Per-run admission and the $20
+cumulative stage budget are checked separately.
+
+Model-free validation: 192 unit/mocked tests passed, with one real-container test requiring
+explicit opt-in; Python 3.11 core tests passed 108 with 54 optional-dependency skips. Tests
+cover sending a 45 KB input, stopping before a request/reservation above 160 KB, and rejecting
+a lower reservation grant for the larger spec. The third real run is still pending.
+
 **Status: the repaired second run passes 13 real-model workflow checks.** One SWE-bench development
 task completed checkpointing, cross-agent handoff, native Codex continuation and independent grading
 of four branches. M4 and formal effectiveness evaluation remain incomplete. This attempt made 13 API

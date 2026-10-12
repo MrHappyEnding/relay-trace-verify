@@ -16,6 +16,28 @@ MAX_OUTPUT = 4096
 RESERVATION_USD = 0.062
 
 
+@dataclass(frozen=True)
+class ApiEnvelope:
+    input_bytes: int
+    max_output_tokens: int
+    reservation_usd: float
+
+
+# Named, immutable policies keep previously frozen M3/M4 runs reproducible.
+# Reservations include headroom; they are not a provider invoice guarantee.
+API_ENVELOPES = {
+    "mini-40kb-v1": ApiEnvelope(REQUEST_BYTES, MAX_OUTPUT, RESERVATION_USD),
+    "mini-160kb-v1": ApiEnvelope(160000, MAX_OUTPUT, 0.16),
+}
+
+
+def api_envelope(spec):
+    name = spec.get("api_envelope", "mini-40kb-v1")
+    if not isinstance(name, str) or name not in API_ENVELOPES:
+        raise ValueError("Unknown immutable API envelope")
+    return API_ENVELOPES[name]
+
+
 def api_error_details(exc):
     """Keep diagnostic enums, never raw response messages, headers or credentials."""
     details = {"exception": type(exc).__name__}
@@ -151,6 +173,7 @@ async def execute_mini(env, instruction, output, *, settings, row, operation, sc
     store = Store(settings)
     scope = workspace(row["spec"])
     repository = contract(row["spec"])
+    envelope = api_envelope(row["spec"])
     steps = row["spec"].get("api_call_limit", 8) if repository else 8
     if type(steps) is not int or not 1 <= steps <= 16:
         raise ValueError("Mini request limit must be 1–16")
@@ -223,7 +246,7 @@ async def execute_mini(env, instruction, output, *, settings, row, operation, sc
                             {"input": inputs, "tools": [BASH_TOOL_RESPONSE_API]}, ensure_ascii=False
                         ).encode()
                     )
-                    > REQUEST_BYTES
+                    > envelope.input_bytes
                 ):
                     # A local limit is a completed agent stop, not a transport
                     # failure. Preserve the patch/trajectory for isolated grading,
@@ -231,19 +254,20 @@ async def execute_mini(env, instruction, output, *, settings, row, operation, sc
                     raise LimitsExceeded(
                         {
                             "role": "exit",
-                            "content": "API input exceeds the bounded 40 KB request envelope",
+                            "content": "API input exceeds the bounded "
+                            f"{envelope.input_bytes // 1000} KB request envelope",
                             "extra": {"exit_status": "InputLimitExceeded", "submission": ""},
                         }
                     )
                 self.n += 1
-                request = store.begin_model_call(row, operation, self.n, RESERVATION_USD)
+                request = store.begin_model_call(row, operation, self.n, envelope.reservation_usd)
                 try:
                     response = client.responses.create(
                         model=MINI_MODEL,
                         input=inputs,
                         tools=[BASH_TOOL_RESPONSE_API],
                         parallel_tool_calls=False,
-                        max_output_tokens=MAX_OUTPUT,
+                        max_output_tokens=envelope.max_output_tokens,
                         reasoning={"effort": "low"},
                         store=False,
                         include=["reasoning.encrypted_content"],
@@ -255,7 +279,7 @@ async def execute_mini(env, instruction, output, *, settings, row, operation, sc
                 data = response.model_dump(mode="json")
                 usage, cost = measured_usage(data)
                 store.settle_call(row, request, usage, cost_usd=cost)
-                if usage is None or cost > RESERVATION_USD:
+                if usage is None or cost > envelope.reservation_usd:
                     raise RuntimeError("Uncertain or unexpectedly large API usage; stopping")
             # Settlement precedes parsing and subsequent actions: parse failure is billed.
             try:

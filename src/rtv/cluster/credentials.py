@@ -13,7 +13,7 @@ import stat
 from pathlib import Path
 
 from rtv.codex_agent import DEFAULT_MODEL, validate_auth
-from rtv.mini_agent import MINI_MODEL, RESERVATION_USD
+from rtv.mini_agent import MINI_MODEL, api_envelope
 
 MOUNT = "/run/rtv-model"
 LABEL = "rtv.dev/credential-run"
@@ -45,6 +45,8 @@ def authorize(run, approved_budget_usd, references):
             "adapter": spec["adapter"],
             "requests": spec["api_call_limit"] if spec["adapter"] == "mini" else 0,
         }
+        if "api_envelope" in spec:
+            grants[entry["trial_id"]]["api_envelope"] = spec["api_envelope"]
     access = {
         "schema_version": 1,
         "run_sha256": run["run_sha256"],
@@ -58,6 +60,7 @@ def authorize(run, approved_budget_usd, references):
 
 
 def validate_model_spec(spec):
+    envelope = api_envelope(spec)
     adapter = spec["adapter"]
     if adapter not in {"codex", "mini"} or spec.get("model") != {
         "codex": DEFAULT_MODEL,
@@ -79,7 +82,7 @@ def validate_model_spec(spec):
         if (
             type(calls) is not int
             or not 1 <= calls <= 16
-            or budget != round(calls * RESERVATION_USD, 9)
+            or budget != round(calls * envelope.reservation_usd, 9)
         ):
             raise ValueError("API envelope must match the non-reusable request reservations")
 
@@ -104,6 +107,7 @@ def validate_access(access):
     ]:
         raise ValueError("Admission must cover exactly the prefix and four pilot branches")
     for trial, grant in grants.items():
+        api_envelope(grant)
         if not re.fullmatch(r"[0-9a-f-]{36}", trial) or not re.fullmatch(
             r"[0-9a-f]{64}", grant.get("spec_hash", "")
         ):
@@ -112,7 +116,8 @@ def validate_access(access):
         if type(n) is not int or (n not in {8, 16} if grant["adapter"] == "mini" else n != 0):
             raise ValueError("Invalid pilot request allowance")
     total = sum(g["requests"] for g in grants.values())
-    if total != 32 or round(total * RESERVATION_USD, 9) > budget:
+    reserved = sum(g["requests"] * api_envelope(g).reservation_usd for g in grants.values())
+    if total != 32 or round(reserved, 9) > budget:
         raise ValueError("Pilot reservations exceed approval or differ from the frozen protocol")
     if set(access.get("secrets", {})) != {"codex", "mini"}:
         raise ValueError("Separate Codex and mini Secret references required")
@@ -144,6 +149,7 @@ def admitted_reference(pool, root, row):
         or grant["spec_hash"] != spec_hash(spec)
         or grant["adapter"] != spec["adapter"]
         or grant["requests"] != (spec["api_call_limit"] if spec["adapter"] == "mini" else 0)
+        or api_envelope(grant) != api_envelope(spec)
     ):
         raise ValueError("Execution is outside the approved identities, specs or first epoch")
     return access["secrets"][spec["adapter"]]

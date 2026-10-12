@@ -13,8 +13,9 @@ from rtv.runtime.tasks import contract
 
 def prepare_pair(protocol, source_spec, root, repeat=0, *, mode="oracle"):
     from rtv.codex_agent import DEFAULT_MODEL
-    from rtv.mini_agent import MINI_MODEL, RESERVATION_USD
+    from rtv.mini_agent import MINI_MODEL, api_envelope
 
+    envelope = api_envelope(source_spec)
     declared = contract(source_spec)
     if not declared or declared["protocol_sha256"] != protocol["protocol_sha256"]:
         raise ValueError("Repository task does not match the frozen protocol")
@@ -70,7 +71,9 @@ def prepare_pair(protocol, source_spec, root, repeat=0, *, mode="oracle"):
                 "fresh_seconds" if fresh else "continuation_seconds"
             ],
             "api_call_limit": max(1, protocol["budget"]["api_requests"][label]),
-            "api_budget_usd": round(protocol["budget"]["api_requests"][label] * RESERVATION_USD, 9)
+            "api_budget_usd": round(
+                protocol["budget"]["api_requests"][label] * envelope.reservation_usd, 9
+            )
             if real
             else 0,
             "benchmark_assignment": {**assignment, "mode": mode},

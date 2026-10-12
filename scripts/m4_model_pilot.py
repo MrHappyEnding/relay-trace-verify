@@ -16,7 +16,7 @@ from rtv.cluster.control import reconcile
 from rtv.cluster.credentials import authorize, install_secret, remove_secret
 from rtv.cluster.kubernetes import Kubernetes
 from rtv.cluster.store import ClusterStore
-from rtv.mini_agent import MAX_OUTPUT, REQUEST_BYTES, RESERVATION_USD
+from rtv.mini_agent import API_ENVELOPES, api_envelope
 from rtv.runtime.config import TERMINAL, Settings
 from rtv.runtime.relay_store import RelayStore
 
@@ -46,6 +46,9 @@ def prepare(args):
     )
     if spec["task_contract"]["contract_sha256"] != config.repository_contract_sha256:
         raise ValueError("Prepared task does not match the executor pool")
+    if args.api_envelope != "mini-40kb-v1":
+        spec["api_envelope"] = args.api_envelope
+    envelope = api_envelope(spec)
     run = prepare_pair(load(args.protocol), spec, root, mode="real-model")
     body = {
         "schema_version": 1,
@@ -56,11 +59,12 @@ def prepare(args):
         "budget": {
             "codex_subscription_stages": 2,
             "maximum_api_requests": 32,
-            "request_input_bytes": REQUEST_BYTES,
-            "request_output_tokens": MAX_OUTPUT,
-            "reservation_per_request_usd": RESERVATION_USD,
-            "total_api_reservation_usd": round(32 * RESERVATION_USD, 9),
-            "suggested_approval_usd": 2,
+            "api_envelope": args.api_envelope,
+            "request_input_bytes": envelope.input_bytes,
+            "request_output_tokens": envelope.max_output_tokens,
+            "reservation_per_request_usd": envelope.reservation_usd,
+            "total_api_reservation_usd": round(32 * envelope.reservation_usd, 9),
+            "suggested_approval_usd": round(32 * envelope.reservation_usd, 9),
             "automatic_retries": 0,
             "price_source": "https://developers.openai.com/api/docs/models/gpt-5.4-mini",
             "price_checked_on": "2026-10-12",
@@ -268,6 +272,7 @@ if __name__ == "__main__":
     for name in ("config", "contract", "root", "output"):
         prep.add_argument("--" + name, type=Path, required=True)
     prep.add_argument("--protocol", type=Path, default=DEFAULT_PLAN)
+    prep.add_argument("--api-envelope", choices=API_ENVELOPES, default="mini-40kb-v1")
     launch = sub.add_parser("run")
     for name in ("prepared", "auth-file", "api-key-file"):
         launch.add_argument("--" + name, type=Path, required=True)

@@ -15,6 +15,7 @@ from rtv.cluster.cli import fixture_spec
 from rtv.cluster.config import ClusterConfig, pool_label
 from rtv.cluster.credentials import authorize, install_secret, remove_secret
 from rtv.cluster.kubernetes import Kubernetes, job_manifest
+from rtv.mini_agent import API_ENVELOPES, api_envelope
 from rtv.runtime.config import Settings
 from rtv.runtime.store import spec_hash
 
@@ -36,6 +37,7 @@ def main(args):
         staged=True,
         pause_after_checkpoint=True,
     )
+    spec["api_envelope"] = args.api_envelope
     run = prepare_pair(load(), spec, output, mode="real-model")
     kube = Kubernetes(config)
     refs, allocations, checks = {}, [], {}
@@ -54,7 +56,7 @@ def main(args):
                 path.write_text(value)
                 path.chmod(0o600)
                 refs[adapter] = install_secret(kube, run["run_sha256"], adapter, path)
-            access = authorize(run, 2, refs)
+            access = authorize(run, round(32 * api_envelope(spec).reservation_usd, 9), refs)
             config = replace(config, model_access=access)
             kube.config = config
             for number, adapter in enumerate(("codex", "mini")):
@@ -200,4 +202,5 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     for name in ("config", "contract", "output"):
         parser.add_argument("--" + name, type=Path, required=True)
+    parser.add_argument("--api-envelope", choices=API_ENVELOPES, default="mini-40kb-v1")
     raise SystemExit(main(parser.parse_args()))

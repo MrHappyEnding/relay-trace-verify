@@ -223,7 +223,16 @@ def test_api_error_diagnostics_exclude_arbitrary_provider_text():
 
 
 @pytest.mark.parametrize(
-    "failure_kind", [None, "timeout", "quota", "input_limit", "initial_input_limit"]
+    "failure_kind",
+    [
+        None,
+        "timeout",
+        "quota",
+        "input_limit",
+        "initial_input_limit",
+        "expanded_input",
+        "expanded_initial_input_limit",
+    ],
 )
 def test_real_mini_loop_with_mocked_transport_accounts_before_parse_and_never_retries(
     tmp_path, monkeypatch, failure_kind
@@ -236,6 +245,8 @@ def test_real_mini_loop_with_mocked_transport_accounts_before_parse_and_never_re
     from rtv.mini_agent import execute_mini
 
     calls, settled, clients, failures = [], [], [], []
+    expanded = bool(failure_kind and failure_kind.startswith("expanded"))
+    byte_limit = 160000 if expanded else 40000
 
     class Store:
         def __init__(self, settings):
@@ -246,6 +257,7 @@ def test_real_mini_loop_with_mocked_transport_accounts_before_parse_and_never_re
             yield None
 
         def begin_model_call(self, row, operation, n, reservation):
+            assert reservation == (0.16 if expanded else 0.062)
             assert n == len(calls) + 1
             assert len(settled) == len(calls)
             return f"request-{n}"
@@ -268,7 +280,7 @@ def test_real_mini_loop_with_mocked_transport_accounts_before_parse_and_never_re
             assert kwargs["max_output_tokens"] == 4096
             assert (
                 len(json.dumps({"input": kwargs["input"], "tools": kwargs["tools"]}).encode())
-                <= 40000
+                <= byte_limit
             )
             if failure_kind == "timeout":
                 raise TimeoutError("lost response; must not retry")
@@ -330,23 +342,29 @@ def test_real_mini_loop_with_mocked_transport_accounts_before_parse_and_never_re
 
     invocation = execute_mini(
         Environment(),
-        "x" * 40000 if failure_kind == "initial_input_limit" else "Test submission",
+        "x" * byte_limit
+        if failure_kind in {"initial_input_limit", "expanded_initial_input_limit"}
+        else "x" * 45000
+        if expanded
+        else "Test submission",
         tmp_path,
         settings=None,
-        row={"spec": {"model": MINI_MODEL}},
+        row={
+            "spec": {"model": MINI_MODEL, **({"api_envelope": "mini-160kb-v1"} if expanded else {})}
+        },
         operation="stage",
     )
-    if failure_kind in {"input_limit", "initial_input_limit"}:
+    if failure_kind in {"input_limit", "initial_input_limit", "expanded_initial_input_limit"}:
         result = asyncio.run(invocation)
         assert result.exit_status == "InputLimitExceeded"
         # Pinned upstream observation formatting retains about 10 KB per tool.
-        expected = 0 if failure_kind == "initial_input_limit" else 4
+        expected = 4 if failure_kind == "input_limit" else 0
         assert result.api_calls == len(calls) == len(settled) == expected
         saved = json.loads(result.rollout.read_text())
         assert saved["info"]["exit_status"] == "InputLimitExceeded"
         assert saved["messages"][-1]["role"] == "exit"
         assert "traceback" not in saved["messages"][-1]["extra"]
-    elif failure_kind:
+    elif failure_kind in {"timeout", "quota"}:
         with pytest.raises(RuntimeError, match="API outcome unknown"):
             asyncio.run(invocation)
         assert len(calls) == 1
