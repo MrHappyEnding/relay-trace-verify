@@ -43,6 +43,8 @@ class LocalCheckpointStore:
         summary: str,
         context: dict | None = None,
         checkpoint_id: UUID | None = None,
+        preserve_directory_modes: bool = False,
+        exclude_names: tuple[str, ...] = (),
     ) -> CheckpointRef:
         if workspace.is_symlink() or not workspace.is_dir():
             raise CheckpointError("Workspace must be a real directory")
@@ -61,12 +63,16 @@ class LocalCheckpointStore:
             snapshot.mkdir()
             entries = []
             directories = []
+            directory_modes = {}
             for source in sorted(workspace.rglob("*")):
+                if any(part in exclude_names for part in source.relative_to(workspace).parts):
+                    continue
                 relative = source.relative_to(workspace).as_posix()
                 metadata = source.lstat()
                 target = snapshot / relative
                 if stat.S_ISDIR(metadata.st_mode):
                     directories.append(relative)
+                    directory_modes[relative] = stat.S_IMODE(metadata.st_mode) & 0o777
                     target.mkdir()
                 elif stat.S_ISREG(metadata.st_mode):
                     data = source.read_bytes()
@@ -83,8 +89,10 @@ class LocalCheckpointStore:
                 summary=summary,
                 directories=tuple(directories),
                 files=tuple(entries),
-                schema_version=2 if context is not None else 1,
+                schema_version=3 if preserve_directory_modes else 2 if context is not None else 1,
                 context=context,
+                directory_modes=directory_modes if preserve_directory_modes else None,
+                excluded_names=exclude_names,
             )
             data = json.dumps(manifest.to_dict(), sort_keys=True, indent=2).encode("utf-8")
             (staging / "manifest.json").write_bytes(data)
@@ -158,6 +166,9 @@ class LocalCheckpointStore:
                 target = staging / entry.path
                 target.write_bytes(data)
                 target.chmod(entry.mode)
+            # Apply restrictive directory modes only after all children have been written.
+            for directory, mode in sorted((manifest.directory_modes or {}).items(), reverse=True):
+                (staging / directory).chmod(mode)
             if destination.exists() or destination.is_symlink():
                 raise FileExistsError(f"Restore destination already exists: {destination}")
             os.rename(staging, destination)

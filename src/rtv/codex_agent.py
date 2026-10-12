@@ -62,7 +62,7 @@ def incremental_usage(
     return {key: value - prior[key] for key, value in current.items()}
 
 
-def read_session(path: Path) -> dict[str, Any]:
+def read_session(path: Path, *, workspace: str = "/workspace") -> dict[str, Any]:
     if path.is_symlink() or not path.is_file():
         raise ValueError("Native session must be a regular file")
     with path.open() as stream:
@@ -73,12 +73,14 @@ def read_session(path: Path) -> dict[str, Any]:
     UUID(meta["id"])
     if meta.get("cli_version") != CODEX_VERSION:
         raise ValueError("Native session CLI version does not match the pinned adapter")
-    if meta.get("cwd") != "/workspace":
+    if workspace not in {"/workspace", "/testbed"} or meta.get("cwd") != workspace:
         raise ValueError("Native session has an incompatible workspace path")
     return meta
 
 
-def read_turn(logs: Path, *, native: Path | None = None) -> TurnResult:
+def read_turn(
+    logs: Path, *, native: Path | None = None, workspace: str = "/workspace"
+) -> TurnResult:
     """A zero pipeline exit alone is insufficient (the SDK pipes through tee)."""
     events = []
     for line in (logs / "codex.txt").read_text().splitlines():
@@ -94,9 +96,9 @@ def read_turn(logs: Path, *, native: Path | None = None) -> TurnResult:
     paths = list((logs / "sessions").rglob("rollout-*.jsonl"))
     if len(paths) != 1:
         raise ValueError("Expected exactly one native session, refusing ambiguous resume")
-    if read_session(paths[0])["id"] != session_id:
+    if read_session(paths[0], workspace=workspace)["id"] != session_id:
         raise ValueError("Event and native session identities disagree")
-    if native is not None and read_session(native)["id"] != session_id:
+    if native is not None and read_session(native, workspace=workspace)["id"] != session_id:
         raise ValueError("Native recovery unexpectedly created a different session")
     usage = ends[0].get("usage", {})
     if not isinstance(usage, dict) or any(type(v) is not int or v < 0 for v in usage.values()):
@@ -107,17 +109,23 @@ def read_turn(logs: Path, *, native: Path | None = None) -> TurnResult:
     return TurnResult(session_id, paths[0], delta, usage)
 
 
-def validate_bundle(bundle: Path, *, model: str) -> Path:
+def validate_bundle(bundle: Path, *, model: str, workspace: str = "/workspace") -> Path:
     """Call after the checkpoint store has verified every file's content hash."""
     metadata = json.loads((bundle / "session.json").read_text())
     if metadata.get("schema_version") != 1 or metadata.get("cli_version") != CODEX_VERSION:
         raise ValueError("Unsupported native checkpoint version")
     if metadata.get("model") != model:
         raise ValueError("Native recovery requires the original model in this probe")
-    files = list((bundle / "native").iterdir())
+    if metadata.get("workspace_scope", "/workspace") != workspace:
+        raise ValueError("Native checkpoint workspace scope changed")
+    files = [
+        path
+        for path in (bundle / "native").iterdir()
+        if not (workspace == "/testbed" and path.name == ".DS_Store")
+    ]
     if len(files) != 1:
         raise ValueError("Native checkpoint must contain exactly one rollout")
-    meta = read_session(files[0])
+    meta = read_session(files[0], workspace=workspace)
     if meta["id"] != metadata.get("session_id"):
         raise ValueError("Checkpoint session identity mismatch")
     if not (bundle / "workspace").is_dir():
@@ -132,13 +140,16 @@ class HarborCodexAdapter:
     Cancellation must be followed by sandbox termination by the owning runner.
     """
 
-    def __init__(self, *, model: str, auth_file: Path):
+    def __init__(self, *, model: str, auth_file: Path, workspace: str = "/workspace"):
         if not MODEL_NAME.fullmatch(model):
             raise ValueError("Model must be a plain model identifier")
         if any(os.environ.get(key) for key in ("OPENAI_BASE_URL", "OPENAI_API_BASE")):
             raise ValueError("Custom API endpoints are outside this subscription-only probe")
         self.model = model
         self.auth_file = validate_auth(auth_file)
+        if workspace not in {"/workspace", "/testbed"}:
+            raise ValueError("Unsupported Codex workspace")
+        self.workspace = workspace
 
     async def execute(
         self, env: Any, instruction: str, *, native: Path | None = None, atif: Path | None = None
@@ -150,12 +161,14 @@ class HarborCodexAdapter:
             raise ValueError("Choose either native recovery or ATIF import")
         expected_atif_id = None
         if atif is not None:
+            if self.workspace != "/workspace":
+                raise ValueError("ATIF import is not verified for repository tasks")
             from rtv.codex_atif import atif_codex_class, validate_atif
 
             expected_atif_id = validate_atif(atif, model=self.model).session_id
             Codex = atif_codex_class()
         if native is not None:
-            read_session(native)
+            read_session(native, workspace=self.workspace)
         # No host config, skills, MCP connections or session directory is mounted.
         agent = Codex(
             logs_dir=env.trial_paths.agent_dir,
@@ -173,7 +186,7 @@ class HarborCodexAdapter:
             raise ValueError("Container has the wrong Codex CLI version")
         action = agent.load if native is not None or atif is not None else agent.run
         await action(instruction, env, AgentContext())
-        result = read_turn(env.trial_paths.agent_dir, native=native)
+        result = read_turn(env.trial_paths.agent_dir, native=native, workspace=self.workspace)
         if expected_atif_id is not None and result.session_id != expected_atif_id:
             raise ValueError("ATIF import did not select the prepared semantic session")
         return result

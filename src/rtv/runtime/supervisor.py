@@ -11,10 +11,25 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 from rtv.harbor_probe import FINAL_SOURCE, PARTIAL_SOURCE, tree_digest
-from rtv.runtime import checkpoint, sandbox
-from rtv.runtime.config import TERMINAL, Settings, execution_dir, task_path
+from rtv.runtime import checkpoint, sandbox, tasks
+from rtv.runtime.config import TERMINAL, Settings, execution_dir
 from rtv.runtime.files import admission, atomic_json, lock
 from rtv.runtime.store import Fenced, Store
+
+
+class AgentStageTimeout(RuntimeError):
+    """Agent time exhausted, distinct from the absolute Trial deadline."""
+
+
+async def bounded_turn(coroutine, seconds):
+    timer = asyncio.timeout(seconds)
+    try:
+        async with timer:
+            return await coroutine
+    except TimeoutError as exc:
+        if timer.expired():
+            raise AgentStageTimeout("agent_stage_timeout") from exc
+        raise
 
 
 def empty_result(row, reason):
@@ -44,7 +59,9 @@ async def execute(settings, row, output):
     store = Store(settings)
     spec = row["spec"]
     result = empty_result(row, "execution_failed")
-    task_dir = task_path(spec.get("task_name", spec["adapter"]))
+    task_dir = tasks.directory(spec)
+    contract = tasks.contract(spec)
+    scope = tasks.workspace(spec)
     if tree_digest(task_dir) != spec["task_digest"]:
         raise ValueError("Task definition changed after submission")
     adapter = None
@@ -52,7 +69,7 @@ async def execute(settings, row, output):
         if os.environ.get("RTV_ALLOW_MODEL_CALLS") != "1":
             raise ValueError("Worker requires RTV_ALLOW_MODEL_CALLS=1")
         adapter = HarborCodexAdapter(
-            model=spec["model"], auth_file=Path(os.environ["RTV_CODEX_AUTH_FILE"])
+            model=spec["model"], auth_file=Path(os.environ["RTV_CODEX_AUTH_FILE"]), workspace=scope
         )
     native = None
     restored = output / "restored"
@@ -60,6 +77,14 @@ async def execute(settings, row, output):
         cp, native = await asyncio.to_thread(checkpoint.restore, settings, row, restored)
         result["restored_checkpoint"] = cp["checkpoint_id"]
     task = Task(task_dir)
+    network = None
+    if contract:
+        from harbor.models.task.config import NetworkMode, NetworkPolicy
+
+        network = NetworkPolicy(
+            network_mode=NetworkMode.ALLOWLIST if adapter else NetworkMode.NO_NETWORK,
+            allowed_hosts=["chatgpt.com", "auth.openai.com", "api.openai.com"] if adapter else [],
+        )
     env = make_environment(
         task,
         output,
@@ -67,6 +92,9 @@ async def execute(settings, row, output):
         spec["image_id"],
         session_id=sandbox.session(row),
         environment_type=sandbox.bounded_environment_type(),
+        platform=contract["platform"] if contract else None,
+        workspace=scope,
+        network_policy=network,
     )
     store.phase(row, "running", {"supervisor_pid": os.getpid()})
     await env.start(force_build=False)
@@ -79,20 +107,47 @@ async def execute(settings, row, output):
         {"container": container, "session": env.session_id, "supervisor_pid": os.getpid()},
     )
     if row["resume_from"]:
-        reply = await env.exec(command="rm -rf /workspace && mkdir /workspace", timeout_sec=15)
+        reply = await env.exec(command=f"rm -rf {scope} && mkdir {scope}", timeout_sec=15)
         if reply.return_code:
             raise RuntimeError("Cannot initialize recovery workspace")
-        await env.upload_dir(restored / "workspace", "/workspace")
+        await env.upload_dir(restored / "workspace", scope)
+        if contract:
+            reply = await env.exec(
+                command="find /testbed -name .DS_Store -type f -delete", timeout_sec=30
+            )
+            if reply.return_code:
+                raise RuntimeError("Cannot remove excluded host metadata")
         roundtrip = output / "roundtrip"
         roundtrip.mkdir()
-        await env.download_dir("/workspace", roundtrip)
-        if tree_digest(roundtrip) != tree_digest(restored / "workspace"):
+        await env.download_dir(scope, roundtrip)
+        if tasks.workspace_digest(roundtrip, spec) != tasks.workspace_digest(
+            restored / "workspace", spec
+        ):
             raise ValueError("Recovery workspace digest mismatch")
         store.event(
             row,
             "workspace.restored",
-            {"checkpoint_id": row["resume_from"], "workspace_digest": tree_digest(roundtrip)},
+            {
+                "checkpoint_id": row["resume_from"],
+                "workspace_digest": tasks.workspace_digest(roundtrip, spec),
+            },
         )
+    elif contract:
+        trees = await env.exec(
+            command=f"git rev-parse 'HEAD^{{tree}}' '{contract['base_commit']}^{{tree}}'",
+            cwd=scope,
+            timeout_sec=30,
+        )
+        clean = await env.exec(command="git status --porcelain", cwd=scope, timeout_sec=30)
+        values = (trees.stdout or "").splitlines()
+        if (
+            trees.return_code
+            or clean.return_code
+            or len(values) != 2
+            or values[0] != values[1]
+            or (clean.stdout or "").strip()
+        ):
+            raise ValueError("Fresh repository does not match the frozen clean base tree")
     operation = store.begin_call(row)
     partial = spec.get("stages", 1) == 2 and row["stage"] == 1
     turn = None
@@ -100,15 +155,7 @@ async def execute(settings, row, output):
     from rtv.runtime.handoff import load_context, summary_payload
 
     context_input = load_context(settings, row)
-    prompt = (
-        "Work only in /workspace. Modify positive_sum.py to sum only positive values, "
-        "but deliberately return None for an empty list. Keep that staged defect, check"
-        " it, then stop."
-        if partial
-        else "Work only in /workspace. Finish positive_sum.py: sum positive values, "
-        "return zero for empty inputs including generators. Check the solution, then stop."
-    )
-    prompt += " Do not read /logs or credentials, use network tools or spawn other agents."
+    prompt = tasks.prompt(spec, partial)
     if context_input["text"]:
         prompt += "\n\n" + context_input["text"]
     store.event(
@@ -117,7 +164,10 @@ async def execute(settings, row, output):
         {"policy": context_input["policy"], "text_bytes": len(context_input["text"].encode())},
     )
     if adapter:
-        turn = await adapter.execute(env, prompt, native=native)
+        turn = await bounded_turn(
+            adapter.execute(env, prompt, native=native),
+            spec.get("agent_seconds", spec["ttl_seconds"]),
+        )
         result.update(
             usage=turn.usage,
             usage_status="known" if turn.usage is not None else "unknown",
@@ -127,14 +177,17 @@ async def execute(settings, row, output):
     elif spec["adapter"] in {"mini", "mini-fixture"}:
         from rtv.mini_agent import execute_mini
 
-        mini = await execute_mini(
-            env,
-            prompt,
-            output,
-            settings=settings,
-            row=row,
-            operation=operation,
-            scripted=spec["adapter"] == "mini-fixture",
+        mini = await bounded_turn(
+            execute_mini(
+                env,
+                prompt,
+                output,
+                settings=settings,
+                row=row,
+                operation=operation,
+                scripted=spec["adapter"] == "mini-fixture",
+            ),
+            spec.get("agent_seconds", spec["ttl_seconds"]),
         )
         result.update(
             usage={},
@@ -143,6 +196,13 @@ async def execute(settings, row, output):
             model_requests=mini.api_calls,
             synthetic_model=mini.synthetic,
         )
+    elif contract:
+        for command in tasks.scripted_commands(spec, partial):
+            reply = await env.exec(
+                command=command, cwd=scope, timeout_sec=spec.get("agent_seconds", 300)
+            )
+            if reply.return_code:
+                raise RuntimeError("Scripted repository control failed")
     else:
         delay = 0 if partial else spec["delay_seconds"]
         code = (
@@ -160,7 +220,13 @@ async def execute(settings, row, output):
             raise RuntimeError("Fixture execution failed")
     store.settle_call(row, operation, result["usage"])
     store.phase(row, "verifying", {})
-    if not spec.get("isolated_verifier"):
+    skip_verifier = bool(contract and partial)
+    if contract:
+        result["verification"] = {
+            "status": "not_run",
+            "reason": "hidden verification is final-only",
+        }
+    if not contract and not spec.get("isolated_verifier"):
         result["rewards"] = await verify(task, env)
     await asyncio.to_thread(sandbox.stop, row)
     ids = sandbox.resources(row)["containers"]
@@ -168,7 +234,7 @@ async def execute(settings, row, output):
     bundle = output / "bundle"
     workspace = bundle / "workspace"
     workspace.mkdir(parents=True)
-    await env.download_dir("/workspace", workspace)
+    await env.download_dir(scope, workspace)
     if turn:
         (bundle / "native").mkdir()
         shutil.copy2(turn.rollout, bundle / "native" / turn.rollout.name)
@@ -179,9 +245,10 @@ async def execute(settings, row, output):
                 "cli_version": CODEX_VERSION,
                 "model": spec["model"],
                 "session_id": turn.session_id,
+                "workspace_scope": scope,
             },
         )
-    if spec.get("isolated_verifier"):
+    if not skip_verifier and (contract or spec.get("isolated_verifier")):
         from rtv.runtime.verification import isolated_verify
 
         result["rewards"], result["verification"] = await isolated_verify(
@@ -194,7 +261,7 @@ async def execute(settings, row, output):
         else "succeeded"
     )
     result["reason"] = "stage_complete" if partial else "verified"
-    if result["rewards"] != expected:
+    if not skip_verifier and result["rewards"] != expected:
         result.update(status="failed", reason="verification_failed")
     if mini and mini.exit_status != "Submitted":
         result.update(status="failed", reason="agent_limit_or_error")
@@ -209,8 +276,16 @@ async def execute(settings, row, output):
             },
         )
     else:
-        atomic_json(bundle / "handoff-summary.json", summary_payload(turn))
-    result["workspace_digest"] = tree_digest(workspace)
+        atomic_json(
+            bundle / "handoff-summary.json",
+            {
+                "source": "scripted repository control",
+                "verification": "not a model outcome",
+            }
+            if contract and turn is None
+            else summary_payload(turn),
+        )
+    result["workspace_digest"] = tasks.workspace_digest(workspace, spec)
     context = checkpoint.boundary(settings, row, bundle, result, ids)
     cp = await asyncio.to_thread(checkpoint.publish, settings, row, bundle, context)
     return {**result, "checkpoint_id": cp["checkpoint_id"]}
@@ -287,7 +362,13 @@ def run(trial_id, execution_id):
                 import traceback
 
                 traceback.print_exc()
-                reason = "ttl_expired" if isinstance(exc, TimeoutError) else type(exc).__name__
+                reason = (
+                    "agent_stage_timeout"
+                    if isinstance(exc, AgentStageTimeout)
+                    else "ttl_expired"
+                    if isinstance(exc, TimeoutError)
+                    else type(exc).__name__
+                )
                 result = empty_result(row, reason)
             atomic_json(output / "result.json", result)
             sandbox.cleanup(row)

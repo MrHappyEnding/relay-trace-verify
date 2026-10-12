@@ -571,7 +571,7 @@ class Store:
                 raise ValueError("Trial TTL exhausted; recovery does not reset it")
             cp = c.execute(
                 "SELECT * FROM checkpoints WHERE checkpoint_id=%s AND state='committed' FOR UPDATE",
-                (row["latest_checkpoint"],),
+                (row["latest_checkpoint"] or row.get("resume_from"),),
             ).fetchone()
             if not cp:
                 raise ValueError("No committed checkpoint available")

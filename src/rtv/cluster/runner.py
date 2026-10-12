@@ -29,6 +29,8 @@ def main(trial_id, execution_id):
         raise ValueError(
             "M4 development runner is model-free; paid credential delivery is not enabled"
         )
+    if row["spec"].get("task_contract"):
+        raise ValueError("Repository Jobs require validated resources/platform and task delivery")
     archive = Path(os.environ["RTV_IMAGES_ARCHIVE"])
     with archive.open("rb") as stream:
         if hashlib.file_digest(stream, "sha256").hexdigest() != os.environ["RTV_IMAGES_SHA256"]:

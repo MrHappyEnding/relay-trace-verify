@@ -8,11 +8,14 @@ from tempfile import TemporaryDirectory
 from rtv.codex_agent import DEFAULT_MODEL, validate_bundle
 from rtv.mini_agent import MINI_MODEL
 from rtv.runtime.files import atomic_json, lock
+from rtv.runtime.tasks import contract, directory, workspace
 
 POLICIES = {"native", "task-only", "summary", "portable"}
 
 
 def target_spec(source, adapter, model, policy, *, ttl=300):
+    if contract(source) and policy == "portable":
+        raise ValueError("Repository ATIF projection is not verified; use native/task-only/summary")
     if adapter not in {"fixture", "codex", "mini", "mini-fixture"} or policy not in POLICIES:
         raise ValueError("Unsupported adapter or context policy")
     if adapter == "mini" and model not in {None, MINI_MODEL}:
@@ -88,10 +91,14 @@ def prepare(settings, hid):
         from importlib.metadata import version
 
         from rtv.harbor_probe import _docker, tree_digest
-        from rtv.runtime.config import task_path
 
         _docker("image", "inspect", h["target_spec"]["image_id"])
-        if tree_digest(task_path(h["target_spec"]["task_name"])) != h["target_spec"]["task_digest"]:
+        declared = contract(h["target_spec"])
+        if cp["context"].get("task_contract_sha256") != (
+            declared["contract_sha256"] if declared else None
+        ):
+            raise ValueError("Handoff cannot change the task contract")
+        if tree_digest(directory(h["target_spec"])) != h["target_spec"]["task_digest"]:
             raise ValueError("Target task changed before preparation")
         if (
             h["target_spec"]["adapter"] in {"mini", "mini-fixture"}
@@ -109,7 +116,11 @@ def prepare(settings, hid):
             checkpoint.validate(settings, cp, bundle)
             if h["policy"] == "native":
                 if h["target_spec"]["adapter"] == "codex":
-                    validate_bundle(bundle, model=h["target_spec"]["model"])
+                    validate_bundle(
+                        bundle,
+                        model=h["target_spec"]["model"],
+                        workspace=workspace(h["target_spec"]),
+                    )
             elif h["policy"] == "summary":
                 summary = json.loads((bundle / "handoff-summary.json").read_text())
                 payload["text"] = (

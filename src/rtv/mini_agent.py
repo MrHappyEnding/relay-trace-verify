@@ -143,11 +143,17 @@ async def execute_mini(env, instruction, output, *, settings, row, operation, sc
 
     from rtv.harbor_probe import FINAL_SOURCE
     from rtv.runtime.store import Store
+    from rtv.runtime.tasks import contract, scripted_commands, workspace
 
     if minisweagent.__version__ != MINI_VERSION:
         raise ValueError("mini-swe-agent version mismatch")
     templates = yaml.safe_load((minisweagent.package_dir / "config/mini.yaml").read_text())
     store = Store(settings)
+    scope = workspace(row["spec"])
+    repository = contract(row["spec"])
+    steps = row["spec"].get("api_call_limit", 8) if repository else 8
+    if type(steps) is not int or not 1 <= steps <= 16:
+        raise ValueError("Mini request limit must be 1–16")
     loop = asyncio.get_running_loop()
     stop = threading.Event()
     client = None
@@ -190,6 +196,11 @@ async def execute_mini(env, instruction, output, *, settings, row, operation, sc
                     ),
                     "echo COMPLETE_TASK_AND_SUBMIT_FINAL_OUTPUT",
                 ]
+                if repository:
+                    commands = [
+                        *scripted_commands(row["spec"]),
+                        "echo COMPLETE_TASK_AND_SUBMIT_FINAL_OUTPUT",
+                    ]
                 command = commands[min(self.n - 1, len(commands) - 1)]
                 data = {
                     "object": "response",
@@ -276,7 +287,7 @@ async def execute_mini(env, instruction, output, *, settings, row, operation, sc
             }
 
     class Environment:
-        config = SimpleNamespace(cwd="/workspace")
+        config = SimpleNamespace(cwd=scope)
 
         def execute(self, action, cwd=""):
             active()
@@ -285,7 +296,7 @@ async def execute_mini(env, instruction, output, *, settings, row, operation, sc
                 raise ValueError("Expected bash command text")
 
             async def invoke():
-                return await env.exec(command=command, cwd="/workspace", timeout_sec=30)
+                return await env.exec(command=command, cwd=scope, timeout_sec=30)
 
             reply = asyncio.run_coroutine_threadsafe(invoke(), loop).result(timeout=40)
             observation = {
@@ -302,22 +313,20 @@ async def execute_mini(env, instruction, output, *, settings, row, operation, sc
                 "release": "container",
                 "version": "pinned image",
                 "machine": "container",
-                "cwd": "/workspace",
+                "cwd": scope,
                 **kwargs,
             }
 
         def serialize(self):
             return {
-                "info": {
-                    "config": {"environment": {"type": "HarborDockerBridge", "cwd": "/workspace"}}
-                }
+                "info": {"config": {"environment": {"type": "HarborDockerBridge", "cwd": scope}}}
             }
 
     config = {k: v for k, v in templates["agent"].items() if k != "mode"}
     config.update(
-        step_limit=8,
+        step_limit=steps,
         cost_limit=0,
-        wall_time_limit_seconds=240,
+        wall_time_limit_seconds=row["spec"].get("agent_seconds", 240),
         output_path=output / "mini-trajectory.json",
     )
     model = Model()

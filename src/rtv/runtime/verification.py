@@ -1,39 +1,74 @@
 """Final verification consumes only declared workspace bytes in a fresh sandbox."""
 
+import json
+
 from rtv.codex_probe import main_container, make_environment, verify
 from rtv.harbor_probe import _docker, tree_digest
 from rtv.runtime import sandbox
+from rtv.runtime.tasks import contract, workspace_digest
+from rtv.runtime.tasks import workspace as workspace_scope
 
 
 async def isolated_verify(task, row, workspace, output):
     from harbor.models.task.config import NetworkMode, NetworkPolicy
 
+    declared = contract(row["spec"])
+    scope = workspace_scope(row["spec"])
+    image = declared["verifier_image_id"] if declared else row["spec"]["image_id"]
     env = make_environment(
         task,
         output,
         "verifier",
-        row["spec"]["image_id"],
+        image,
         session_id=sandbox.session(row) + "-verify",
         environment_type=sandbox.bounded_environment_type(),
         network_policy=NetworkPolicy(network_mode=NetworkMode.NO_NETWORK),
+        platform=declared["platform"] if declared else None,
+        workspace=scope,
     )
     try:
         await env.start(force_build=False)
-        await env.exec(command="rm -rf /workspace && mkdir /workspace", timeout_sec=15)
-        await env.upload_dir(workspace, "/workspace")
+        reply = await env.exec(command=f"rm -rf {scope} && mkdir {scope}", timeout_sec=15)
+        if reply.return_code:
+            raise RuntimeError("Cannot prepare isolated verifier workspace")
+        await env.upload_dir(workspace, scope)
+        if declared:
+            reply = await env.exec(
+                command="find /testbed -name .DS_Store -type f -delete", timeout_sec=30
+            )
+            if reply.return_code:
+                raise RuntimeError("Cannot remove excluded verifier input metadata")
         restored = output / "verifier-input"
         restored.mkdir()
-        await env.download_dir("/workspace", restored)
-        digest = tree_digest(workspace)
-        if tree_digest(restored) != digest:
+        await env.download_dir(scope, restored)
+        digest = workspace_digest(workspace, row["spec"])
+        if workspace_digest(restored, row["spec"]) != digest:
             raise ValueError("Verifier input digest mismatch")
         container = main_container(env)
-        rewards = await verify(task, env)
+        if _docker("inspect", "--format", "{{.Image}}", container) != image:
+            raise ValueError("Verifier image identity changed")
+        rewards = await verify(
+            task, env, timeout=declared["verifier_timeout_seconds"] if declared else 30
+        )
+        if declared:
+            # Harbor reward=0 alone can also mean that its parser crashed.
+            parsed = json.loads((env.trial_paths.verifier_dir / "report.json").read_text())[
+                declared["instance_id"]
+            ]
+            if (
+                parsed.get("patch_successfully_applied") is not True
+                or type(parsed.get("resolved")) is not bool
+                or rewards != {"reward": float(parsed["resolved"])}
+            ):
+                raise ValueError("SWE-bench parser and reward disagree or tests were not parsed")
         return rewards, {
+            "status": "completed",
             "isolated": True,
             "workspace_digest": digest,
             "container": container,
             "verifier_digest": tree_digest(task.paths.tests_dir),
+            "workspace_scope": scope,
+            "image_id": image,
         }
     finally:
         ids = sandbox.project_resources(sandbox.session(row) + "-verify")

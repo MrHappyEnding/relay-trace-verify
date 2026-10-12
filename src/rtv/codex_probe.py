@@ -25,16 +25,36 @@ def make_environment(
     session_id: str | None = None,
     environment_type: Any = None,
     network_policy: Any = None,
+    platform: str | None = None,
+    workspace: str | None = None,
 ) -> Any:
     from harbor.environments.docker.docker import DockerEnvironment
     from harbor.models.trial.paths import EnvironmentPaths, TrialPaths
 
-    paths = TrialPaths(output / role)
+    paths = TrialPaths(output.resolve() / role)
     paths.mkdir()
     config = task.config.environment
     if image_id:
         config = config.model_copy(update={"docker_image": image_id})
     remote = EnvironmentPaths.for_os(config.os)
+    extra = {}
+    if platform:
+        if platform != "linux/amd64" or workspace != "/testbed":
+            raise ValueError("Unsupported repository environment override")
+        override = paths.trial_dir / "rtv-task-compose.json"
+        override.write_text(
+            json.dumps(
+                {
+                    "services": {
+                        "main": {
+                            "platform": platform,
+                            "working_dir": workspace,
+                        }
+                    }
+                }
+            )
+        )
+        extra["extra_docker_compose_paths"] = [override]
     return (environment_type or DockerEnvironment)(
         environment_dir=task.paths.environment_dir,
         environment_name=task.short_name,
@@ -49,6 +69,7 @@ def make_environment(
                 (paths.verifier_dir, remote.verifier_dir),
             ]
         ],
+        **extra,
     )
 
 
@@ -66,12 +87,12 @@ async def command(env: Any, program: str) -> str:
     return (result.stdout or "").strip()
 
 
-async def verify(task: Any, env: Any) -> dict[str, float]:
+async def verify(task: Any, env: Any, *, timeout: int = 30) -> dict[str, float]:
     from harbor.models.task.config import NetworkMode, NetworkPolicy
     from harbor.verifier.verifier import Verifier
 
     await env.set_network_policy(NetworkPolicy(network_mode=NetworkMode.NO_NETWORK))
-    result = await asyncio.wait_for(Verifier(task, env.trial_paths, env).verify(), timeout=30)
+    result = await asyncio.wait_for(Verifier(task, env.trial_paths, env).verify(), timeout=timeout)
     return result.rewards
 
 

@@ -19,12 +19,13 @@ def recover(settings, row, key, *, recovery=True):
         return store.get(row["trial_id"])
     # Verify the exact committed input before transferring authority. The new
     # execution verifies again at restore; corruption can never trigger a turn.
-    if not row["latest_checkpoint"]:
+    checkpoint_id = row["latest_checkpoint"] or row.get("resume_from")
+    if not checkpoint_id:
         raise ValueError("No committed checkpoint")
     from pathlib import Path
     from tempfile import TemporaryDirectory
 
-    cp = store.checkpoint(row["latest_checkpoint"])
+    cp = store.checkpoint(checkpoint_id)
     if cp["stage"] >= row["spec"].get("stages", 1):
         raise ValueError("All planned stages already completed")
     with TemporaryDirectory(dir=settings.root, prefix="recovery-check-") as temporary:
@@ -132,7 +133,7 @@ def reconcile(settings: Settings, trial_id: str, *, launch=True):
                 return summary(row)
             if (
                 reason in {"supervisor_lost", "lease_expired"}
-                and row["latest_checkpoint"]
+                and (row["latest_checkpoint"] or row.get("resume_from"))
                 and row["recoveries"] < row["spec"].get("max_recoveries", 0)
             ):
                 return summary(recover(settings, row, "loss:" + row["execution_id"]))

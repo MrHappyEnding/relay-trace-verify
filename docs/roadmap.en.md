@@ -99,4 +99,4 @@ Tool-boundary checkpoints, more agents, trajectory judges calibrated against lab
 | Control language | Python | Harbor integration cost and typed contracts |
 | First execution backend | Local containers | Validate the protocol before distributed faults |
 
-Next: integrate real-repository checkpoints, independent restoration and verifier isolation, then adapt Kubernetes resources and credential delivery. Pass model-free compatibility checks before paid M4 experiments. The prior $8 approval covered M3 debugging; new M4 costs require a separate budget.
+Local real-repository checkpoints, independent restoration, verifier isolation and scripted branches pass [26 checks](m4-repositories.en.md). Next: integrate task materialization, resources, AMD64 images and credential delivery with Kubernetes, then connect runtime records to paired analysis. Real Codex sessions and API branches still need separate acceptance. The prior $8 approval covered M3 debugging; new M4 costs require a separate budget.

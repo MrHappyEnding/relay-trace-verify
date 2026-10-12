@@ -130,8 +130,8 @@ CLI 默认配置面向本仓库 checkout；安装 wheel 后应显式传配置与
 这只证明一个任务的环境和 verifier 可用，没有 agent 调用，也不是 Kubernetes 结果。
 早期权限、包装提交校验与退出码适配失败均保留。
 
-下一项实现是任务感知的运行契约：把原来写死的 `positive_sum` 提示与 `/workspace` 替换为
-声明式任务目录（此任务为 `/testbed`），验证真实仓库 checkpoint 导出、独立恢复和隐藏测试隔离。
-随后调整 verifier 的 30 秒默认限制、Kubernetes 每 Job 1536 MiB 配额（任务声明 4096 MiB）、
-AMD64 内层执行能力、凭据传递与 16 请求 fresh 基线。其余 3 个开发环境也要预检。
-这些兼容性验证和预算审批完成后，才进入真实模型配对实验。
+任务感知的本机 runtime 已接入 `/testbed`，完成真实仓库 checkpoint 导出、独立恢复、
+隐藏测试隔离、600 秒 verifier 和 16 请求 fresh 入口；见[真实仓库接入](m4-repositories.md)。
+证据为脚本/参考解控制，真实模型会话尚未验证。剩余工作包括 Kubernetes 每 Job 1536 MiB
+配额适配（任务声明 4096 MiB）、AMD64 内层执行、材料与凭据传递、统计自动关联，
+以及其余 3 个开发环境预检。兼容性和预算审批完成后，才进入真实模型配对实验。

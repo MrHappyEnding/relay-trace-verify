@@ -150,9 +150,9 @@ host, the first development task runs as `linux/amd64`: unmodified reward 0, ref
 both containers removed. This validates one task environment and verifier, without agents or
 Kubernetes. Earlier permission, packaging-commit and exit-code adaptation failures are retained.
 
-Next implement a task-aware runtime contract: replace the hardcoded `positive_sum` prompt and
-`/workspace` with a declared task workspace (`/testbed` here), then test real-repository checkpoint
-export, isolated restoration and hidden-test separation. Adapt the 30-second verifier default,
-Kubernetes 1536 MiB Job quota (these tasks declare 4096 MiB), AMD64 inner execution, credential
-delivery and the 16-request fresh baseline. Preflight the other three development environments.
-Only after those checks and budget approval should real-model paired experiments run.
+The local runtime now supports declared `/testbed` tasks, checkpoint export, isolated restoration,
+hidden-test separation, a 600-second verifier and a 16-request fresh entry point; see
+[repository integration](m4-repositories.en.md). Evidence uses scripted/reference controls, not real
+model sessions. Remaining work includes the Kubernetes 1536 MiB Job quota (tasks declare 4096 MiB),
+AMD64 inner execution, task/credential delivery, statistical linkage and the other three development
+environment preflights. Real-model paired experiments require those checks and budget approval.

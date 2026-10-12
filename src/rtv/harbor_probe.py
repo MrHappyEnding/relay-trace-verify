@@ -33,12 +33,14 @@ def _docker(*args: str, timeout: int = 30) -> str:
     return result.stdout.strip()
 
 
-def tree_digest(root: Path) -> str:
+def tree_digest(root: Path, *, exclude_names=()) -> str:
     """Digest names, types, permissions and bytes without following symbolic links."""
     if root.is_symlink() or not root.is_dir():
         raise ValueError(f"Digest root must be a real directory: {root}")
     digest = hashlib.sha256()
     for path in sorted(root.rglob("*")):
+        if any(part in exclude_names for part in path.relative_to(root).parts):
+            continue
         if path.is_symlink():
             raise ValueError(f"Symbolic links are outside this probe's contract: {path}")
         if not path.is_file() and not path.is_dir():

@@ -134,10 +134,22 @@ def capability_report() -> dict:
             "verifier_scope": "offline AMD64 Docker controls on an ARM64 host; no agents",
             "real_model_benchmark_verified": False,
             "kubernetes_benchmark_verified": False,
-            "paid_execution_enabled": False,
+            "paid_experiment_authorized": False,
+            "repository_runtime": {
+                "scope": "one local SWE-bench pilot; scripted/oracle controls, "
+                "no real-model result",
+                "workspace": "/testbed",
+                "checkpoint_manifest": 3,
+                "directory_permission_bits": "0o777",
+                "workspace_excludes": [".DS_Store"],
+                "codex_native_repository_verified": False,
+                "mini_scripted_repository_verified": True,
+                "fresh_request_limit": 16,
+            },
             "evidence": [
                 "docs/evidence/m4-benchmark-preflight-arm64-20261011.json",
                 "docs/evidence/m4-benchmark-protocol-20261011.json",
+                "docs/evidence/m4-repository-runtime-arm64-20261011.json",
             ],
         },
         "relay": {

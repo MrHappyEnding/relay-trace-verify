@@ -71,12 +71,14 @@ class CheckpointManifest:
     files: tuple[FileEntry, ...]
     schema_version: int = 1
     context: dict[str, Any] | None = None
+    directory_modes: dict[str, int] | None = None
+    excluded_names: tuple[str, ...] = ()
 
     def __post_init__(self) -> None:
-        if type(self.schema_version) is not int or self.schema_version not in (1, 2):
+        if type(self.schema_version) is not int or self.schema_version not in (1, 2, 3):
             raise CheckpointError("Unsupported manifest schema version")
-        if self.schema_version == 2 and not isinstance(self.context, dict):
-            raise CheckpointError("Version 2 requires recovery context")
+        if self.schema_version in (2, 3) and not isinstance(self.context, dict):
+            raise CheckpointError("Version 2/3 requires recovery context")
         if self.schema_version == 1 and self.context is not None:
             raise CheckpointError("Version 1 does not support recovery context")
         if type(self.event_cursor) is not int or self.event_cursor < 0:
@@ -88,6 +90,24 @@ class CheckpointManifest:
         if len(paths) != len(set(paths)):
             raise CheckpointError("Duplicate snapshot paths")
         directory_set = set(directories)
+        if self.excluded_names not in ((), (".DS_Store",)) or (
+            self.excluded_names and self.schema_version != 3
+        ):
+            raise CheckpointError("Unsupported snapshot exclusions")
+        if any(part in self.excluded_names for path in paths for part in PurePosixPath(path).parts):
+            raise CheckpointError("Manifest includes an excluded entry")
+        if self.schema_version == 3:
+            if (
+                not isinstance(self.directory_modes, dict)
+                or set(self.directory_modes) != directory_set
+            ):
+                raise CheckpointError("Version 3 requires a mode for every directory")
+            if any(
+                type(m) is not int or not 0 <= m <= 0o777 for m in self.directory_modes.values()
+            ):
+                raise CheckpointError("Unsupported directory mode")
+        elif self.directory_modes is not None:
+            raise CheckpointError("Directory modes require version 3")
         for path in paths:
             for parent in PurePosixPath(path).parents:
                 if str(parent) != "." and str(parent) not in directory_set:
@@ -103,8 +123,11 @@ class CheckpointManifest:
             "directories": list(self.directories),
             "files": [asdict(entry) for entry in self.files],
         }
-        if self.schema_version == 2:
+        if self.schema_version in (2, 3):
             result["context"] = self.context
+        if self.schema_version == 3:
+            result["directory_modes"] = self.directory_modes
+            result["excluded_names"] = list(self.excluded_names)
         return result
 
     @classmethod
@@ -119,8 +142,11 @@ class CheckpointManifest:
                 "directories",
                 "files",
             }
-            if isinstance(value, dict) and value.get("schema_version") == 2:
+            if isinstance(value, dict) and value.get("schema_version") in (2, 3):
                 required.add("context")
+            if isinstance(value, dict) and value.get("schema_version") == 3:
+                required.add("directory_modes")
+                required.add("excluded_names")
             if not isinstance(value, dict) or set(value) != required:
                 raise CheckpointError("Manifest fields do not match its schema version")
             if not isinstance(value["directories"], list) or not isinstance(value["files"], list):
@@ -134,6 +160,8 @@ class CheckpointManifest:
                 files=tuple(FileEntry(**entry) for entry in value["files"]),
                 schema_version=value["schema_version"],
                 context=value.get("context"),
+                directory_modes=value.get("directory_modes"),
+                excluded_names=tuple(value.get("excluded_names", [])),
             )
         except (KeyError, TypeError, ValueError, AttributeError) as exc:
             raise CheckpointError(f"Invalid checkpoint manifest: {exc}") from exc

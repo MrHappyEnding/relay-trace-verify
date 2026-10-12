@@ -13,6 +13,7 @@ from rtv.domain import ExecutionRef
 from rtv.harbor_probe import HARBOR_VERSION, _docker, tree_digest
 from rtv.runtime.config import execution_dir
 from rtv.runtime.store import Store
+from rtv.runtime.tasks import contract, workspace, workspace_digest
 from rtv.storage import LocalCheckpointStore
 
 
@@ -28,7 +29,8 @@ def validate(settings, cp, destination):
     storage = artifacts(settings)
     ref = reference(cp)
     manifest = storage.load(ref)
-    if manifest.schema_version != 2 or manifest.context != cp["context"]:
+    expected_schema = 3 if cp["context"].get("task_contract_sha256") else 2
+    if manifest.schema_version != expected_schema or manifest.context != cp["context"]:
         raise ValueError("Checkpoint recovery context differs from committed metadata")
     if (
         manifest.source.execution_id != UUID(cp["execution_id"])
@@ -36,7 +38,13 @@ def validate(settings, cp, destination):
     ):
         raise ValueError("Checkpoint source identity mismatch")
     storage.restore(ref, destination)
-    if tree_digest(destination / "workspace") != cp["context"]["workspace_digest"]:
+    exclusions = tuple(cp["context"].get("workspace_excludes", []))
+    if manifest.excluded_names != exclusions:
+        raise ValueError("Checkpoint workspace exclusions differ from manifest")
+    if (
+        tree_digest(destination / "workspace", exclude_names=exclusions)
+        != cp["context"]["workspace_digest"]
+    ):
         raise ValueError("Checkpoint workspace differs from verified boundary")
     return destination
 
@@ -52,6 +60,11 @@ def restore(settings, row, destination):
         raise ValueError("Recovery checkpoint belongs to a different trial")
     policy = load_context(settings, row)["policy"] if transferred else "native"
     context = cp["context"]
+    task = contract(row["spec"])
+    if context.get("task_contract_sha256") != (task["contract_sha256"] if task else None):
+        raise ValueError("Recovery task contract changed")
+    if context["workspace_scope"] != workspace(row["spec"]):
+        raise ValueError("Recovery workspace scope changed")
     for key in (
         ("task_digest", "image_id")
         if transferred
@@ -65,7 +78,9 @@ def restore(settings, row, destination):
     validate(settings, cp, destination)
     native = None
     if row["spec"]["adapter"] == "codex" and policy == "native":
-        native = validate_bundle(destination, model=row["spec"]["model"])
+        native = validate_bundle(
+            destination, model=row["spec"]["model"], workspace=workspace(row["spec"])
+        )
     return cp, native
 
 
@@ -83,14 +98,24 @@ def boundary(settings, row, bundle, result, container_ids):
         if e["payload"]["execution_id"] == row["execution_id"]
     ]
     return {
-        "schema_version": 2,
+        "schema_version": 3 if contract(row["spec"]) else 2,
         "stage": row["stage"],
         **{k: row["spec"][k] for k in ("task_digest", "image_id", "adapter", "model")},
         "harbor_version": HARBOR_VERSION,
         "cli_version": CODEX_VERSION if row["spec"]["adapter"] == "codex" else None,
         "parent": row["resume_from"],
-        "workspace_scope": "/workspace",
-        "workspace_digest": tree_digest(bundle / "workspace"),
+        "workspace_scope": workspace(row["spec"]),
+        **(
+            {"workspace_excludes": contract(row["spec"])["workspace_excludes"]}
+            if contract(row["spec"])
+            else {}
+        ),
+        **(
+            {"task_contract_sha256": contract(row["spec"])["contract_sha256"]}
+            if contract(row["spec"])
+            else {}
+        ),
+        "workspace_digest": workspace_digest(bundle / "workspace", row["spec"]),
         "event_boundary": [e["event_id"] for e in events],
         "event_cursor": max((e["sequence"] for e in events), default=0),
         "ledger_revision": store.get(row["trial_id"])["ledger_revision"],
@@ -116,6 +141,8 @@ def publish(settings, row, bundle, context):
             summary=f"completed stage {row['stage']}",
             context=context,
             checkpoint_id=UUID(cp["checkpoint_id"]),
+            preserve_directory_modes=bool(context.get("task_contract_sha256")),
+            exclude_names=tuple(context.get("workspace_excludes", [])),
         )
     uploaded = {**cp, "manifest_sha256": ref.manifest_sha256}
     with TemporaryDirectory(dir=execution_dir(settings, row), prefix="validate-") as temporary:

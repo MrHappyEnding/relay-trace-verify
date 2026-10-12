@@ -24,11 +24,21 @@ def add_parser(commands):
     worker.add_argument("--api-key-file", type=Path)
     submit = sub.add_parser("submit", help="Idempotently submit one trusted coding fixture")
     submit.add_argument("--key", required=True)
-    submit.add_argument("--adapter", choices=["fixture", "codex"], default="fixture")
+    submit.add_argument(
+        "--adapter", choices=["fixture", "mini-fixture", "codex", "mini"], default="fixture"
+    )
+    submit.add_argument("--task-contract", type=Path)
+    submit.add_argument(
+        "--scripted-controls", type=Path, help="Explicit model-free developer controls"
+    )
+    submit.add_argument("--allow-api-calls", action="store_true")
+    submit.add_argument("--api-call-limit", type=int, default=8)
+    submit.add_argument("--api-budget-usd", type=float, default=0)
+    submit.add_argument("--agent-seconds", type=int, default=300)
     submit.add_argument("--image", help="Prepared local image tag or immutable ID")
     submit.add_argument("--ttl", type=int, default=300)
     submit.add_argument("--delay", type=int, default=0, help="Fixture-only fault-test delay")
-    submit.add_argument("--model", default=DEFAULT_MODEL)
+    submit.add_argument("--model")
     submit.add_argument("--allow-model-calls", action="store_true")
     submit.add_argument("--pause-after-checkpoint", action="store_true")
     submit.add_argument(
@@ -84,6 +94,12 @@ def add_parser(commands):
 
 
 def make_spec(args) -> dict:
+    if getattr(args, "task_contract", None):
+        from rtv.runtime.tasks import make_repository_spec
+
+        return make_repository_spec(args)
+    if args.adapter in {"mini", "mini-fixture"}:
+        raise ValueError("Standalone mini submission requires a repository task contract")
     recoveries = getattr(args, "max_recoveries", 0)
     if getattr(args, "pause_after_checkpoint", False) and not getattr(args, "staged", False):
         raise ValueError("Pausing requires --staged")
@@ -99,7 +115,7 @@ def make_spec(args) -> dict:
         "adapter": args.adapter,
         "ttl_seconds": args.ttl,
         "delay_seconds": args.delay,
-        "model": args.model if args.adapter == "codex" else None,
+        "model": (args.model or DEFAULT_MODEL) if args.adapter == "codex" else None,
         "image_id": image_id,
         "task_digest": tree_digest(task_path(args.adapter)),
         "stages": 2 if getattr(args, "staged", False) else 1,
