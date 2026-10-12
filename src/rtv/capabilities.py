@@ -97,6 +97,18 @@ def capability_report() -> dict:
                 "docs/evidence/m3-real-arm64-20261009.json",
             ],
         },
+        "cluster": {
+            "milestone": "M4 phase one; formal experiments pending",
+            "backend": "k3d 5.8.3 / Kubernetes 1.31.5 on one Docker Desktop host",
+            "metadata_schema": "rtv4, isolated from rtv3",
+            "admission": "PostgreSQL per-root jobs/CPU/memory reservations plus namespace quota",
+            "cleanup": "UID-conditional deletion; retain reservation until Job and Pods absent",
+            "recovery": "fresh Job/epoch/workspace from committed checkpoint, unchanged TTL",
+            "model_calls_enabled": False,
+            "security_scope": "trusted local fixtures; privileged outer DinD Pod",
+            "storage": "shared local bind volume; no host-loss or storage-HA claim",
+            "evidence": "docs/evidence/m4-runtime-arm64-20261011.json",
+        },
         "mini": {
             "version": "2.4.6",
             "configured_model": "gpt-5.4-mini-2026-03-17",

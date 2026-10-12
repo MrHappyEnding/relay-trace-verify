@@ -2,9 +2,9 @@
 
 [![中文](assets/lang-zh.svg)](roadmap.md) [![English](assets/lang-en.svg)](roadmap.en.md)
 
-Status: F0–M3 accepted within their stated local scopes · 2026-10-09
+Status: F0-M3 accepted locally; M4 phase one implemented, milestone still in progress (2026-10-11)
 
-The initial framework completes F0 below. M0 is accepted within the first Codex adapter’s stated scope; M1/M2 are implemented on one host; M3 protocol, scripted-model and real two-agent development-task acceptance are complete; M4 remains unimplemented. Local fixtures and mocked protocol tests do not replace real-container or real-agent compatibility tests. Reproduction and original implementation both remain in scope; see the [learning plan](learning-plan.en.md).
+The initial framework completes F0 below. M0 is accepted within the first Codex adapter’s stated scope; M1/M2 are implemented on one host; M3 protocol, scripted-model and real two-agent development-task acceptance are complete; M4 has a local model-free Kubernetes foundation; formal experiments remain outstanding. Local fixtures and mocked protocol tests do not replace real-container or real-agent compatibility tests. Reproduction and original implementation both remain in scope; see the [learning plan](learning-plan.en.md).
 
 ## F0: Framework skeleton
 
@@ -71,13 +71,15 @@ Accepted within the local scope: [M2 guide](m2.en.md), 40 runtime/protocol check
 
 ## M4: Multi-worker validation and complete report
 
-- [ ] Kubernetes or a selected remote execution backend; exactly one lifecycle owner for each resource.
-- [ ] Bounded concurrency, resource admission, recovery after node/worker loss, and cleanup.
+- [x] Local Kubernetes backend; distinct owners for Job/Pod and inner sandbox lifecycles.
+- [x] Bounded concurrency, admission, node/worker recovery and cleanup in the local multi-node scope.
 - [ ] Freeze the formal task set, budgets, exclusion rules, and statistical methods in advance.
 - [ ] Run real-model experiments and system fault experiments; produce raw artifacts and reports.
 - [ ] Document deployment steps, operating costs, known limitations, and the full demonstration.
 
 **Acceptance evidence**: experiments can be repeated from their configuration; reliability and strategy effectiveness each have measured evidence; and every published result can be traced to raw records.
+
+Phase-one deployment, real-service faults, zero-model cost and reporting boundaries are in the [M4 guide](m4.en.md). Multiple local k3d nodes do not establish multi-physical-host HA; checked items apply only to this scope.
 
 ## Later candidates
 
@@ -94,4 +96,4 @@ Tool-boundary checkpoints, more agents, trajectory judges calibrated against lab
 | Control language | Python | Harbor integration cost and typed contracts |
 | First execution backend | Local containers | Validate the protocol before distributed faults |
 
-Next is M4: select the remote backend and resource lifecycle boundaries, freeze tasks, budgets and statistical rules, then run multi-worker faults and formal paired experiments. The current $8 authorization covers this M3 debugging session; new M4 costs require a separate estimate.
+Next: freeze formal tasks, budgets and statistics, prepare controlled model delivery, then run M4 paired experiments. The prior $8 approval covered M3 debugging; new M4 costs require a separate estimate.

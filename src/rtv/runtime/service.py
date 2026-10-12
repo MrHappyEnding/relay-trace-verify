@@ -24,7 +24,7 @@ async def ensure_workflow(client: Client, settings: Settings, trial_id: str):
         await client.start_workflow(
             TrialWorkflow.run,
             trial_id,
-            id="rtv3-" + trial_id,
+            id=settings.schema + "-" + trial_id,
             task_queue=settings.queue,
             id_conflict_policy=WorkflowIDConflictPolicy.USE_EXISTING,
             id_reuse_policy=WorkflowIDReusePolicy.ALLOW_DUPLICATE,

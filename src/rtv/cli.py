@@ -18,6 +18,9 @@ def main(argv: list[str] | None = None) -> int:
     from rtv.runtime.cli import add_parser
 
     add_parser(commands)
+    from rtv.cluster.cli import add_parser as add_cluster_parser
+
+    add_cluster_parser(commands)
     commands.add_parser(
         "capabilities", help="Show the tested M0 compatibility and snapshot contract"
     )
@@ -60,6 +63,10 @@ def main(argv: list[str] | None = None) -> int:
     audit.add_argument("--model", default=DEFAULT_MODEL)
     args = parser.parse_args(argv)
     try:
+        if args.command == "cluster":
+            from rtv.cluster.cli import run as run_cluster
+
+            return run_cluster(args)
         if args.command == "runtime":
             from rtv.runtime.cli import run
 

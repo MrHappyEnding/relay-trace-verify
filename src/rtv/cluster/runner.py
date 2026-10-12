@@ -1,0 +1,104 @@
+"""One Job, one daemon, one physical execution; never restart an agent turn."""
+
+import hashlib
+import os
+import signal
+import subprocess
+import sys
+import time
+from pathlib import Path
+
+from rtv.cluster.store import ClusterStore
+from rtv.runtime.config import Settings, execution_dir
+
+
+def main(trial_id, execution_id):
+    settings = Settings.load()
+    if settings.schema != "rtv4" or os.environ.get("RTV_CLUSTER_JOB") != "1":
+        raise ValueError("Cluster runner requires an admitted M4 Job")
+    store = ClusterStore(settings)
+    allocation = store.allocation(execution_id)
+    row = store.get(trial_id)
+    if (
+        allocation is None
+        or allocation["state"] == "released"
+        or row["execution_id"] != execution_id
+    ):
+        raise ValueError("Execution has no live resource allocation")
+    if row["spec"]["adapter"] not in {"fixture", "mini-fixture"}:
+        raise ValueError(
+            "M4 development runner is model-free; paid credential delivery is not enabled"
+        )
+    archive = Path(os.environ["RTV_IMAGES_ARCHIVE"])
+    with archive.open("rb") as stream:
+        if hashlib.file_digest(stream, "sha256").hexdigest() != os.environ["RTV_IMAGES_SHA256"]:
+            raise ValueError("Prepared image archive digest changed")
+    with Path("/tmp/dockerd.log").open("wb") as log:
+        daemon = subprocess.Popen(
+            [
+                "dockerd",
+                "--host=unix:///var/run/docker.sock",
+                "--feature=containerd-snapshotter=true",
+                "--storage-driver=overlayfs",
+                "--log-level=error",
+                "--mtu=1400",
+            ],
+            stdout=log,
+            stderr=log,
+        )
+    child = None
+    output = execution_dir(settings, row)
+    output.mkdir(parents=True, exist_ok=True)
+
+    def stop(signum, frame):
+        if child and child.poll() is None:
+            child.terminate()
+        raise SystemExit(128 + signum)
+
+    signal.signal(signal.SIGTERM, stop)
+    signal.signal(signal.SIGINT, stop)
+    try:
+        end = time.monotonic() + 45
+        while time.monotonic() < end:
+            if daemon.poll() is not None:
+                raise RuntimeError(
+                    "Executor daemon exited: " + Path("/tmp/dockerd.log").read_text()[-6000:]
+                )
+            ready = subprocess.run(
+                ["docker", "info"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=3
+            )
+            if ready.returncode == 0:
+                break
+            time.sleep(0.3)
+        else:
+            raise TimeoutError("Executor daemon did not become ready")
+        subprocess.run(
+            ["docker", "load", "--input", str(archive)],
+            check=True,
+            timeout=90,
+            stdout=subprocess.DEVNULL,
+        )
+        with (output / "supervisor.log").open("ab") as log:
+            child = subprocess.Popen(
+                [sys.executable, "-m", "rtv.runtime.supervisor", trial_id, execution_id],
+                stdout=log,
+                stderr=log,
+            )
+        child.wait()
+        if child.returncode:
+            raise RuntimeError("Supervisor process failed")
+    finally:
+        if child and child.poll() is None:
+            child.kill()
+            child.wait(timeout=5)
+        (output / "dockerd.log").write_bytes(Path("/tmp/dockerd.log").read_bytes())
+        daemon.terminate()
+        try:
+            daemon.wait(timeout=5)
+        except subprocess.TimeoutExpired:
+            daemon.kill()
+            daemon.wait(timeout=5)
+
+
+if __name__ == "__main__":
+    main(*sys.argv[1:])

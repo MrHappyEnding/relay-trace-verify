@@ -2,6 +2,7 @@
 
 import hashlib
 import json
+import os
 from contextlib import contextmanager
 from uuid import NAMESPACE_URL, uuid5
 
@@ -110,13 +111,13 @@ class Store:
             self.settings.dsn,
             row_factory=dict_row,
             connect_timeout=5,
-            options="-c statement_timeout=10000 -c search_path=rtv3",
+            options=f"-c statement_timeout=10000 -c search_path={self.settings.schema}",
         )
 
     def initialize(self):
         with self.connect() as c:
             c.execute("SELECT pg_advisory_xact_lock(72003001)")
-            c.execute("CREATE SCHEMA IF NOT EXISTS rtv3")
+            c.execute(f"CREATE SCHEMA IF NOT EXISTS {self.settings.schema}")
             c.execute(SCHEMA)
 
     def _row(self, c, trial_id, locking=False):
@@ -235,7 +236,14 @@ class Store:
                 (LEASE_SECONDS, row["execution_id"]),
             )
             c.execute("UPDATE trials SET status='running' WHERE trial_id=%s", (row["trial_id"],))
-            self._event(c, row, "execution.claimed", {})
+            self._event(
+                c,
+                row,
+                "execution.claimed",
+                {"pod_uid": os.environ.get("RTV_POD_UID")}
+                if self.settings.schema == "rtv4"
+                else {},
+            )
             return True
 
     def heartbeat(self, expected):
@@ -526,14 +534,14 @@ class Store:
                 ).fetchone():
                     raise ValueError("Successful stages require their committed checkpoint")
             result = {**result, "status": status}
+            cleanup = "pending" if self.settings.schema == "rtv4" and not controller else "complete"
             c.execute(
-                "UPDATE executions SET "
-                "state='finished',cleanup='complete',result=%s WHERE execution_id=%s",
-                (Jsonb(result), row["execution_id"]),
+                "UPDATE executions SET state='finished',cleanup=%s,result=%s WHERE execution_id=%s",
+                (cleanup, Jsonb(result), row["execution_id"]),
             )
             c.execute(
-                "UPDATE trials SET status=%s,cleanup='complete',result=%s WHERE trial_id=%s",
-                (status, Jsonb(result), row["trial_id"]),
+                "UPDATE trials SET status=%s,cleanup=%s,result=%s WHERE trial_id=%s",
+                (status, cleanup, Jsonb(result), row["trial_id"]),
             )
             self._event(c, row, "trial.finished", result)
 
@@ -662,8 +670,8 @@ class Store:
                 "SELECT trial_id FROM trials WHERE root=%s AND "
                 "(cleanup='pending' OR status IN ('checkpointed','sealed','preparing') "
                 "OR EXISTS (SELECT 1 FROM executions e WHERE "
-                "e.trial_id=trials.trial_id AND (e.cleanup='pending' OR e.state='retired')))",
-                (str(self.settings.root),),
+                "e.trial_id=trials.trial_id AND (e.cleanup='pending' OR e.state='retired')) OR %s)",
+                (str(self.settings.root), self.settings.schema == "rtv4"),
             ).fetchall()
             return [self._row(c, r["trial_id"]) for r in ids]
 

@@ -27,6 +27,11 @@ class Settings:
     root: Path
     dsn: str
     temporal: str
+    schema: str = "rtv3"
+
+    def __post_init__(self):
+        if self.schema not in {"rtv3", "rtv4"}:
+            raise ValueError("Unsupported metadata schema")
 
     @classmethod
     def load(cls):
@@ -34,9 +39,10 @@ class Settings:
             Path(os.environ.get("RTV_RUNTIME_ROOT", REPO / "work/runtime-v3")).resolve(),
             os.environ.get("RTV_DATABASE_URL", "postgresql://rtv:rtv-local@127.0.0.1:55432/rtv"),
             os.environ.get("RTV_TEMPORAL_ADDRESS", "127.0.0.1:7233"),
+            os.environ.get("RTV_SCHEMA", "rtv3"),
         )
 
     @property
     def queue(self):
         # Local artifacts cannot be taken over by a worker on a different host/root.
-        return "rtv-m3-" + hashlib.sha256(str(self.root).encode()).hexdigest()[:16]
+        return f"rtv-m{self.schema[-1]}-" + hashlib.sha256(str(self.root).encode()).hexdigest()[:16]

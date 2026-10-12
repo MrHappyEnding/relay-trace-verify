@@ -6,6 +6,7 @@ import shlex
 import shutil
 import sys
 import time
+from contextlib import nullcontext
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -251,7 +252,14 @@ def run(trial_id, execution_id):
         return
     output = execution_dir(settings, row)
     output.mkdir(parents=True, exist_ok=True, mode=0o700)
-    with admission(settings.root, int(os.environ.get("RTV_MAX_EXECUTIONS", "2"))) as admitted:
+    if settings.schema == "rtv4" and os.environ.get("RTV_CLUSTER_JOB") != "1":
+        raise ValueError("M4 supervisors must run in an admitted cluster Job")
+    slots = (
+        nullcontext(True)
+        if settings.schema == "rtv4"
+        else admission(settings.root, int(os.environ.get("RTV_MAX_EXECUTIONS", "2")))
+    )
+    with slots as admitted:
         if not admitted:
             return
         with lock(output / "runner.lock") as acquired:

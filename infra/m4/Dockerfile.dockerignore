@@ -1,0 +1,11 @@
+**
+!pyproject.toml
+!uv.lock
+!README.en.md
+!src/
+!src/**
+!examples/
+!examples/**
+!infra/
+!infra/m4/
+!infra/m4/Dockerfile

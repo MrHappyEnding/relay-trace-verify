@@ -1,0 +1,109 @@
+{
+  "status": "passed",
+  "mode": "real-local-kubernetes-scripted-agent",
+  "paid_api_calls": 0,
+  "checks": {
+    "changed_pool_configuration_rejected": true,
+    "concurrent_submission_one_identity": true,
+    "two_executor_nodes_used": true,
+    "pool_held_at_capacity": true,
+    "third_trial_waits_without_allocation": true,
+    "queued_cancel_no_agent_invocation": true,
+    "worker_restart_same_execution_fad04e06": true,
+    "worker_restart_same_execution_c59051d6": true,
+    "initial_jobs_and_pods_removed": true,
+    "running_cancel_cleanup": true,
+    "ttl_failure_with_cleanup": true,
+    "node_loss_new_epoch_same_attempt": true,
+    "recovery_preserves_absolute_deadline": true,
+    "unavailable_node_reservation_not_released": true,
+    "interrupted_call_kept_unknown": true,
+    "stale_epoch_cannot_change_phase": true,
+    "stale_epoch_cannot_finish": true,
+    "recovery_runs_on_other_node": true,
+    "restored_workspace_matches_committed_digest": true,
+    "uncommitted_files_discarded": true,
+    "node_recovery_verified": true,
+    "source_checkpoint_immutable": true,
+    "all_allocations_jobs_pods_reclaimed": true,
+    "capacity_never_exceeded": true,
+    "temporal_history_replays": true,
+    "report_keeps_failed_cancelled_and_incomplete": true,
+    "raw_records_match_report_hashes": true
+  },
+  "faults": [
+    {
+      "kind": "all_control_workers_sigkill",
+      "at": "2026-10-12 01:06:18.320637+00:00"
+    },
+    {
+      "kind": "executor_node_sigkill",
+      "at": "2026-10-12 01:08:13.169626+00:00",
+      "node": "k3d-rtv-m4-agent-1",
+      "execution_id": "5f7e7aa2-a4c7-590b-9a12-92eb9a86ce93",
+      "restored_at": "2026-10-12 01:08:42.971841+00:00",
+      "fault_to_restore_seconds": 29.802215
+    }
+  ],
+  "elapsed_seconds": 262.01,
+  "config": {
+    "context": "k3d-rtv-m4",
+    "namespace": "rtv-m4",
+    "shared_path": "/Users/luxuanyu/Desktop/relay-trace-verify/work/m4-data",
+    "runner_image": "docker.io/library/rtv-m4-runner@sha256:84fdf0c58318b204661a134ad255ae937c7e44be562e902bffb0ce3eb44709b7",
+    "images_archive": "/Users/luxuanyu/Desktop/relay-trace-verify/work/m4-data/images-19b26595fd1d0f8e.tar",
+    "images_sha256": "19b26595fd1d0f8e440c4f5a98622a601194946abc242469efb177f70eb673d3",
+    "max_jobs": 2,
+    "cpu_millis": 1000,
+    "memory_mb": 1536
+  },
+  "trial_count": 7,
+  "known_api_cost_usd": 0,
+  "unknown_operations": 3,
+  "limitations": [
+    "k3d nodes share one Docker Desktop host",
+    "shared local bind storage, not HA",
+    "recovery latency begins at detection/epoch transfer, not injected fault time",
+    "no benchmark success-rate, cost-advantage or confidence-interval claim"
+  ],
+  "raw_report_sha256": "8a1651b8bdfef3091ee7e541d1807f06c7edac0f86ba2a44a5ae28c3591f2d52",
+  "raw_artifacts": "work/m4-data/acceptance-final",
+  "frozen_plan_sha256": "3c1313b7756776ee0b834b94e693c1a8287bf1f41e9106b67c4420c60c69d66f",
+  "recovery_to_claim_seconds": {
+    "n": 1,
+    "p50": 4.128515,
+    "p95": 4.128515
+  },
+  "environment": {
+    "host": "macOS ARM64, one physical host",
+    "docker": "28.5.1",
+    "k3d": "5.8.3",
+    "k3s": "v1.31.5+k3s1",
+    "control_workers": 2,
+    "execution_nodes": 2,
+    "python_host": "3.13.9",
+    "python_runner": "3.12",
+    "kubernetes_client": "31.0.0",
+    "harbor": "0.24.0"
+  },
+  "validation": {
+    "runtime_unit_tests": {
+      "passed": 114,
+      "skipped": 1
+    },
+    "core_python_311": {
+      "passed": 77,
+      "skipped": 38
+    },
+    "m3_regression": {
+      "passed": 48,
+      "paid_api_calls": 0
+    }
+  },
+  "development_notes": [
+    "Early image bootstrap failed because k3d image import omitted a platform manifest; setup now imports the explicit platform and checks each node.",
+    "Two pre-acceptance smoke trials failed during environment startup: host containerd image identity was incompatible with classic inner Docker image storage. Both now use containerd; smoke artifacts retained under work/m4-data/smoke-1 and smoke-2.",
+    "The M3 regression bootstrap initially connected before PostgreSQL was ready, then passed after readiness; startup failure log retained under work/m4-control/m3-regression.log.",
+    "An earlier complete M4 acceptance passed before final controller contract/config validation changes. This evidence refers to the subsequent final run."
+  ]
+}

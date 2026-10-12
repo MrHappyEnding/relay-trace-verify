@@ -34,6 +34,10 @@ def recover(settings, row, key, *, recovery=True):
 
 
 def reconcile(settings: Settings, trial_id: str, *, launch=True):
+    if settings.schema == "rtv4":
+        from rtv.cluster.control import reconcile as remote_reconcile
+
+        return remote_reconcile(settings, trial_id, launch=launch)
     store = Store(settings)
     row = store.get(trial_id)
     trial_dir = settings.root / trial_id
