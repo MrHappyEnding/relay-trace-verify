@@ -108,6 +108,7 @@ def capability_report() -> dict:
             "model_opt_in": "one approved pilot root, five frozen Trial specs, epoch 1 only",
             "credential_projection_verified": "fake credentials on both local nodes; 17 checks",
             "real_cluster_model_verified": False,
+            "real_model_pilot": "first attempt failed before grading; no automatic rerun",
             "credential_evidence": "docs/evidence/m4-credentials-arm64-20261012.json",
             "security_scope": "trusted local experiments; privileged outer DinD Pod",
             "storage": "shared local bind volume; no host-loss or storage-HA claim",
@@ -141,12 +142,16 @@ def capability_report() -> dict:
             "kubernetes_benchmark_verified": False,
             "kubernetes_repository_controls_verified": True,
             "runtime_observation_linkage": (
-                "one oracle pilot pair verified; real-model importer unit-tested, live run pending"
+                "one oracle pair and four first-attempt real-model records exported; "
+                "three source_failed and one infra_error, no graded model outcome"
             ),
             "paid_experiment_authorized": False,
+            "authorization_scope": (
+                "no standing execution permission; first pilot ran under an $8 approval"
+            ),
             "repository_runtime": {
                 "scope": "one local Docker/Kubernetes SWE-bench pilot; scripted/oracle controls, "
-                "no real-model result",
+                "first real-model attempt failed before grading",
                 "workspace": "/testbed",
                 "checkpoint_manifest": 3,
                 "directory_permission_bits": "0o777",
@@ -160,6 +165,7 @@ def capability_report() -> dict:
                 "docs/evidence/m4-benchmark-protocol-20261011.json",
                 "docs/evidence/m4-repository-runtime-arm64-20261011.json",
                 "docs/evidence/m4-repository-cluster-arm64-20261012.json",
+                "docs/evidence/m4-real-pilot-1-arm64-20261012.json",
             ],
         },
         "relay": {

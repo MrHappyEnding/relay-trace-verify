@@ -1,0 +1,205 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-12",
+  "status": "failed",
+  "mode": "real-local-kubernetes-model-pilot",
+  "scope": "One frozen SWE-bench pilot attempted once; no graded model outcome or relay evidence. Subsequent fixes tested without model calls.",
+  "task": "sympy__sympy-22914",
+  "executed_commit": "b3e8bf9",
+  "runner_image": "docker.io/library/rtv-m4-runner@sha256:d7725d730f2c7677b8397ad22ae16ed9124f83ab583e365969ffe0f4c54ee659",
+  "prepared_sha256": "70c5234f2cc419e6627e8212e04d95299332f3c83f8cb4ada1d88aaa9205eafe",
+  "run_sha256": "4da016867e6246b4150efdd179e231804f49890efa938b6a9631977be8d95bef",
+  "protocol_sha256": "dbd68d56849681a5ac991409743d0276ee8b5572992c3570a18ae532ab4cd8bb",
+  "branch_order": [
+    "B-summary",
+    "B-workspace",
+    "B-fresh",
+    "A-continue"
+  ],
+  "approval": {
+    "usd": 8,
+    "scope": "This M4 stage, separate from prior M3 approval",
+    "attempt_request_cap": 32,
+    "attempt_reservation_envelope_usd": 1.984,
+    "automatic_retries": 0
+  },
+  "execution": {
+    "status": "failed",
+    "mode": "real-model-pilot",
+    "run_sha256": "4da016867e6246b4150efdd179e231804f49890efa938b6a9631977be8d95bef",
+    "checks": {
+      "source_sealed_without_hidden_verifier": false,
+      "B-fresh_verifier_completed": false,
+      "all_allocations_released": true,
+      "four_observations_linked": true,
+      "api_reservations_within_approval": true,
+      "no_api_request_replay": true
+    },
+    "errors": [],
+    "api_requests": 6,
+    "codex_stages": 1,
+    "subscription_cost_usd": null,
+    "unknown_api_requests": 0,
+    "api_reserved_usd": 0.372,
+    "known_api_cost_usd": 0.01573815,
+    "api_cost_usd": 0.01573815,
+    "approved_budget_usd": 8.0,
+    "elapsed_seconds": 188.89,
+    "limit": "One pilot; scaffold and model both change; no superiority conclusion."
+  },
+  "outcomes": [
+    {
+      "branch": "B-summary",
+      "status": "source_failed"
+    },
+    {
+      "branch": "B-workspace",
+      "status": "source_failed"
+    },
+    {
+      "branch": "B-fresh",
+      "status": "infra_error"
+    },
+    {
+      "branch": "A-continue",
+      "status": "source_failed"
+    }
+  ],
+  "diagnosis": {
+    "prefix": {
+      "kind": "infrastructure_timeout",
+      "command_default_seconds": 60,
+      "approved_agent_seconds": 300,
+      "sealed_checkpoint": false,
+      "native_session_continuation_verified": false,
+      "usage_status": "unknown"
+    },
+    "B-fresh": {
+      "kind": "input_limit_raised_as_uncaught_exception",
+      "blocked_request_ordinal": 7,
+      "input_bytes": 40052,
+      "input_byte_limit": 40000,
+      "sent_requests": 6,
+      "all_api_requests_settled": true,
+      "verifier_ran": false
+    }
+  },
+  "cleanup": {
+    "allocations_released": true,
+    "owned_jobs_pods_secrets_absent": true,
+    "nodes_ready": 3
+  },
+  "credential_artifact_scan": {
+    "artifact_files_scanned": 33,
+    "credential_matches": 0
+  },
+  "cloud_spend_usd": 0,
+  "gpu_jobs": 0,
+  "repairs": {
+    "codex": "Explicit exec fallback of stage + 30 seconds, with outer stage cancellation; lifecycle defaults and explicit tool bounds unchanged.",
+    "mini": "InputLimitExceeded closes the agent stage and preserves artifacts for isolated verification; no history truncation, budget increase, reservation or API send for the rejected request.",
+    "real_model_rerun": false,
+    "unit_tests": {
+      "passed": 189,
+      "skipped": 1,
+      "core_python": "3.11",
+      "core_passed": 108,
+      "core_optional_skipped": 52
+    },
+    "real_docker_probe": {
+      "status": "passed",
+      "mode": "real-docker-no-model",
+      "model_calls": 0,
+      "api_spend_usd": 0,
+      "contract_sha256": "d06196082144dd5783ad77afc7083f40b9b9fb86bdeefd6f6c843fee1e02134c",
+      "checks": {
+        "exec_survives_old_60_second_default": true,
+        "explicit_tool_timeout": true,
+        "stage_timeout_classification": true,
+        "owned_resources_removed": true
+      },
+      "errors": [],
+      "long_command_seconds": 65.19,
+      "elapsed_seconds": 73.45,
+      "limit": "Host Docker/Harbor timing only; no Kubernetes runner or real agent tested."
+    },
+    "runner_source_audit": {
+      "runner_image": "docker.io/library/rtv-m4-runner@sha256:10388afadccf2e772ed54d890037e70765b2b847d4b4dc6bf418770d421d1d37",
+      "python_files": 52,
+      "matches": true,
+      "nodes": 3,
+      "config": "work/m4-data/model-repository-package-1/config-limits-v1.json"
+    },
+    "fake_credential_cluster_regression": {
+      "status": "passed",
+      "mode": "real-local-kubernetes-fake-credentials",
+      "checks": {
+        "codex_pod_succeeded": true,
+        "codex_projection": true,
+        "codex_mode_0400": true,
+        "codex_adapter_only": true,
+        "codex_no_serviceaccount": true,
+        "codex_no_model_client": true,
+        "codex_assigned_node": true,
+        "mini_pod_succeeded": true,
+        "mini_projection": true,
+        "mini_mode_0400": true,
+        "mini_adapter_only": true,
+        "mini_no_serviceaccount": true,
+        "mini_no_model_client": true,
+        "mini_assigned_node": true,
+        "jobs_and_pods_removed": true,
+        "sentinel_secrets_removed": true,
+        "no_sentinel_in_artifacts": true
+      },
+      "error_type": null,
+      "model_calls": 0,
+      "api_calls": 0,
+      "cloud_cost_usd": 0,
+      "runner_image": "docker.io/library/rtv-m4-runner@sha256:10388afadccf2e772ed54d890037e70765b2b847d4b4dc6bf418770d421d1d37",
+      "run_sha256": "f34b07970e5598f33a2c561a134ec72418c07ddfd4622b789cd746f04aebaae3",
+      "elapsed_seconds": 10.42,
+      "not_tested": [
+        "real authentication",
+        "model execution",
+        "inner Codex auth copy",
+        "Codex native repository session",
+        "untrusted tenant isolation"
+      ]
+    }
+  },
+  "limitations": [
+    "No native Codex repository continuation or cross-agent repository relay completed.",
+    "No graded solved/unsolved result; source_failed and infra_error retained.",
+    "Returned API usage is not a provider invoice guarantee; Codex subscription cost is unknown.",
+    "Input cap may stop repository agents early; context compression is not implemented.",
+    "Local k3d nodes share one physical host; no GPU or multi-host validation."
+  ],
+  "artifacts": {
+    "work/m4-data/real-model-pilot-1/report.json": "64e8ebffcc6383b00497c2deace37914ea2fc38ba1552bd52dc424a11d10776c",
+    "work/m4-data/real-model-pilot-1/run.json": "92184009ab910cc2dd81bcd965f75049ec4300b916ef82c7509da0f019ebaf63",
+    "work/m4-data/real-model-pilot-1/prepared.json": "67b582606310359970f9dfc791e1e45d2777a7330143f1e3bd2c86a05e8bf5b9",
+    "work/m4-data/real-model-pilot-1/observations/records.jsonl": "bf59e500440172023da1e36f5a793a6a9c0448d0c871a391aa68bac886813994",
+    "work/m4-data/real-model-pilot-1/observations/provenance.json": "749467f058a4f2907d2cf755a06e7eff0d249d9f9aaa930103407dc0ceb51b4f",
+    "work/m4-control/m4-budget-approval-20261012.json": "5b6e2aa64b769c68f7bd98b7203ca58ae192be54b617c443729107913b2cb05f",
+    "work/m4-control/execution-limits-probe-1/report.json": "d279cb5506bf4b3ae18523a026829aef8ae559abb70f8ae977e40aadc0944cdc",
+    "work/m4-control/pilot-1-secret-scan.json": "877e3c0502b71ff3249e3de4eed32162a6249f3bdcd152893bbb14aa14ecf1e6",
+    "work/m4-control/pilot-fixes-tests.log": "44e4eb27c1106a92bdfa0dd5e9f684f86bee97330d040fed8f19059c22cdf932",
+    "work/m4-control/pilot-fixes-core-tests.log": "51159848fff78e881439164c3b86f7694013083ddfcee1e6b3cc48c9dfd95d33",
+    "work/m4-control/pilot-limits-source-audit.json": "ff3ec825388477bd4359436e1b7ca61e548f93228207e93e26f84951632e0e45",
+    "work/m4-data/credentials-probe-limits-1/report.json": "9ac654a74464cfdaba67122b9f62d9d0118dc21d42cfe047165449da501e24fa",
+    "work/m4-control/model-pilot-prepared-3.json": "551669763f87358f540e34e30dfe5f6d24ab7fd3a54df0b1aab516556d52db29"
+  },
+  "next_attempt": {
+    "prepared_sha256": "411bd2c8f8607395600edd080f35346300a25ce61a0ff350c7daf8238ad5bb18",
+    "run_sha256": "5287bf5b68e755021ea79b159ac67b80585ea28df6f277c4f21b0038a370000b",
+    "runner_image": "docker.io/library/rtv-m4-runner@sha256:10388afadccf2e772ed54d890037e70765b2b847d4b4dc6bf418770d421d1d37",
+    "executed": false,
+    "automatic_rerun": false,
+    "maximum_api_requests": 32,
+    "api_reservation_envelope_usd": 1.984,
+    "prior_request_reservations_usd": 0.372,
+    "stage_budget_usd": 8,
+    "remaining_after_prior_reservations_usd": 7.628
+  }
+}

@@ -8,7 +8,7 @@ A recoverable execution and branching experiment system for long-running coding 
 
 **Status: F0–M3 accepted within the local trusted-development-task scope.** M3 adds idempotent handoff, four branches from one checkpoint, isolated verification, prefix attribution and a bilingual read-only viewer. It passes 48 zero-cost protocol checks and 14 real-model checks: native Codex continuation and mini-swe-agent workspace, summary and text-trajectory handoffs all complete the task. This validates functionality, not relay success-rate or cost advantages. See the [M3 guide and evidence](docs/m3.en.md).
 
-**M4 in progress: local Kubernetes execution and a real-task experiment protocol are available.** Two control workers, two execution nodes, resource reservations, node recovery and raw reports are tested without model calls. SWE-bench Verified selection is frozen at four development and twenty evaluation tasks; paired analysis and offline verifier controls for the first development task pass. Real-model benchmarks have not run. See the [M4 guide](docs/m4.en.md) and [task/statistics protocol](docs/m4-benchmark.en.md).
+**M4 in progress: local Kubernetes execution and a real-task experiment protocol are available.** Two control workers, two execution nodes, resource reservations, node recovery and raw reports are tested without model calls. SWE-bench Verified selection is frozen at four development and twenty evaluation tasks; paired analysis and offline verifier controls for the first development task pass. The first real-model pilot has not reached grading. See the [M4 guide](docs/m4.en.md) and [task/statistics protocol](docs/m4-benchmark.en.md).
 
 Local checkpoints, scripted relay, a fresh baseline and fault recovery for the first real repository
 pass 26 checks; see [repository integration](docs/m4-repositories.en.md). Reference-patch controls do
@@ -19,7 +19,9 @@ task delivery, four-branch observation linkage and recovery on another node afte
 This covers scripted controls on one development repository only.
 
 [Model credentials and the pilot launcher](docs/m4-model-pilot.en.md) are implemented: 17 fake-credential
-checks pass across both nodes. The first real-model plan is frozen; paid execution has not started.
+checks pass across both nodes. The first real-model pilot exposed execution-timeout and input-limit
+handling defects; it was not graded or retried. Six API requests recorded $0.01573815 against this
+run's $8 approval. The guide documents fixes and retains the failed attempt.
 
 RTV supports learning through reproduction, system implementation, and original exploration. Existing approaches remain learning material and comparison baselines; see the [learning and resource plan](docs/learning-plan.en.md) for sources and scope. No model-performance advantage or multi-physical-host reliability claim has been established.
 

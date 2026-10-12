@@ -134,7 +134,7 @@ async def execute_mini(env, instruction, output, *, settings, row, operation, sc
     import minisweagent
     import yaml
     from minisweagent.agents.default import DefaultAgent
-    from minisweagent.exceptions import FormatError
+    from minisweagent.exceptions import FormatError, LimitsExceeded
     from minisweagent.models.utils.actions_toolcall_response import (
         BASH_TOOL_RESPONSE_API,
         format_toolcall_observation_messages,
@@ -182,8 +182,8 @@ async def execute_mini(env, instruction, output, *, settings, row, operation, sc
 
         def query(self, messages, **kwargs):
             active()
-            self.n += 1
             if scripted:
+                self.n += 1
                 import shlex
 
                 commands = [
@@ -225,7 +225,17 @@ async def execute_mini(env, instruction, output, *, settings, row, operation, sc
                     )
                     > REQUEST_BYTES
                 ):
-                    raise ValueError("API input exceeds the bounded 40 KB request envelope")
+                    # A local limit is a completed agent stop, not a transport
+                    # failure. Preserve the patch/trajectory for isolated grading,
+                    # without truncating history, reserving funds or making a call.
+                    raise LimitsExceeded(
+                        {
+                            "role": "exit",
+                            "content": "API input exceeds the bounded 40 KB request envelope",
+                            "extra": {"exit_status": "InputLimitExceeded", "submission": ""},
+                        }
+                    )
+                self.n += 1
                 request = store.begin_model_call(row, operation, self.n, RESERVATION_USD)
                 try:
                     response = client.responses.create(

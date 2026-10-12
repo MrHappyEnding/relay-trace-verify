@@ -222,7 +222,9 @@ def test_api_error_diagnostics_exclude_arbitrary_provider_text():
     assert api_error_details(error) == {"exception": "SimpleNamespace", "http_status": 429}
 
 
-@pytest.mark.parametrize("failure_kind", [None, "timeout", "quota"])
+@pytest.mark.parametrize(
+    "failure_kind", [None, "timeout", "quota", "input_limit", "initial_input_limit"]
+)
 def test_real_mini_loop_with_mocked_transport_accounts_before_parse_and_never_retries(
     tmp_path, monkeypatch, failure_kind
 ):
@@ -264,6 +266,10 @@ def test_real_mini_loop_with_mocked_transport_accounts_before_parse_and_never_re
         def create(self, **kwargs):
             calls.append(kwargs)
             assert kwargs["max_output_tokens"] == 4096
+            assert (
+                len(json.dumps({"input": kwargs["input"], "tools": kwargs["tools"]}).encode())
+                <= 40000
+            )
             if failure_kind == "timeout":
                 raise TimeoutError("lost response; must not retry")
             if failure_kind == "quota":
@@ -281,7 +287,7 @@ def test_real_mini_loop_with_mocked_transport_accounts_before_parse_and_never_re
             data = {
                 "object": "response",
                 "output": []
-                if len(calls) == 1
+                if len(calls) == 1 and failure_kind != "input_limit"
                 else [
                     {
                         "type": "function_call",
@@ -289,8 +295,9 @@ def test_real_mini_loop_with_mocked_transport_accounts_before_parse_and_never_re
                         "call_id": "submit",
                         "arguments": json.dumps(
                             {
-                                "command": "cd /workspace && "
-                                "echo COMPLETE_TASK_AND_SUBMIT_FINAL_OUTPUT"
+                                "command": "cat large-file"
+                                if failure_kind == "input_limit"
+                                else "cd /workspace && echo COMPLETE_TASK_AND_SUBMIT_FINAL_OUTPUT"
                             }
                         ),
                     }
@@ -310,6 +317,10 @@ def test_real_mini_loop_with_mocked_transport_accounts_before_parse_and_never_re
 
     class Environment:
         async def exec(self, *, command, cwd, timeout_sec):
+            if failure_kind == "input_limit":
+                assert command == "cat large-file"
+                assert len(settled) == len(calls)
+                return SimpleNamespace(stdout="x" * 20000, stderr="", return_code=0)
             assert command == "cd /workspace && echo COMPLETE_TASK_AND_SUBMIT_FINAL_OUTPUT"
             assert cwd == "/workspace"
             assert len(settled) == 2  # Bill the response before executing its tool.
@@ -319,13 +330,23 @@ def test_real_mini_loop_with_mocked_transport_accounts_before_parse_and_never_re
 
     invocation = execute_mini(
         Environment(),
-        "Test submission",
+        "x" * 40000 if failure_kind == "initial_input_limit" else "Test submission",
         tmp_path,
         settings=None,
         row={"spec": {"model": MINI_MODEL}},
         operation="stage",
     )
-    if failure_kind:
+    if failure_kind in {"input_limit", "initial_input_limit"}:
+        result = asyncio.run(invocation)
+        assert result.exit_status == "InputLimitExceeded"
+        # Pinned upstream observation formatting retains about 10 KB per tool.
+        expected = 0 if failure_kind == "initial_input_limit" else 4
+        assert result.api_calls == len(calls) == len(settled) == expected
+        saved = json.loads(result.rollout.read_text())
+        assert saved["info"]["exit_status"] == "InputLimitExceeded"
+        assert saved["messages"][-1]["role"] == "exit"
+        assert "traceback" not in saved["messages"][-1]["extra"]
+    elif failure_kind:
         with pytest.raises(RuntimeError, match="API outcome unknown"):
             asyncio.run(invocation)
         assert len(calls) == 1

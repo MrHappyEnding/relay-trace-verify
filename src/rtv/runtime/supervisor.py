@@ -92,7 +92,12 @@ async def execute(settings, row, output):
         spec["image_id"],
         session_id=sandbox.session(row),
         environment_type=sandbox.bounded_environment_type(
-            startup_timeout_seconds=180 if contract else 60
+            startup_timeout_seconds=180 if contract else 60,
+            # The outer stage timer owns cancellation/classification. The extra
+            # 30 seconds prevents a competing Compose timer from firing first.
+            exec_timeout_seconds=spec.get("agent_seconds", spec["ttl_seconds"]) + 30
+            if adapter
+            else 60,
         ),
         platform=contract["platform"] if contract else None,
         workspace=scope,

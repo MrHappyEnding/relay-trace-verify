@@ -368,6 +368,102 @@ def test_large_image_startup_timeout_does_not_extend_tool_timeouts(monkeypatch):
         bounded_environment_type(startup_timeout_seconds=301)
 
 
+def test_agent_exec_envelope_preserves_explicit_tool_and_cleanup_timeouts(monkeypatch):
+    pytest.importorskip("harbor")
+    from harbor.environments.docker.docker import DockerEnvironment
+
+    from rtv.runtime.sandbox import bounded_environment_type
+
+    timeouts = []
+
+    async def command(self, args, **kwargs):
+        timeouts.append(kwargs["timeout_sec"])
+
+    monkeypatch.setattr(DockerEnvironment, "_run_docker_compose_command", command)
+    cls = bounded_environment_type(startup_timeout_seconds=180, exec_timeout_seconds=330)
+    env = cls.__new__(cls)
+    asyncio.run(env._run_docker_compose_command(["exec", "main", "codex"]))
+    asyncio.run(env._run_docker_compose_command(["exec", "main", "tool"], timeout_sec=30))
+    asyncio.run(env._run_docker_compose_command(["cp", "main:/workspace", "."]))
+    asyncio.run(env._run_docker_compose_command(["down"]))
+    asyncio.run(env._run_docker_compose_command(["up", "-d"]))
+    assert timeouts == [330, 30, 60, 60, 180]
+    for invalid in (0, -1, 1831, True, float("inf")):
+        with pytest.raises(ValueError):
+            bounded_environment_type(exec_timeout_seconds=invalid)
+
+
+@pytest.mark.parametrize("reward", [0, 1])
+def test_input_limit_stop_still_checkpoints_and_grades_patch(
+    declared, tmp_path, monkeypatch, reward
+):
+    pytest.importorskip("harbor")
+    pytest.importorskip("psycopg")
+    from unittest.mock import AsyncMock, Mock
+
+    from rtv.benchmark.execution import outcome
+    from rtv.mini_agent import MiniResult
+    from rtv.runtime import supervisor
+
+    store = Mock()
+    monkeypatch.setattr(supervisor, "Store", lambda _: store)
+    monkeypatch.setattr("harbor.models.task.task.Task", lambda _: object())
+    env = Mock()
+    env.start = AsyncMock()
+    env.session_id = "fixture"
+    env.exec = AsyncMock(
+        side_effect=[
+            SimpleNamespace(return_code=0, stdout="tree\ntree\n"),
+            SimpleNamespace(return_code=0, stdout=""),
+        ]
+    )
+
+    async def download(scope, destination):
+        assert scope == "/testbed"
+        (destination / "fixed.py").write_text("retained patch")
+
+    env.download_dir = download
+    monkeypatch.setattr("rtv.codex_probe.make_environment", lambda *a, **k: env)
+    monkeypatch.setattr("rtv.codex_probe.main_container", lambda _: "container")
+    monkeypatch.setattr("rtv.harbor_probe._docker", lambda *a: declared["agent_image_id"])
+    monkeypatch.setattr(supervisor.sandbox, "stop", lambda _: None)
+    monkeypatch.setattr(supervisor.sandbox, "resources", lambda _: {"containers": []})
+    monkeypatch.setattr(
+        "rtv.runtime.handoff.load_context", lambda *a: {"text": "", "policy": "task-only"}
+    )
+    rollout = tmp_path / "mini-trajectory.json"
+    rollout.write_text('{"exit_status": "InputLimitExceeded"}')
+    monkeypatch.setattr(
+        "rtv.mini_agent.execute_mini",
+        AsyncMock(return_value=MiniResult(rollout, "InputLimitExceeded", 6, False)),
+    )
+
+    async def verify(task, row, workspace, output):
+        assert (workspace / "fixed.py").read_text() == "retained patch"
+        return {"reward": reward}, {"status": "completed", "isolated": True}
+
+    monkeypatch.setattr("rtv.runtime.verification.isolated_verify", verify)
+    monkeypatch.setattr(supervisor.checkpoint, "boundary", lambda *a: {})
+    published = Mock(return_value={"checkpoint_id": "checkpoint"})
+    monkeypatch.setattr(supervisor.checkpoint, "publish", published)
+    row = {
+        "trial_id": "trial",
+        "execution_id": "execution",
+        "resume_from": None,
+        "spec": {**source_spec(declared), "adapter": "mini", "ttl_seconds": 900},
+    }
+    result = asyncio.run(supervisor.execute(None, row, tmp_path))
+    assert result["agent_exit_status"] == "InputLimitExceeded"
+    assert result["model_requests"] == 6
+    assert result["checkpoint_id"] == "checkpoint"
+    assert outcome({"status": result["status"], "result": result}) == (
+        "solved" if reward else "unsolved"
+    )
+    assert (tmp_path / "bundle/mini-trajectory.json").exists()
+    store.settle_call.assert_called_once()
+    published.assert_called_once()
+
+
 def test_checkpoint_validation_scratch_is_not_shared_storage(tmp_path, monkeypatch):
     pytest.importorskip("psycopg")
     from unittest.mock import Mock
