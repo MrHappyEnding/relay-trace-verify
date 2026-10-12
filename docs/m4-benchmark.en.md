@@ -3,7 +3,7 @@
 [![中文](assets/lang-zh.svg)](m4-benchmark.md) [![English](assets/lang-en.svg)](m4-benchmark.en.md)
 
 **Status: frozen task selection, statistical protocol and offline analysis are implemented;
-real-container verifier controls pass for one development task.** The [first real-model pilot](m4-model-pilot.en.md) ran but did not reach grading. Subsequent [cluster repository work](m4-repository-cluster.en.md) verifies scripted
+real-container verifier controls pass for one development task.** The [repaired real-model pilot](m4-model-pilot.en.md) has four graded branches on one task, without a formal evaluation conclusion. Subsequent [cluster repository work](m4-repository-cluster.en.md) verifies scripted
 relay and recovery. This stage makes zero API calls
 and provisions no cloud resources. M4 as a whole remains in progress.
 
@@ -154,4 +154,4 @@ The local runtime now supports declared `/testbed` tasks, checkpoint export, iso
 hidden-test separation, a 600-second verifier and a 16-request fresh entry point; see
 [repository integration](m4-repositories.en.md). Evidence uses scripted/reference controls, not real
 model sessions. Kubernetes resources, AMD64 execution, task delivery and observation linkage are covered
-in [cluster repository integration](m4-repository-cluster.en.md). Credential delivery is implemented; the [first real-model pilot](m4-model-pilot.en.md) records its failure, cost and repairs without an automatic retry. Other pilot preflights and real session/handoff acceptance remain pending.
+in [cluster repository integration](m4-repository-cluster.en.md). The [credential path and pilot](m4-model-pilot.en.md) now pass real workflow acceptance on one task. The failed first attempt and explicitly approved second attempt remain separate. Other development environment preflights, unfinished-prefix comparisons and formal evaluation remain pending.

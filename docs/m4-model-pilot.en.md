@@ -2,14 +2,53 @@
 
 [![中文](assets/lang-zh.svg)](m4-model-pilot.md) [![English](assets/lang-en.svg)](m4-model-pilot.en.md)
 
-**Status: the first real-model pilot ran but did not reach grading.** The owner approved $8; six API
-requests recorded $0.01573815 from returned usage. One Codex subscription stage also started, with unknown
-dollar cost. Both adapters executed tools in the real repository, but infrastructure timeout and
-input-limit handling defects stopped the run. It was not retried. See the
-[real attempt and fix evidence](evidence/m4-real-pilot-1-arm64-20261012.json); the earlier
-[17 fake-credential checks](evidence/m4-credentials-arm64-20261012.json) remain separate historical
-evidence. Native Codex `/testbed` continuation, repository relay effectiveness and formal benchmarks
-remain unverified. No GPUs were used.
+**Status: the repaired second run passes 13 real-model workflow checks.** One SWE-bench development
+task completed checkpointing, cross-agent handoff, native Codex continuation and independent grading
+of four branches. M4 and formal effectiveness evaluation remain incomplete. This attempt made 13 API
+requests for $0.02641425; both attempts total 19 requests and **$0.04215240** under the same $8 budget.
+Codex subscription dollar cost remains unknown. No GPUs or cloud resources were used.
+See the [second-run evidence](evidence/m4-real-pilot-2-arm64-20261012.json). The
+[first failed attempt and fixes](evidence/m4-real-pilot-1-arm64-20261012.json) and
+[fake-credential checks](evidence/m4-credentials-arm64-20261012.json) remain separate historical records.
+
+## Second run: workflow acceptance and effectiveness limits
+
+The owner explicitly requested one repaired rerun within the original $8 total budget. Execution
+used frozen `model-pilot-prepared-3.json` without changing models, task or request caps, taking
+556.04 seconds overall.
+
+| Branch | Agent exit | Independent grade | API requests | Branch API USD |
+| --- | --- | --- | ---: | ---: |
+| A-continue | Native turn completed; same session ID | solved / 1 | 0 | Subscription cost unknown |
+| B-workspace | `InputLimitExceeded` | solved / 1 | 6 | 0.01105530 |
+| B-summary | `Submitted` | solved / 1 | 4 | 0.00727665 |
+| B-fresh | `InputLimitExceeded` | unsolved / 0 | 3 | 0.00808230 |
+
+B-workspace reached 40,699 bytes before request 7; B-fresh reached 41,695 bytes before request 4.
+Neither oversized request was sent. Both retain runtime status `failed / agent_limit_or_error`,
+but preserve their workspaces, trajectories and checkpoints and complete isolated verification.
+Statistics therefore record solved and unsolved respectively. Agent exit and task correctness are
+separate outcomes.
+
+The 13 checks cover sealing the prefix without hidden tests, matching workspace restoration on all
+three continuation branches, native session identity, four independent verifiers, observation linkage,
+budget reservations and cleanup. During finalization the launcher cancels the already sealed source
+Trial, so its final row says `cancelled`; its immutable checkpoint retains `sealed / stage_complete`.
+This cleanup does not indicate a source-stage failure.
+
+**All three continuation branches retained exactly the prefix's tracked Git patch; the substantive
+repair was already present in the prefix.** This validates preservation and continued execution, not
+a second agent rescuing an unfinished repair. B-fresh produced no tracked patch before its input cap.
+Only one independent task is observed: 4 of 16 planned development observations, with 12 still missing
+and confidence intervals withheld. The two debugging attempts are not independent samples. Model and
+scaffold also change together, so this does not establish a success-rate or cost advantage for relay.
+
+This attempt received only a $1.984 allowance and reserved $0.806 for actual requests. With the first
+attempt's $0.372, cumulative reservations are **$1.178**, leaving **$6.822** under conservative non-reuse
+accounting. All 13 API responses have settled usage. Owned Jobs, Pods, Secrets and resource reservations
+are removed; all three nodes are Ready. A scan of 47,524 run artifact files found no original credential
+values. Full trajectories and workspaces remain in ignored `work/`; Git stores reports, hashes and
+provenance indexes only.
 
 ## First attempt and fixes
 
@@ -45,8 +84,8 @@ imported on three nodes, and passes 17 two-node fake-credential regression check
   --output work/m4-control/execution-limits-probe-next
 ```
 
-**The fixes have not been tested with another real-model run. The failed run's frozen image and
-results remain unchanged.**
+These were the zero-model checks before the owner-requested second run. The first failed run's
+frozen image and results remain unchanged.
 
 ## Credentials and execution admission
 
@@ -80,7 +119,7 @@ namespace credentials.
 
 ## Frozen experiment and cost
 
-The first run covers only `sympy__sympy-22914`, preserving the existing protocol, images, hidden-test
+Both runs cover only `sympy__sympy-22914`, preserving the existing protocol, images, hidden-test
 separation and four-arm order. Agents receive the public issue and selected handoff context, without
 scripted repairs or the reference solution. Preparation does not access real credentials.
 
@@ -102,8 +141,8 @@ result remains an observation; the launcher does not retry until the repair succ
 The [official OpenAI pricing](https://developers.openai.com/api/docs/models/gpt-5.4-mini), checked on
 2026-10-12, lists $0.75 input, $0.075 cached input and $4.50 output per million tokens. This transport
 allows 40,000 input bytes and 4,096 output tokens per request, reserving a non-reusable $0.062.
-The 32 requests reserve **$1.984**. The owner approved **$8**, but the first attempt kept its original
-request cap and leaves the remaining budget unused. This is local
+Each run allows up to 32 requests reserving **$1.984**. Both attempts share the owner's **$8 total
+API budget** and leave the remaining budget unused. This is local
 admission accounting, not a provider invoice guarantee. Two Codex stages additionally consume
 existing subscription allowance; their dollar cost stays unknown rather than free. No cloud
 resources are provisioned. Authentication follows the
@@ -143,9 +182,9 @@ client import, log leakage and cleanup. It does not run the production superviso
 first attempt encountered the Kubernetes Python client's JSON-log-to-dictionary-to-string conversion;
 reading raw log bytes fixed it. That failed attempt is retained.
 
-The repaired image and next plan, `model-pilot-prepared-3.json`, are frozen but unexecuted. Prior
-request reservations total $0.372, leaving $7.628 of the $8 approval under conservative non-reuse
-accounting. The new plan still allows at most 32 API requests and reserves $1.984. Next, the owner
-decides whether to run it; the first failed attempt is retained and there is no automatic rerun.
-Real session/handoff acceptance, three more development environments, the evaluation set and the
-complete report remain outstanding.
+`model-pilot-prepared-3.json` has completed; do not reuse its runtime root. Next, prioritize zero-model
+preflights for the other three development environments and design a comparison with unfinished work
+at the prefix boundary. Freeze a new protocol before changing stage budgets or context policies;
+never edit past records. The evaluation set, real-model fault experiments and full report remain
+outstanding. Review remaining authorization before future paid runs; a third attempt is not started
+automatically.

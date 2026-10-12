@@ -3,7 +3,7 @@
 [![中文](assets/lang-zh.svg)](m4-benchmark.md) [![English](assets/lang-en.svg)](m4-benchmark.en.md)
 
 **状态：任务选择、统计协议、离线分析工具已实现；一个开发任务的真实容器验证器预检通过。**
-后续[集群仓库阶段](m4-repository-cluster.md)已完成脚本接力与恢复；[首个真实模型试验](m4-model-pilot.md)已执行但未完成判分。
+后续[集群仓库阶段](m4-repository-cluster.md)已完成脚本接力与恢复；[修复版真实模型试验](m4-model-pilot.md)已完成一个任务的四分支判分，尚无正式评测结论。
 本次新增 API 调用为 0、云资源费用为 $0。完整 M4 仍进行中。
 
 ## 来源与冻结
@@ -132,6 +132,5 @@ CLI 默认配置面向本仓库 checkout；安装 wheel 后应显式传配置与
 
 任务感知的本机 runtime 已接入 `/testbed`，完成真实仓库 checkpoint 导出、独立恢复、
 隐藏测试隔离、600 秒 verifier 和 16 请求 fresh 入口；见[真实仓库接入](m4-repositories.md)。
-证据为脚本/参考解控制，真实模型会话尚未验证。Kubernetes 资源、AMD64 执行、材料交付
-及统计关联见[集群仓库接入](m4-repository-cluster.md)。[凭据通道与 pilot 启动器](m4-model-pilot.md)已实现；剩余工作为真实会话验收、其余 3 个开发环境
-预检和真实会话兼容性。首轮真实试验的失败、费用与修复见上述 pilot 指南，未自动重跑。
+本节证据为脚本/参考解控制；后续真实模型会话验收见 pilot 指南。Kubernetes 资源、AMD64 执行、材料交付
+及统计关联见[集群仓库接入](m4-repository-cluster.md)。[凭据通道与 pilot 启动器](m4-model-pilot.md)已完成一个任务的真实流程验收；首轮失败与获批后的第二轮结果独立保存。剩余工作为其余 3 个开发环境预检、未完成前缀的开发对照和正式评测。

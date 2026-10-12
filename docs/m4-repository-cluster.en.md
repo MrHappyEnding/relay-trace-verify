@@ -2,7 +2,7 @@
 
 [![中文](assets/lang-zh.svg)](m4-repository-cluster.md) [![English](assets/lang-en.svg)](m4-repository-cluster.en.md)
 
-**Status: 28 real-cluster scripted-control checks pass; M4 real-model experiments remain incomplete.**
+**Status: 28 real-cluster scripted-control checks pass; M4 formal evaluation remains incomplete.**
 [Acceptance evidence](evidence/m4-repository-cluster-arm64-20261012.json) includes raw artifact hashes and failure history.
 
 This stage runs `sympy__sympy-22914` on local k3d with real Jobs, Harbor containers, PostgreSQL,
@@ -115,6 +115,6 @@ bounded independently. Heavy acceptance runs should be serialized on this develo
 Both Kubernetes nodes share one physical Docker Desktop host and local storage. Job deletion and
 node migration do not prove host-loss availability. Outer Pods remain privileged, for trusted local
 development experiments only. The subsequent [credential path](m4-model-pilot.en.md) passes
-fake-credential checks; native Codex repository sessions, real-agent effectiveness and cost
-experiments remain pending. New paid runs require pricing and approval.
+fake-credential checks and native continuation/cross-agent workflow acceptance on one repository.
+Formal effectiveness and cost comparisons remain pending. New paid runs require pricing and approval.
 This stage uses zero API calls, $0 cloud spend and no GPUs.

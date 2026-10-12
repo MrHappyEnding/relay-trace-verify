@@ -75,7 +75,8 @@ Accepted within the local scope: [M2 guide](m2.en.md), 40 runtime/protocol check
 - [x] Bounded concurrency, admission, node/worker recovery and cleanup in the local multi-node scope.
 - [x] Freeze tasks, execution caps, exclusions and statistics; revalidate and approve API reservations before paid execution.
 - [x] Kubernetes delivery, scripted relay, cross-node recovery and observation linkage for the first real repository; no real-model result yet.
-- [x] Run-bound model credentials, 17 real-cluster fake-credential checks and the real pilot launcher; the failed first real attempt is retained, with no graded model result.
+- [x] Run-bound model credentials, 17 real-cluster fake-credential checks and the real pilot launcher; retain the failed first attempt.
+- [x] Four real-model branches on one development repository: 13 checks pass for native continuation, handoff and isolated grading.
 - [ ] Run real-model experiments and system fault experiments; produce raw artifacts and reports.
 - [ ] Document deployment steps, operating costs, known limitations, and the full demonstration.
 
@@ -84,7 +85,7 @@ Accepted within the local scope: [M2 guide](m2.en.md), 40 runtime/protocol check
 Phase-one deployment, real-service faults, zero-model cost and reporting boundaries are in the [M4 guide](m4.en.md). Multiple local k3d nodes do not establish multi-physical-host HA; checked items apply only to this scope.
 Four development and twenty evaluation SWE-bench Verified tasks are frozen. Paired analysis and
 offline positive/negative verifier controls for the first development task pass; see the
-[task/statistics protocol](m4-benchmark.en.md). The first real-model pilot ran without reaching grading; see the [attempt record](m4-model-pilot.en.md).
+[task/statistics protocol](m4-benchmark.en.md). The repaired real pilot has four graded branches; see the [attempt record](m4-model-pilot.en.md). Functional acceptance on one task does not complete M4.
 
 ## Later candidates
 
@@ -101,4 +102,4 @@ Tool-boundary checkpoints, more agents, trajectory judges calibrated against lab
 | Control language | Python | Harbor integration cost and typed contracts |
 | First execution backend | Local containers | Validate the protocol before distributed faults |
 
-Local real-repository checkpoints, independent restoration, verifier isolation and scripted branches pass [26 checks](m4-repositories.en.md). Kubernetes task delivery, resources, AMD64 execution and statistical linkage are covered in [cluster repository integration](m4-repository-cluster.en.md). The [model credential path and launcher](m4-model-pilot.en.md) pass zero-call acceptance. The first real pilot ran under a new $8 approval, recording $0.01573815 in API usage and exposing timeout/input-limit handling defects. The repaired image and new plan are pinned. Next: review remaining budget and decide whether to run again. Repository session/handoff acceptance and other development environment preflights remain pending.
+Local real-repository checkpoints, independent restoration, verifier isolation and scripted branches pass [26 checks](m4-repositories.en.md). Kubernetes task delivery, resources, AMD64 execution and statistical linkage are covered in [cluster repository integration](m4-repository-cluster.en.md). The [credential path and launcher](m4-model-pilot.en.md) pass real-model workflow acceptance on one task. Both attempts record $0.04215240 in API usage. Continuations retained an existing prefix repair, so relay effectiveness is not established. Next: zero-model preflights for the other three development environments and a development comparison with unfinished prefix work, followed by formal evaluation and real-model fault experiments.

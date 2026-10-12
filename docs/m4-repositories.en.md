@@ -25,8 +25,8 @@ execution; handoff and recovery cannot change the contract or workspace.
 - The prefix seals after a naturally completed turn, without hidden verification or an intentionally
   introduced defect. Only final branches run an isolated verifier.
 - Mini tools and Codex session metadata use the declared cwd. Native recovery requires matching
-  version, model and cwd. Unit tests cover the new path contract; a real Codex repository-session
-  round trip still requires separate paid/subscription acceptance.
+  version, model and cwd. Unit tests cover the new path contract; the subsequent
+  [real pilot](m4-model-pilot.en.md) verifies the session round trip on one repository.
 - The verifier uses its pinned image offline, receiving only declared workspace data, without native
   agent state. Its default timeout is 600 seconds. SWE-bench parser output must agree with the reward;
   parser failures cannot masquerade as valid unresolved outcomes.
@@ -104,5 +104,5 @@ The frozen statistical protocol and selection are unchanged by these scripted re
 
 This stage uses zero API calls, $0 cloud spend and no GPUs. Subsequent task delivery, AMD64 images,
 resources and statistical linkage are covered in [Kubernetes repository integration](m4-repository-cluster.en.md).
-Model credentials remain disabled by default; the subsequent [credential path and pilot launcher](m4-model-pilot.en.md) pass fake-credential acceptance. Real dual-agent repository handoff and effectiveness still need separate
-budget-approved acceptance. The other three development environments also remain to be checked.
+Model credentials remain disabled by default; the subsequent [credential path and pilot launcher](m4-model-pilot.en.md) pass fake-credential checks and real dual-agent workflow acceptance on one repository.
+Relay effectiveness is not established. The other three development environments remain to be checked.

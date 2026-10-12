@@ -98,7 +98,7 @@ def capability_report() -> dict:
             ],
         },
         "cluster": {
-            "milestone": "M4 phase one; formal experiments pending",
+            "milestone": "M4 local execution and one real repository pilot; formal work pending",
             "backend": "k3d 5.8.3 / Kubernetes 1.31.5 on one Docker Desktop host",
             "metadata_schema": "rtv4, isolated from rtv3",
             "admission": "PostgreSQL per-root jobs/CPU/memory reservations plus namespace quota",
@@ -107,8 +107,12 @@ def capability_report() -> dict:
             "model_calls_enabled": False,
             "model_opt_in": "one approved pilot root, five frozen Trial specs, epoch 1 only",
             "credential_projection_verified": "fake credentials on both local nodes; 17 checks",
-            "real_cluster_model_verified": False,
-            "real_model_pilot": "first attempt failed before grading; no automatic rerun",
+            "real_cluster_model_verified": True,
+            "real_model_pilot": (
+                "second attempt passes 13 workflow checks on sympy__sympy-22914; "
+                "three solved and one unsolved branch, no strategy-advantage claim"
+            ),
+            "real_model_evidence": "docs/evidence/m4-real-pilot-2-arm64-20261012.json",
             "credential_evidence": "docs/evidence/m4-credentials-arm64-20261012.json",
             "security_scope": "trusted local experiments; privileged outer DinD Pod",
             "storage": "shared local bind volume; no host-loss or storage-HA claim",
@@ -140,23 +144,25 @@ def capability_report() -> dict:
             "verifier_scope": "offline AMD64 Docker controls on an ARM64 host; no agents",
             "real_model_benchmark_verified": False,
             "kubernetes_benchmark_verified": False,
+            "real_model_pilot_verified": True,
             "kubernetes_repository_controls_verified": True,
             "runtime_observation_linkage": (
-                "one oracle pair and four first-attempt real-model records exported; "
-                "three source_failed and one infra_error, no graded model outcome"
+                "one oracle pair; failed first real attempt retained separately; "
+                "second real attempt has four graded observations on one development task"
             ),
             "paid_experiment_authorized": False,
             "authorization_scope": (
-                "no standing execution permission; first pilot ran under an $8 approval"
+                "no standing execution permission; two approved attempts share one $8 budget"
             ),
             "repository_runtime": {
                 "scope": "one local Docker/Kubernetes SWE-bench pilot; scripted/oracle controls, "
-                "first real-model attempt failed before grading",
+                "real-model continuation and handoff with a pre-existing prefix repair",
                 "workspace": "/testbed",
                 "checkpoint_manifest": 3,
                 "directory_permission_bits": "0o777",
                 "workspace_excludes": [".DS_Store"],
-                "codex_native_repository_verified": False,
+                "codex_native_repository_verified": True,
+                "mini_real_repository_verified": True,
                 "mini_scripted_repository_verified": True,
                 "fresh_request_limit": 16,
             },
@@ -166,6 +172,7 @@ def capability_report() -> dict:
                 "docs/evidence/m4-repository-runtime-arm64-20261011.json",
                 "docs/evidence/m4-repository-cluster-arm64-20261012.json",
                 "docs/evidence/m4-real-pilot-1-arm64-20261012.json",
+                "docs/evidence/m4-real-pilot-2-arm64-20261012.json",
             ],
         },
         "relay": {
@@ -175,9 +182,14 @@ def capability_report() -> dict:
             "verification": "fresh sandbox, declared workspace only, no network",
             "real_cross_agent_verified": True,
             "verified_scope": "Codex-to-mini workspace/summary/text projection on one fixed task",
+            "repository_scope": (
+                "workspace/summary handoff on one SWE-bench development task; "
+                "continuations retained the prefix tracked patch, no unfinished-repair rescue"
+            ),
             "evidence": [
                 "docs/evidence/m3-runtime-arm64-20261009.json",
                 "docs/evidence/m3-real-arm64-20261009.json",
+                "docs/evidence/m4-real-pilot-2-arm64-20261012.json",
             ],
         },
         "not_verified": [

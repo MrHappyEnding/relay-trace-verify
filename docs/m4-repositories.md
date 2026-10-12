@@ -22,7 +22,7 @@ verifier 超时与显式排除项，计算独立的 `contract_sha256`。
 - 提示只读 `instruction.md`；不把 `tests/`、参考解或隐藏奖励加入 agent 上下文。
 - 源阶段自然结束后封存，不运行隐藏 verifier，也不要求制造部分错误。只有最终分支独立验证。
 - mini 工具 cwd 与 Codex 会话元数据都使用声明目录；Codex 原生恢复检查同版本、同模型、同 cwd。
-  新目录下的原生协议校验有单元测试，真实 Codex 会话往返尚待付费/订阅验收。
+  新目录下的原生协议校验有单元测试；后续[真实 pilot](m4-model-pilot.md)已验证一个仓库的会话往返。
 - 每次独立 verifier 使用冻结的 verifier 镜像，断网并接收声明工作区；它不接收 agent 的原生会话。
   默认 600 秒；除 reward 外还检查 SWE-bench parser 报告，解析失败不能算正常的未解答。
 - mini 新入口支持最多 16 请求的 fresh 预算与 600 秒阶段上限；M3 入口继续沿用原有默认值。
@@ -91,5 +91,5 @@ Kubernetes 接入请使用新增的[仓库任务交付](m4-repository-cluster.md
 正式统计配置仍使用上一阶段的 SHA，不因这次脚本结果改变选题。
 
 本阶段 API 调用 0、云费用 $0、GPU 使用 0。后续的任务材料、AMD64 镜像、资源配置及统计关联
-见[Kubernetes 仓库接入](m4-repository-cluster.md)；默认配置仍关闭模型；后续[凭据通道与 pilot 启动器](m4-model-pilot.md)已通过假凭据验收。
-真实双 agent 在这个仓库上的会话交接与效果仍待批准预算后的独立验收；其余 3 个开发任务也尚待环境检查。
+见[Kubernetes 仓库接入](m4-repository-cluster.md)；默认配置仍关闭模型；后续[凭据通道与 pilot 启动器](m4-model-pilot.md)已通过假凭据检查和一个仓库的真实双 agent 流程验收。
+接力效果优势尚未验证；其余 3 个开发任务也尚待环境检查。

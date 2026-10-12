@@ -2,7 +2,7 @@
 
 [![中文](assets/lang-zh.svg)](m4-repository-cluster.md) [![English](assets/lang-en.svg)](m4-repository-cluster.en.md)
 
-**状态：28 项真实集群脚本控制检查通过，M4 真实模型实验仍未完成。**
+**状态：28 项真实集群脚本控制检查通过，M4 正式评测仍未完成。**
 [验收证据](evidence/m4-repository-cluster-arm64-20261012.json)包含原始产物摘要及失败历史。
 
 本阶段将 `sympy__sympy-22914` 接入本机 k3d，使用真实 Job、Harbor 容器、PostgreSQL、
@@ -100,5 +100,5 @@ macOS 宿主视图为 `0644`。因此验收分别比较同一视图的摘要：�
 
 本机两个节点共享同一 Docker Desktop 宿主和共享目录；Job 删除与换节点恢复不能证明
 物理宿主丢失后的高可用。外层 Pod 仍为 privileged，只支持可信本机开发控制。
-后续[模型凭据通道](m4-model-pilot.md)已通过假凭据测试；Codex 原生仓库会话、真实双 agent 效果与费用实验仍待完成；
+后续[模型凭据通道](m4-model-pilot.md)已通过假凭据测试和一个仓库的原生继续/双 agent 流程验收；正式效果与费用对比仍待完成。
 新增付费调用须先核价并批准。当前阶段 API 调用 0、云费用 $0、GPU 使用 0。
