@@ -62,6 +62,12 @@ def authorize(run, approved_budget_usd, references):
 def validate_model_spec(spec):
     envelope = api_envelope(spec)
     adapter = spec["adapter"]
+    if "prefix_policy" in spec:
+        from rtv.codex_gate import policy
+
+        policy(spec["prefix_policy"])
+        if adapter != "codex" or spec.get("stages") != 2 or not spec.get("pause_after_checkpoint"):
+            raise ValueError("Tool gate is only admitted for a sealed Codex source prefix")
     if adapter not in {"codex", "mini"} or spec.get("model") != {
         "codex": DEFAULT_MODEL,
         "mini": MINI_MODEL,

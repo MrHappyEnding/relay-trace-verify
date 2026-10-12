@@ -2,6 +2,8 @@
 
 [![中文](assets/lang-zh.svg)](m4-model-pilot.md) [![English](assets/lang-en.svg)](m4-model-pilot.en.md)
 
+新增[开发集预检与中途交接](m4-tool-prefix.md)：全部 4 题环境通过，工具额度策略完成零模型验证；尚未运行新策略的真实模型试验。
+
 ## 第三轮：输入提高到 160 KB，四个分支均 solved
 
 所有者将本阶段累计 API 预算从 $8 提高到 **$20**，包括前两轮。使用冻结的

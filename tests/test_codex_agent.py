@@ -163,3 +163,63 @@ def test_resumed_usage_subtracts_imported_prefix_and_keeps_uncertainty(tmp_path)
     assert result.usage == {"input_tokens": 10, "output_tokens": 1}
     assert incremental_usage({"input_tokens": 10}, {"input_tokens": 20}) is None
     assert incremental_usage({"input_tokens": 10}, None) is None
+
+
+def test_adapter_installs_only_vetted_gate_and_audits_receipts(tmp_path, monkeypatch):
+    harbor = pytest.importorskip("harbor.agents.installed.codex")
+    from rtv import codex_gate
+
+    calls, uploads = {}, []
+    logs = tmp_path / "logs"
+    auth = tmp_path / "auth.json"
+    auth.write_text(json.dumps({"tokens": {"access_token": "fixture"}}))
+
+    class FakeCodex:
+        def __init__(self, **kwargs):
+            calls.update(kwargs)
+
+        async def run(self, instruction, env, context):
+            calls["prompt"] = instruction
+            path, sid, _ = turn_logs(logs)
+            path.write_text(path.read_text().replace('"/workspace"', '"/testbed"'))
+            # Natural early completion must still yield a valid boundary, including zero tools.
+            for event in ("SessionStart", "Stop"):
+                codex_gate.handle(
+                    logs / "tool-gate.json",
+                    {
+                        "hook_event_name": event,
+                        "session_id": sid,
+                    },
+                )
+
+    class Environment:
+        trial_paths = SimpleNamespace(agent_dir=logs)
+
+        async def exec(self, command, **kwargs):
+            return SimpleNamespace(
+                return_code=0,
+                stdout=(f"codex-cli {CODEX_VERSION}" if command == "codex --version" else "[]"),
+            )
+
+        async def upload_file(self, source, target):
+            uploads.append((source, target))
+
+        async def download_file(self, source, target):
+            assert source == codex_gate.REMOTE_STATE and target == logs / "tool-gate.json"
+
+    monkeypatch.setattr(harbor, "Codex", FakeCodex)
+    monkeypatch.delenv("OPENAI_BASE_URL", raising=False)
+    monkeypatch.delenv("OPENAI_API_BASE", raising=False)
+    adapter = HarborCodexAdapter(model="fixture", auth_file=auth, workspace="/testbed")
+    turn = asyncio.run(
+        adapter.execute(
+            Environment(),
+            "public task",
+            tool_prefix={"version": codex_gate.VERSION, "max_tools": 6},
+        )
+    )
+    assert calls["config"]["hooks"] == codex_gate.hook_config()
+    assert calls["dangerously_bypass_hook_trust"] is True
+    assert uploads[0] == (Path(codex_gate.__file__), codex_gate.REMOTE_SCRIPT)
+    assert turn.prefix_boundary["trigger"] == "natural_completion"
+    assert "at most 6" in calls["prompt"]

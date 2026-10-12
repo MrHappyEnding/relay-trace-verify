@@ -86,7 +86,24 @@ def validate(plan):
         count = plan["repeats"][split]
         if type(count) is not int or not 1 <= count <= 10:
             raise ValueError("Invalid repeat count")
+    if "prefix_policy" in plan["checkpoint"]:
+        from rtv.codex_gate import policy
+
+        policy(plan["checkpoint"]["prefix_policy"])
+        baseline = load(DEFAULT_PLAN)
+        if plan.get("environment_protocol_sha256") != baseline["protocol_sha256"] or any(
+            plan[k] != baseline[k] for k in ("sources", "selection", "tasks")
+        ):
+            raise ValueError("Tool-prefix protocol changed its preflight environment lineage")
+    elif "environment_protocol_sha256" in plan:
+        raise ValueError("Environment lineage override requires a versioned tool-prefix policy")
     return plan
+
+
+def environment_protocol(plan):
+    """A new execution policy may reuse an identical audited task/environment catalog."""
+    validate(plan)
+    return plan.get("environment_protocol_sha256", plan["protocol_sha256"])
 
 
 def load(path=DEFAULT_PLAN):

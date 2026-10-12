@@ -8,7 +8,7 @@ A recoverable execution and branching experiment system for long-running coding 
 
 **Status: F0–M3 accepted within the local trusted-development-task scope.** M3 adds idempotent handoff, four branches from one checkpoint, isolated verification, prefix attribution and a bilingual read-only viewer. It passes 48 zero-cost protocol checks and 14 real-model checks: native Codex continuation and mini-swe-agent workspace, summary and text-trajectory handoffs all complete the task. This validates functionality, not relay success-rate or cost advantages. See the [M3 guide and evidence](docs/m3.en.md).
 
-**M4 in progress: local Kubernetes execution and a real-task experiment protocol are available.** Two control workers, two execution nodes, resource reservations, node recovery and raw reports are tested without model calls. SWE-bench Verified selection is frozen at four development and twenty evaluation tasks; paired analysis and offline verifier controls for the first development task pass. The first real-model pilot has four graded branches; formal evaluation is incomplete. See the [M4 guide](docs/m4.en.md) and [task/statistics protocol](docs/m4-benchmark.en.md).
+**M4 in progress: local Kubernetes execution and a real-task experiment protocol are available.** Two control workers, two execution nodes, resource reservations, node recovery and raw reports are tested without model calls. SWE-bench Verified selection is frozen at four development and twenty evaluation tasks; paired analysis and offline verifier controls for all four development tasks pass. The first real-model pilot has four graded branches; formal evaluation is incomplete. See the [M4 guide](docs/m4.en.md) and [task/statistics protocol](docs/m4-benchmark.en.md).
 
 Local checkpoints, scripted relay, a fresh baseline and fault recovery for the first real repository
 pass 26 checks; see [repository integration](docs/m4-repositories.en.md). Reference-patch controls do
@@ -24,6 +24,8 @@ checks pass across both nodes. Prior results are retained; the third run raises 
 requests but passed independent grading; there were no input-limit stops. Three attempts total 45 API
 requests and $0.11725620 under the increased $20 cumulative budget, with unknown subscription cost.
 The prefix already had the core repair; unfinished-work rescue or relay advantage is not established.
+
+The new [mid-task handoff](docs/m4-tool-prefix.en.md) adds tool allowances, receipt audits, process checks and native recovery in a fresh container, validated without model calls. Real-model results for this policy are pending; this update adds $0 in charges.
 
 RTV supports learning through reproduction, system implementation, and original exploration. Existing approaches remain learning material and comparison baselines; see the [learning and resource plan](docs/learning-plan.en.md) for sources and scope. No model-performance advantage or multi-physical-host reliability claim has been established.
 

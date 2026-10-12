@@ -27,7 +27,7 @@ def target_spec(source, adapter, model, policy, *, ttl=300):
     if adapter in {"mini", "mini-fixture"} and policy == "native":
         raise ValueError("Mini native-session resume is not verified; use portable context")
     return {
-        **source,
+        **{k: v for k, v in source.items() if k != "prefix_policy"},
         "adapter": adapter,
         "model": model
         or (MINI_MODEL if adapter == "mini" else DEFAULT_MODEL if adapter == "codex" else None),

@@ -4,7 +4,7 @@ import hashlib
 import json
 from pathlib import Path
 
-from rtv.benchmark.protocol import digest, matrix
+from rtv.benchmark.protocol import digest, environment_protocol, matrix
 from rtv.runtime.handoff import plan as handoff_plan
 from rtv.runtime.relay_store import stable
 from rtv.runtime.store import identity, spec_hash
@@ -17,11 +17,16 @@ def prepare_pair(protocol, source_spec, root, repeat=0, *, mode="oracle"):
 
     envelope = api_envelope(source_spec)
     declared = contract(source_spec)
-    if not declared or declared["protocol_sha256"] != protocol["protocol_sha256"]:
+    if not declared or declared["protocol_sha256"] != environment_protocol(protocol):
         raise ValueError("Repository task does not match the frozen protocol")
     if mode not in {"oracle", "real-model"}:
         raise ValueError("Unsupported pilot evidence mode")
     real = mode == "real-model"
+    prefix_policy = protocol["checkpoint"].get("prefix_policy")
+    if source_spec.get("prefix_policy") not in (None, prefix_policy):
+        raise ValueError("Source prefix policy differs from the frozen protocol")
+    if prefix_policy is not None and not real:
+        raise ValueError("Codex tool gate cannot be represented by an oracle control")
     if (
         source_spec["adapter"] != ("codex" if real else "fixture")
         or source_spec.get("max_recoveries") != 0
@@ -51,6 +56,8 @@ def prepare_pair(protocol, source_spec, root, repeat=0, *, mode="oracle"):
         "api_budget_usd": 0,
         "benchmark_assignment": {"pair_id": pair, "role": "prefix", "mode": mode},
     }
+    if prefix_policy is not None:
+        source["prefix_policy"] = prefix_policy
     source_key = pair + ":prefix"
     target = "mini" if real else "mini-fixture"
     branches = {r["label"]: r for r in handoff_plan(source, adapter=target, ttl=1800)}
@@ -78,6 +85,8 @@ def prepare_pair(protocol, source_spec, root, repeat=0, *, mode="oracle"):
             else 0,
             "benchmark_assignment": {**assignment, "mode": mode},
         }
+        # The gate is source-only. Native and semantic continuations get their full allowance.
+        spec.pop("prefix_policy", None)
         entries.append(
             {
                 **assignment,
@@ -185,6 +194,14 @@ def collect(protocol, run, store, output):
         source_checkpoint = store.checkpoint(prefix[0]["latest_checkpoint"])
         if source_checkpoint["context"]["result"].get("status") != "sealed":
             raise ValueError("Prefix checkpoint was not sealed")
+        if run["source"]["spec"].get("prefix_policy") is not None:
+            boundary = source_checkpoint["context"]["result"].get("prefix_boundary", {})
+            if (
+                boundary.get("policy") != run["source"]["spec"]["prefix_policy"]
+                or boundary.get("admitted_tools") != boundary.get("completed_tools")
+                or boundary.get("trigger") not in {"tool_budget", "natural_completion"}
+            ):
+                raise ValueError("Sealed source is missing its audited tool boundary")
         path = output / "source-checkpoint.json"
         path.write_text(json.dumps(source_checkpoint, indent=2, default=str) + "\n")
         hashes[path.name] = hashlib.sha256(path.read_bytes()).hexdigest()
@@ -251,6 +268,13 @@ def collect(protocol, run, store, output):
                 "queue_seconds": metrics.get(entry["trial_id"], {}).get("queue_seconds"),
                 "elapsed_seconds": metrics.get(entry["trial_id"], {}).get("elapsed_seconds"),
                 "run_sha256": run["run_sha256"],
+                **(
+                    {"prefix_boundary": source_checkpoint["context"]["result"]["prefix_boundary"]}
+                    if not fresh
+                    and source_checkpoint
+                    and "prefix_boundary" in source_checkpoint["context"]["result"]
+                    else {}
+                ),
             }
         )
     records_path = output / "records.jsonl"

@@ -164,6 +164,18 @@ def execute(args):
             source["status"] == "sealed"
             and source["result"].get("verification", {}).get("status") == "not_run"
         )
+        if run["source"]["spec"].get("prefix_policy") is not None:
+            boundary = source["result"].get("prefix_boundary", {})
+            checks["source_tool_boundary_audited"] = (
+                boundary.get("policy") == run["source"]["spec"]["prefix_policy"]
+                and boundary.get("completed_tools") == boundary.get("admitted_tools")
+                and boundary.get("trigger") in {"tool_budget", "natural_completion"}
+            )
+            if (
+                checks["source_sealed_without_hidden_verifier"]
+                and not checks["source_tool_boundary_audited"]
+            ):
+                raise ValueError("Runner sealed an unaudited prefix; refusing paid continuations")
         for entry in run["entries"]:
             if entry["branch"] == "B-fresh":
                 current = store.submit(entry["key"], entry["spec"])

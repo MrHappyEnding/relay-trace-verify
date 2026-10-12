@@ -1,0 +1,57 @@
+{
+  "mode": "real-cli-container-scripted-model",
+  "paid_api_calls": 0,
+  "real_model_calls": 0,
+  "image_id": "sha256:617df833249959a54991bca0a5128bceb3fa84fb12884361eeaa1e3d6d3a595f",
+  "cli_version": "0.160.1",
+  "network": "none",
+  "checks": {
+    "workspace_restored": true,
+    "native_session_preserved": true,
+    "exact_tool_allowance": true,
+    "excess_tool_denied": true,
+    "fresh_container_continuation": true,
+    "no_surviving_agent_processes": true
+  },
+  "status": "passed",
+  "prefix": {
+    "session_id": "01a1322b-85f5-7f11-9f7b-366118c99597",
+    "fixture_responses": 4,
+    "boundary": {
+      "policy": {
+        "version": "codex-tools-v1",
+        "max_tools": 2
+      },
+      "admitted_tools": 2,
+      "completed_tools": 2,
+      "denied_tools": 1,
+      "trigger": "tool_budget",
+      "receipt_sha256": "d1bc3ddf2926c61c84d030dd928c28ba8ccb13c64e2196f18625cd2308d0a8e2",
+      "boundary": "cooperative completed turn; sandbox quiescence still required"
+    }
+  },
+  "containers_removed": 2,
+  "scope": "Actual Codex CLI and Docker with scripted loopback model responses; not real-model, Kubernetes, or mini efficacy evidence.",
+  "local_report": "work/m4-tool-prefix-probe-4/report.json",
+  "retained_probe_history": [
+    {
+      "path": "work/m4-tool-prefix-probe-1/report.json",
+      "status": "failed",
+      "reason": "Probe copied over read-only Git objects with dropped capabilities; fixed by replacing the fresh disposable base directory."
+    },
+    {
+      "path": "work/m4-tool-prefix-probe-2/report.json",
+      "status": "passed"
+    },
+    {
+      "path": "work/m4-tool-prefix-probe-3/report.json",
+      "status": "passed",
+      "addition": "Process-survivor check"
+    },
+    {
+      "path": "work/m4-tool-prefix-probe-4/report.json",
+      "status": "passed",
+      "addition": "Asynchronous shell polling through write_stdin"
+    }
+  ]
+}

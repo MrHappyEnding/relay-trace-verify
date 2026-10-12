@@ -2,6 +2,8 @@
 
 [![中文](assets/lang-zh.svg)](m4-model-pilot.md) [![English](assets/lang-en.svg)](m4-model-pilot.en.md)
 
+See the new [development preflights and mid-task handoff](m4-tool-prefix.en.md): all four environments pass and the tool-prefix policy is tested without model calls. Real-model runs of this policy remain pending.
+
 ## Third run: 160 KB inputs, all four branches solved
 
 The owner increased this stage's cumulative API budget from $8 to **$20**, including both prior

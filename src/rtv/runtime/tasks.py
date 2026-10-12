@@ -110,7 +110,7 @@ def scripted_commands(spec, partial=False):
 
 
 def prepare_contract(plan, upstream, instance_id, preflight, agent_image=None):
-    from rtv.benchmark.protocol import load
+    from rtv.benchmark.protocol import environment_protocol, load
     from rtv.benchmark.source import audit, catalog_for
     from rtv.harbor_probe import _docker
 
@@ -122,7 +122,7 @@ def prepare_contract(plan, upstream, instance_id, preflight, agent_image=None):
         selected["split"] != "pilot"
         or report.get("status") != "passed"
         or report.get("task") != instance_id
-        or report.get("protocol_sha256") != protocol["protocol_sha256"]
+        or report.get("protocol_sha256") != environment_protocol(protocol)
         or report.get("base_image") != selected["image"]["pinned"]
         or not all(
             report.get("controls", {}).get(k, {}).get("passed") for k in ("unmodified", "oracle")
@@ -143,7 +143,7 @@ def prepare_contract(plan, upstream, instance_id, preflight, agent_image=None):
         "kind": "swebench",
         "instance_id": instance_id,
         "split": "pilot",
-        "protocol_sha256": protocol["protocol_sha256"],
+        "protocol_sha256": environment_protocol(protocol),
         "task_directory": str(task),
         "task_digest": tree_digest(task),
         "workspace": "/testbed",

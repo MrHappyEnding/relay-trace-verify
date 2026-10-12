@@ -1,0 +1,183 @@
+{
+  "mode": "real-container-oracle-controls",
+  "paid_api_calls": 0,
+  "reports": [
+    {
+      "mode": "real-container-oracle-controls",
+      "paid_api_calls": 0,
+      "protocol_sha256": "dbd68d56849681a5ac991409743d0276ee8b5572992c3570a18ae532ab4cd8bb",
+      "task": "sympy__sympy-15599",
+      "platform": "linux/amd64",
+      "base_image": "swebench/sweb.eval.x86_64.sympy_1776_sympy-15599@sha256:068c2c597f9dffc4344f276d9a9d1e0557b9e32b15b8ff4c4ffba76995ce6853",
+      "scope": "development task verifier/environment only; no agent efficacy or relay evidence",
+      "status": "passed",
+      "controls": {
+        "unmodified": {
+          "reward": 0,
+          "expected": 0,
+          "passed": true,
+          "verifier_exit_code": 1,
+          "base_commit": "5e17a90c19f7eecfa10c1ab872648ae7e2131323",
+          "image_head": "25196a111652caa3b4de7529e510589663c16f24",
+          "base_tree": "1b9ea542c5da00a46fa9d48164c3354cb016885f",
+          "network": "none"
+        },
+        "oracle": {
+          "reward": 1,
+          "expected": 1,
+          "passed": true,
+          "verifier_exit_code": 0,
+          "base_commit": "5e17a90c19f7eecfa10c1ab872648ae7e2131323",
+          "image_head": "25196a111652caa3b4de7529e510589663c16f24",
+          "base_tree": "1b9ea542c5da00a46fa9d48164c3354cb016885f",
+          "network": "none"
+        }
+      },
+      "cleanup": [
+        {
+          "container": "d96eeff37c70959fb4b123388861b8fde5f3a5fe54f24bbb1f29729ccdfd9d97",
+          "removed": true
+        },
+        {
+          "container": "1df0976b75098a97e9852665f94ded65cbc179f98eebf22bfb4fde6e8655f848",
+          "removed": true
+        }
+      ],
+      "build_dockerfile_sha256": "02b2bf25907163bab0d2a8df767ea1257fb54a8dfd6ac46073e433ff49c7d2e8",
+      "verifier_image_id": "sha256:1bf8080262866e2068abacf0cf68ad33e1511654b74539a62984c40563e50119",
+      "parser_lock_captured": true,
+      "elapsed_seconds": 56.12,
+      "artifact_sha256": {
+        "parser.py.lock": "edd64df17ba35c346acc1989148c4ada7d42534610a48774bb828b10ae4a7355",
+        "build.log": "08ffb5b24b44fec5323455cdbc06d76acd66eeb62ea1688bea9fc44377060e47",
+        "unmodified/report.json": "e8eefac9312c15f0fffd18830442e649c79e35adf42a407d8834be5db70a4df0",
+        "unmodified/verifier.log": "0e5b84b9c8bd3366d4a0938fcbef834fa892d72bbd135063f5798f714cb67495",
+        "unmodified/reward.txt": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+        "oracle/report.json": "4fe9bfa92dadaae43705eba6f0e8dcbabd951d9320fdc1cb3502cc90c9eec733",
+        "oracle/verifier.log": "4ff0e513c1299c1ed8d00dd234228c1c2a78281b4285c2cf53f0d5ec5ef575cd",
+        "oracle/oracle.log": "4314e7d794da779185e5b2b0ed0098b92186fd0735c0d331f8905db30f00a81a",
+        "oracle/reward.txt": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+        "build/Dockerfile": "02b2bf25907163bab0d2a8df767ea1257fb54a8dfd6ac46073e433ff49c7d2e8",
+        "build/parser.py": "de1edf8b7a48bf4a83dbe084cee7dd3cfae998f8992ce4def34e22b90305f2e2"
+      }
+    },
+    {
+      "mode": "real-container-oracle-controls",
+      "paid_api_calls": 0,
+      "protocol_sha256": "dbd68d56849681a5ac991409743d0276ee8b5572992c3570a18ae532ab4cd8bb",
+      "task": "sympy__sympy-13091",
+      "platform": "linux/amd64",
+      "base_image": "swebench/sweb.eval.x86_64.sympy_1776_sympy-13091@sha256:471f39923e1ace96073b57b4585fcb180fe825176ee42589c46d50ccca9ed9a6",
+      "scope": "development task verifier/environment only; no agent efficacy or relay evidence",
+      "status": "passed",
+      "controls": {
+        "unmodified": {
+          "reward": 0,
+          "expected": 0,
+          "passed": true,
+          "verifier_exit_code": 1,
+          "base_commit": "d1320814eda6549996190618a21eaf212cfd4d1e",
+          "image_head": "6772fd9ed164becd72473811b6711f1537ab09c7",
+          "base_tree": "5f10f1fc2ecf5d58cb24cd430364df7e25fae5c0",
+          "network": "none"
+        },
+        "oracle": {
+          "reward": 1,
+          "expected": 1,
+          "passed": true,
+          "verifier_exit_code": 0,
+          "base_commit": "d1320814eda6549996190618a21eaf212cfd4d1e",
+          "image_head": "6772fd9ed164becd72473811b6711f1537ab09c7",
+          "base_tree": "5f10f1fc2ecf5d58cb24cd430364df7e25fae5c0",
+          "network": "none"
+        }
+      },
+      "cleanup": [
+        {
+          "container": "7972d9d5fbb3d4332726d11f7c529fc62e6b84f52287730723bc34e7fe1f5f19",
+          "removed": true
+        },
+        {
+          "container": "4839387d5ce67bcfe01a04233d47afaca14a31d50927d5fbd791dc6301276f40",
+          "removed": true
+        }
+      ],
+      "build_dockerfile_sha256": "4f55c4e929f2bed3c555014696210715eb36cd831b2f4e9326891acd5bae9c08",
+      "verifier_image_id": "sha256:abd584927d0e1d80a0e6577ccd0bad4a5b854ffd44df77852fb0251c179c2dcb",
+      "parser_lock_captured": true,
+      "elapsed_seconds": 41.33,
+      "artifact_sha256": {
+        "parser.py.lock": "edd64df17ba35c346acc1989148c4ada7d42534610a48774bb828b10ae4a7355",
+        "build.log": "dd84019612af3017a6d122c62aeee5491ba8bdb143b91d6e64104fbe3f3eafa6",
+        "unmodified/report.json": "0af5d50dc7cbd2ab1bf69ea27c7917b0b86ebb2a33990a612fef8c989f67eae5",
+        "unmodified/verifier.log": "f685248478657977ebee3c4db5d6c62adb67396d65ffb6ea845787ca11ae87e7",
+        "unmodified/reward.txt": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+        "oracle/report.json": "d9b51b8eb7ee3a1de3c2767f7a8ed365201de392044ed22ffb26ed5abe060563",
+        "oracle/verifier.log": "a1fb1da72cdcbe4372fd92905440df74d0e4d3838054e6524ffa8fca737a215d",
+        "oracle/oracle.log": "400235ec36a9ba28414c8369899152f0c3977d58bb7e8223f5ad3d6df197bcde",
+        "oracle/reward.txt": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+        "build/Dockerfile": "4f55c4e929f2bed3c555014696210715eb36cd831b2f4e9326891acd5bae9c08",
+        "build/parser.py": "de1edf8b7a48bf4a83dbe084cee7dd3cfae998f8992ce4def34e22b90305f2e2"
+      }
+    },
+    {
+      "mode": "real-container-oracle-controls",
+      "paid_api_calls": 0,
+      "protocol_sha256": "dbd68d56849681a5ac991409743d0276ee8b5572992c3570a18ae532ab4cd8bb",
+      "task": "scikit-learn__scikit-learn-9288",
+      "platform": "linux/amd64",
+      "base_image": "swebench/sweb.eval.x86_64.scikit-learn_1776_scikit-learn-9288@sha256:702434646ba19a69bf216770efdbc2010f64aad9f1162be14abec1bb52399662",
+      "scope": "development task verifier/environment only; no agent efficacy or relay evidence",
+      "status": "passed",
+      "controls": {
+        "unmodified": {
+          "reward": 0,
+          "expected": 0,
+          "passed": true,
+          "verifier_exit_code": 1,
+          "base_commit": "3eacf948e0f95ef957862568d87ce082f378e186",
+          "image_head": "62ad8aef777a1d8be86228924644fbbda8593606",
+          "base_tree": "5e4b2c1edc83832a86541dd45baeec2af5ba3b65",
+          "network": "none"
+        },
+        "oracle": {
+          "reward": 1,
+          "expected": 1,
+          "passed": true,
+          "verifier_exit_code": 0,
+          "base_commit": "3eacf948e0f95ef957862568d87ce082f378e186",
+          "image_head": "62ad8aef777a1d8be86228924644fbbda8593606",
+          "base_tree": "5e4b2c1edc83832a86541dd45baeec2af5ba3b65",
+          "network": "none"
+        }
+      },
+      "cleanup": [
+        {
+          "container": "d4b5ad87194a778c6a2135c517fd2f4c37a2cc7dd8ba982295fe6d1e65e5ba14",
+          "removed": true
+        },
+        {
+          "container": "8d4dd6f657b35bb351496adccef76a928975d4742ba6121b78ef38e3d0093d91",
+          "removed": true
+        }
+      ],
+      "build_dockerfile_sha256": "a0ba9d6427d01b190c0e9466209d61c5cb8418e71b628172790cbe9f6f70b945",
+      "verifier_image_id": "sha256:987295c270924a554b840429b76538e0ace7e9732a9719841fb1f1955cddcc2f",
+      "parser_lock_captured": true,
+      "elapsed_seconds": 119.21,
+      "artifact_sha256": {
+        "parser.py.lock": "edd64df17ba35c346acc1989148c4ada7d42534610a48774bb828b10ae4a7355",
+        "build.log": "c83b7dc9f17caa9b4858c36e58197e85b413c7c589ee5ba6be47e56a0718e74f",
+        "unmodified/report.json": "6133c1ed012b0506be82b94a0b61765f3dd08370e7d710888e3ed1624cecc22e",
+        "unmodified/verifier.log": "1a6c5a95263d609c9948ced4dfa684fbe97b770680dc9d702b94d97960cdd40b",
+        "unmodified/reward.txt": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+        "oracle/report.json": "56402b17c3bb8e503d95ff726267d101362b2027b4d3f4552bb5e24f3abe2372",
+        "oracle/verifier.log": "22fd36deb33cbdeb17538978b4b09452567ef944bdbba1f900a04795fd13f78d",
+        "oracle/oracle.log": "50c4bcbe616f6149017aefe0fdbe4bdb0bd94dc53bf8faad6f76783c9be38f91",
+        "oracle/reward.txt": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+        "build/Dockerfile": "a0ba9d6427d01b190c0e9466209d61c5cb8418e71b628172790cbe9f6f70b945",
+        "build/parser.py": "de1edf8b7a48bf4a83dbe084cee7dd3cfae998f8992ce4def34e22b90305f2e2"
+      }
+    }
+  ]
+}

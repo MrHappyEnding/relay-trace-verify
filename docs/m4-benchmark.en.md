@@ -3,9 +3,11 @@
 [![中文](assets/lang-zh.svg)](m4-benchmark.md) [![English](assets/lang-en.svg)](m4-benchmark.en.md)
 
 **Status: frozen task selection, statistical protocol and offline analysis are implemented;
-real-container verifier controls pass for one development task.** The [repaired real-model pilot](m4-model-pilot.en.md) has four graded branches on one task, without a formal evaluation conclusion. Subsequent [cluster repository work](m4-repository-cluster.en.md) verifies scripted
+real-container verifier controls pass for all four development tasks.** The [repaired real-model pilot](m4-model-pilot.en.md) has four graded branches on one task, without a formal evaluation conclusion. Subsequent [cluster repository work](m4-repository-cluster.en.md) verifies scripted
 relay and recovery. This stage makes zero API calls
 and provisions no cloud resources. M4 as a whole remains in progress.
+
+All four development verifier environments now pass. The new [tool-prefix protocol](m4-tool-prefix.en.md) has its own identity and reuses identical task environments. The natural-turn protocol below remains the historical baseline.
 
 ## Sources and frozen identity
 

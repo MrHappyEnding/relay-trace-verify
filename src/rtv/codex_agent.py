@@ -7,7 +7,7 @@ is version-bound; semantic handoff deliberately does not import that state.
 import json
 import os
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Any
 from uuid import UUID
@@ -34,6 +34,7 @@ class TurnResult:
     rollout: Path
     usage: dict[str, int] | None
     session_usage: dict[str, int] | None = None
+    prefix_boundary: dict[str, Any] | None = None
 
 
 def session_usage(path: Path) -> dict[str, int] | None:
@@ -152,13 +153,44 @@ class HarborCodexAdapter:
         self.workspace = workspace
 
     async def execute(
-        self, env: Any, instruction: str, *, native: Path | None = None, atif: Path | None = None
+        self,
+        env: Any,
+        instruction: str,
+        *,
+        native: Path | None = None,
+        atif: Path | None = None,
+        tool_prefix: dict | None = None,
     ) -> TurnResult:
         from harbor.agents.installed.codex import Codex
         from harbor.models.agent.context import AgentContext
 
         if native is not None and atif is not None:
             raise ValueError("Choose either native recovery or ATIF import")
+        config = {"forced_login_method": "chatgpt", "features": {"multi_agent": False}}
+        hook_options = {}
+        if tool_prefix is not None:
+            from rtv import codex_gate
+
+            codex_gate.policy(tool_prefix)
+            if native is not None or atif is not None or self.workspace != "/testbed":
+                raise ValueError("Tool-prefix gate requires a fresh repository Codex turn")
+            logs = env.trial_paths.agent_dir
+            logs.mkdir(parents=True, exist_ok=True)
+            receipt = logs / "tool-gate.json"
+            with receipt.open("x") as stream:
+                json.dump(codex_gate.initial(tool_prefix), stream)
+            await env.upload_file(Path(codex_gate.__file__), codex_gate.REMOTE_SCRIPT)
+            await env.upload_file(receipt, codex_gate.REMOTE_STATE)
+            config["hooks"] = codex_gate.hook_config()
+            # Only our vetted, uploaded hook in this disposable sandbox. Host trust is untouched.
+            hook_options["dangerously_bypass_hook_trust"] = True
+            instruction += (
+                f"\nRTV prefix allowance: at most {tool_prefix['max_tools']} Bash/apply_patch "
+                "tool admissions. Use only shell and apply_patch tools (write_stdin may finish "
+                "an existing shell). Do not background/detach commands or change RTV hooks. "
+                "When the allowance is reached, finish this turn with changes, public test "
+                "results and remaining work. You may finish earlier; do not introduce a defect."
+            )
         expected_atif_id = None
         if atif is not None:
             if self.workspace != "/workspace":
@@ -175,18 +207,33 @@ class HarborCodexAdapter:
             model_name=self.model,
             version=CODEX_VERSION,
             extra_env={"CODEX_AUTH_JSON_PATH": str(self.auth_file)},
-            config={"forced_login_method": "chatgpt", "features": {"multi_agent": False}},
+            config=config,
             reasoning_effort="low",
             web_search="disabled",
             load_trajectory=native or atif,
+            **hook_options,
         )
         # Never let Harbor's generic installer silently replace this pinned image.
         version = await env.exec(command="codex --version", timeout_sec=15)
         if version.return_code or (version.stdout or "").strip() != f"codex-cli {CODEX_VERSION}":
             raise ValueError("Container has the wrong Codex CLI version")
+
+        async def processes():
+            observed = await env.exec(
+                command="python " + codex_gate.REMOTE_SCRIPT + " --processes", timeout_sec=15
+            )
+            if observed.return_code:
+                raise ValueError("Cannot verify tool-prefix process boundary")
+            return json.loads(observed.stdout)
+
+        before = await processes() if tool_prefix is not None else None
         action = agent.load if native is not None or atif is not None else agent.run
         await action(instruction, env, AgentContext())
         result = read_turn(env.trial_paths.agent_dir, native=native, workspace=self.workspace)
+        if tool_prefix is not None:
+            codex_gate.check_processes(before, await processes())
+            await env.download_file(codex_gate.REMOTE_STATE, receipt)
+            result = replace(result, prefix_boundary=codex_gate.audit(receipt, result, tool_prefix))
         if expected_atif_id is not None and result.session_id != expected_atif_id:
             raise ValueError("ATIF import did not select the prepared semantic session")
         return result

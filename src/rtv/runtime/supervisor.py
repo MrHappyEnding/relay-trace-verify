@@ -163,6 +163,11 @@ async def execute(settings, row, output):
 
     context_input = load_context(settings, row)
     prompt = tasks.prompt(spec, partial)
+    if native is not None and cp["context"]["result"].get("prefix_boundary"):
+        prompt += (
+            "\nThis is a new continuation stage. The previous prefix's tool allowance has "
+            "ended; its stop instruction no longer applies. Use this stage to finish the task."
+        )
     if context_input["text"]:
         prompt += "\n\n" + context_input["text"]
     store.event(
@@ -171,8 +176,11 @@ async def execute(settings, row, output):
         {"policy": context_input["policy"], "text_bytes": len(context_input["text"].encode())},
     )
     if adapter:
+        prefix_options = {}
+        if partial and spec.get("prefix_policy") is not None:
+            prefix_options["tool_prefix"] = spec["prefix_policy"]
         turn = await bounded_turn(
-            adapter.execute(env, prompt, native=native),
+            adapter.execute(env, prompt, native=native, **prefix_options),
             spec.get("agent_seconds", spec["ttl_seconds"]),
         )
         result.update(
@@ -181,6 +189,9 @@ async def execute(settings, row, output):
             session_id=turn.session_id,
             session_usage=turn.session_usage,
         )
+        if turn.prefix_boundary is not None:
+            result["prefix_boundary"] = turn.prefix_boundary
+            store.event(row, "prefix.yielded", turn.prefix_boundary)
     elif spec["adapter"] in {"mini", "mini-fixture"}:
         from rtv.mini_agent import execute_mini
 
@@ -245,6 +256,8 @@ async def execute(settings, row, output):
     if turn:
         (bundle / "native").mkdir()
         shutil.copy2(turn.rollout, bundle / "native" / turn.rollout.name)
+        if turn.prefix_boundary is not None:
+            shutil.copy2(env.trial_paths.agent_dir / "tool-gate.json", bundle / "tool-gate.json")
         atomic_json(
             bundle / "session.json",
             {
@@ -268,6 +281,8 @@ async def execute(settings, row, output):
         else "succeeded"
     )
     result["reason"] = "stage_complete" if partial else "verified"
+    if partial and turn and turn.prefix_boundary is not None:
+        result["reason"] = "prefix_" + turn.prefix_boundary["trigger"]
     if not skip_verifier and result["rewards"] != expected:
         result.update(status="failed", reason="verification_failed")
     if mini and mini.exit_status != "Submitted":

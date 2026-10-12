@@ -196,3 +196,41 @@ def test_collector_rejects_policy_label_without_matching_transfer(tmp_path):
     store.events = lambda tid: []
     with pytest.raises(ValueError, match="context policy"):
         collect(protocol, run, store, tmp_path / "out")
+
+
+def test_tool_prefix_has_new_protocol_identity_and_is_source_only(tmp_path):
+    from rtv.benchmark.protocol import DEFAULT_PLAN
+    from rtv.cluster.credentials import validate_model_spec
+    from rtv.codex_agent import DEFAULT_MODEL
+
+    baseline, old = pair(tmp_path)
+    protocol = load(DEFAULT_PLAN.with_name("swebench-verified-tool-prefix-v1.json"))
+    assert protocol["protocol_sha256"] != baseline["protocol_sha256"]
+    assert protocol["tasks"] == baseline["tasks"]
+    spec = {k: v for k, v in old["source"]["spec"].items() if not k.startswith("scripted_")}
+    spec.update(adapter="codex", model=DEFAULT_MODEL, isolated_verifier=True)
+    run = prepare_pair(protocol, spec, tmp_path / "gated", mode="real-model")
+    validate_run(protocol, run)
+    assert run["source"]["spec"]["prefix_policy"]["max_tools"] == 6
+    for entry in run["entries"]:
+        assert "prefix_policy" not in entry["spec"]
+        validate_model_spec(entry["spec"])
+    validate_model_spec(run["source"]["spec"])
+    changed = deepcopy(run)
+    changed["source"]["spec"]["prefix_policy"]["max_tools"] = 7
+    with pytest.raises(ValueError, match="prefix policy"):
+        validate_run(protocol, changed)
+    with pytest.raises(ValueError, match="prefix policy"):
+        prepare_pair(baseline, run["source"]["spec"], tmp_path / "wrong", mode="real-model")
+
+
+def test_tool_prefix_cannot_reuse_preflight_after_task_change():
+    from rtv.benchmark.protocol import DEFAULT_PLAN, validate
+
+    protocol = load(DEFAULT_PLAN.with_name("swebench-verified-tool-prefix-v1.json"))
+    protocol["tasks"][0]["base_commit"] = "a" * 40
+    protocol["protocol_sha256"] = digest(
+        {k: v for k, v in protocol.items() if k != "protocol_sha256"}
+    )
+    with pytest.raises(ValueError, match="environment lineage"):
+        validate(protocol)

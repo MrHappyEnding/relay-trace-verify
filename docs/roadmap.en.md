@@ -77,6 +77,7 @@ Accepted within the local scope: [M2 guide](m2.en.md), 40 runtime/protocol check
 - [x] Kubernetes delivery, scripted relay, cross-node recovery and observation linkage for the first real repository; no real-model result yet.
 - [x] Run-bound model credentials, 17 real-cluster fake-credential checks and the real pilot launcher; retain the failed first attempt.
 - [x] Four real-model branches on one development repository: the third run passes 13 checks with 160 KB inputs and four solved branches, covering native continuation, handoff and isolated grading.
+- [x] Offline controls for all four development environments; tool-prefix and fresh-container native recovery tests without model calls.
 - [ ] Run real-model experiments and system fault experiments; produce raw artifacts and reports.
 - [ ] Document deployment steps, operating costs, known limitations, and the full demonstration.
 
@@ -84,12 +85,12 @@ Accepted within the local scope: [M2 guide](m2.en.md), 40 runtime/protocol check
 
 Phase-one deployment, real-service faults, zero-model cost and reporting boundaries are in the [M4 guide](m4.en.md). Multiple local k3d nodes do not establish multi-physical-host HA; checked items apply only to this scope.
 Four development and twenty evaluation SWE-bench Verified tasks are frozen. Paired analysis and
-offline positive/negative verifier controls for the first development task pass; see the
+offline positive/negative verifier controls for all four development tasks pass; see the
 [task/statistics protocol](m4-benchmark.en.md). The repaired real pilot has four graded branches; see the [attempt record](m4-model-pilot.en.md). Functional acceptance on one task does not complete M4.
 
 ## Later candidates
 
-Tool-boundary checkpoints, more agents, trajectory judges calibrated against labeled examples, training-segment selection, and learned handoff policies. These do not block M0–M4.
+Broader tool coverage and time-triggered checkpoints, more agents, trajectory judges calibrated against labeled examples, training-segment selection, and learned handoff policies. These do not block M0–M4.
 
 ## Decisions to resolve before implementation
 
@@ -102,4 +103,4 @@ Tool-boundary checkpoints, more agents, trajectory judges calibrated against lab
 | Control language | Python | Harbor integration cost and typed contracts |
 | First execution backend | Local containers | Validate the protocol before distributed faults |
 
-Local real-repository checkpoints, independent restoration, verifier isolation and scripted branches pass [26 checks](m4-repositories.en.md). Kubernetes task delivery, resources, AMD64 execution and statistical linkage are covered in [cluster repository integration](m4-repository-cluster.en.md). The [credential path and launcher](m4-model-pilot.en.md) pass real-model workflow acceptance on one task. Three attempts record $0.11725620 in API usage under a $20 cumulative budget; the 160 KB third run grades all four branches solved. Continuations retained an existing prefix repair, so relay effectiveness is not established. Next: zero-model preflights for the other three development environments and a development comparison with unfinished prefix work, followed by formal evaluation and real-model fault experiments.
+Local real-repository checkpoints, independent restoration, verifier isolation and scripted branches pass [26 checks](m4-repositories.en.md). Kubernetes task delivery, resources, AMD64 execution and statistical linkage are covered in [cluster repository integration](m4-repository-cluster.en.md). The [credential path and launcher](m4-model-pilot.en.md) pass real-model workflow acceptance on one task. Three attempts record $0.11725620 in API usage under a $20 cumulative budget; the 160 KB third run grades all four branches solved. Continuations retained an existing prefix repair, so relay effectiveness is not established. All four development environments now pass preflight; the [tool-prefix policy](m4-tool-prefix.en.md) passes zero-model recovery tests. Next: build a runner containing the new code, run development comparisons and inspect remaining work at handoff, then freeze the final policy before formal evaluation and real-model fault experiments.
