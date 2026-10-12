@@ -154,4 +154,4 @@ The local runtime now supports declared `/testbed` tasks, checkpoint export, iso
 hidden-test separation, a 600-second verifier and a 16-request fresh entry point; see
 [repository integration](m4-repositories.en.md). Evidence uses scripted/reference controls, not real
 model sessions. Kubernetes resources, AMD64 execution, task delivery and observation linkage are covered
-in [cluster repository integration](m4-repository-cluster.en.md). The [credential path and pilot](m4-model-pilot.en.md) now pass real workflow acceptance on one task. The failed first attempt and explicitly approved second attempt remain separate. Other development environment preflights, unfinished-prefix comparisons and formal evaluation remain pending.
+in [cluster repository integration](m4-repository-cluster.en.md). The [credential path and pilot](m4-model-pilot.en.md) now pass real workflow acceptance on one task. The failed first attempt, repaired second attempt and 160 KB third attempt remain separate; the third grades all four branches solved. Other development environment preflights, unfinished-prefix comparisons and formal evaluation remain pending.

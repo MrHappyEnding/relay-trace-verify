@@ -19,10 +19,11 @@ task delivery, four-branch observation linkage and recovery on another node afte
 This covers scripted controls on one development repository only.
 
 [Model credentials and the pilot launcher](docs/m4-model-pilot.en.md) are implemented: 17 fake-credential
-checks pass across both nodes. The first failure is retained; the repaired second run passes 13 real-model
-workflow checks, with three solved continuation/handoff branches and one unsolved fresh baseline.
-Continuations retained the prefix patch, so rescue of an unfinished repair is not established. Both
-attempts share $8; 19 API requests total $0.04215240, with unknown subscription cost. See the guide for scope.
+checks pass across both nodes. Prior results are retained; the third run raises input to 160 KB, passes
+13 real-model workflow checks and grades all four branches solved. B-workspace exhausted its eight
+requests but passed independent grading; there were no input-limit stops. Three attempts total 45 API
+requests and $0.11725620 under the increased $20 cumulative budget, with unknown subscription cost.
+The prefix already had the core repair; unfinished-work rescue or relay advantage is not established.
 
 RTV supports learning through reproduction, system implementation, and original exploration. Existing approaches remain learning material and comparison baselines; see the [learning and resource plan](docs/learning-plan.en.md) for sources and scope. No model-performance advantage or multi-physical-host reliability claim has been established.
 

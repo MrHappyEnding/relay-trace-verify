@@ -76,7 +76,7 @@ Accepted within the local scope: [M2 guide](m2.en.md), 40 runtime/protocol check
 - [x] Freeze tasks, execution caps, exclusions and statistics; revalidate and approve API reservations before paid execution.
 - [x] Kubernetes delivery, scripted relay, cross-node recovery and observation linkage for the first real repository; no real-model result yet.
 - [x] Run-bound model credentials, 17 real-cluster fake-credential checks and the real pilot launcher; retain the failed first attempt.
-- [x] Four real-model branches on one development repository: 13 checks pass for native continuation, handoff and isolated grading.
+- [x] Four real-model branches on one development repository: the third run passes 13 checks with 160 KB inputs and four solved branches, covering native continuation, handoff and isolated grading.
 - [ ] Run real-model experiments and system fault experiments; produce raw artifacts and reports.
 - [ ] Document deployment steps, operating costs, known limitations, and the full demonstration.
 
@@ -102,4 +102,4 @@ Tool-boundary checkpoints, more agents, trajectory judges calibrated against lab
 | Control language | Python | Harbor integration cost and typed contracts |
 | First execution backend | Local containers | Validate the protocol before distributed faults |
 
-Local real-repository checkpoints, independent restoration, verifier isolation and scripted branches pass [26 checks](m4-repositories.en.md). Kubernetes task delivery, resources, AMD64 execution and statistical linkage are covered in [cluster repository integration](m4-repository-cluster.en.md). The [credential path and launcher](m4-model-pilot.en.md) pass real-model workflow acceptance on one task. Both attempts record $0.04215240 in API usage. Continuations retained an existing prefix repair, so relay effectiveness is not established. Next: zero-model preflights for the other three development environments and a development comparison with unfinished prefix work, followed by formal evaluation and real-model fault experiments.
+Local real-repository checkpoints, independent restoration, verifier isolation and scripted branches pass [26 checks](m4-repositories.en.md). Kubernetes task delivery, resources, AMD64 execution and statistical linkage are covered in [cluster repository integration](m4-repository-cluster.en.md). The [credential path and launcher](m4-model-pilot.en.md) pass real-model workflow acceptance on one task. Three attempts record $0.11725620 in API usage under a $20 cumulative budget; the 160 KB third run grades all four branches solved. Continuations retained an existing prefix repair, so relay effectiveness is not established. Next: zero-model preflights for the other three development environments and a development comparison with unfinished prefix work, followed by formal evaluation and real-model fault experiments.

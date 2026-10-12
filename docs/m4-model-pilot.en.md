@@ -2,28 +2,54 @@
 
 [![中文](assets/lang-zh.svg)](m4-model-pilot.md) [![English](assets/lang-en.svg)](m4-model-pilot.en.md)
 
-## 160 KB input policy (third run preparation)
+## Third run: 160 KB inputs, all four branches solved
 
-The owner increased the cumulative API budget for this stage from $8 to **$20**, including
-both previous attempts. The next run uses `mini-160kb-v1`: 160,000 input bytes, 4,096 output
-tokens, $0.16 reserved per request, and at most 32 requests, for a **$5.12** run allowance.
-Previous reservations are $1.178, so the full next allowance would total $6.298. Previous
-known API cost is $0.04215240; reservations are not actual charges. Explicit execution
-opt-ins remain required, with no automatic rerun.
+The owner increased this stage's cumulative API budget from $8 to **$20**, including both prior
+attempts. One run with frozen `mini-160kb-v1` settings completed in 615.34 seconds and passed
+**13 real-model workflow checks**. See the [third-run evidence](evidence/m4-real-pilot-3-arm64-20261012.json).
+Formal evaluation and M4 as a whole remain incomplete.
 
-This revises the transport envelope while retaining models, task, sampling protocol, time
-limits, and branch order. The sampling protocol's $0.062 is the original planning estimate;
-the frozen spec's `api_envelope`, run SHA, preparation file, and credential admission bind
-the actual allowance. Historical specs without a policy retain `mini-40kb-v1` (40,000 bytes /
-$0.062), including M3 defaults, and reconstruct unchanged. Per-run admission and the $20
-cumulative stage budget are checked separately.
+| Branch | Agent exit | Independent grading | API requests | Maximum sent input | Run API USD |
+| --- | --- | --- | ---: | ---: | ---: |
+| A-continue | Native session completed, same session ID | solved / 1 | 0 | N/A | Subscription cost unknown |
+| B-workspace | `LimitsExceeded`, all 8 requests used | solved / 1 | 8 | 59,482 bytes | 0.02299590 |
+| B-summary | `Submitted` | solved / 1 | 8 | 45,342 bytes | 0.01889490 |
+| B-fresh | `Submitted` | solved / 1 | 10 | 69,052 bytes | 0.03321300 |
 
-Model-free validation: 192 unit/mocked tests passed, with one real-container test requiring
-explicit opt-in; Python 3.11 core tests passed 108 with 54 optional-dependency skips. Tests
-cover sending a 45 KB input, stopping before a request/reservation above 160 KB, and rejecting
-a lower reservation grant for the larger spec. The third real run is still pending.
+Ten of the 26 API requests exceeded the old 40 KB cap, with no input-limit stops. B-workspace keeps
+its `failed / agent_limit_or_error` runtime state while the independent verifier grades its code as
+solved. Request exhaustion and code correctness are separate outcomes. B-fresh changed from unsolved
+in the previous attempt to submitted and solved here; the larger envelope allowed this execution to
+continue, but stochastic reruns on one task do not establish a success-rate improvement.
 
-**Status: the repaired second run passes 13 real-model workflow checks.** One SWE-bench development
+This run's known API cost is **$0.07510380**. All three attempts total 45 requests and **$0.11725620**,
+with no UNKNOWN API receipts. At $0.16 reserved per request, this run admitted at most 32 requests
+under $5.12 and actually reserved $4.16. Cumulative non-reusable request reservations are **$5.338**,
+leaving **$14.662** of the $20 stage budget by that conservative measure. Reservations are not charges;
+Codex subscription dollars remain unknown. No GPUs or cloud resources were used.
+
+The prefix already contained the core repair. A-continue kept its tracked patch and passed grading;
+both mini continuation branches preserved the repaired source file and added tests. Rescue of
+unfinished work is not demonstrated. Three attempts still represent one independent task; this run
+has four of the 16 planned development observations, with no confidence interval or relay advantage
+claim. Launcher cleanup cancels the source Trial; its immutable checkpoint retains `sealed` and the
+absence of hidden prefix verification.
+
+The new policy allows 160,000 input bytes and 4,096 output tokens, retaining models, sampling protocol,
+task, and time limits. The sampling protocol's $0.062 remains the original planning estimate; the
+spec's `api_envelope`, run SHA, preparation file and credential admission bind this run's actual
+allowance. Historical specs without a policy reconstruct as `mini-40kb-v1` (40,000 bytes / $0.062),
+including unchanged M3 defaults. Run allowance and the $20 cumulative budget are checked separately;
+there is no automatic rerun.
+
+Model-free checks: 192 unit/mocked tests passed, one real-container test requires opt-in; Python 3.11
+core tests passed 108 with 54 optional-dependency skips. All 52 runner Python files matched and 17
+two-node fake-credential checks passed. After the real run, Jobs, Pods, Secrets and allocations were
+cleaned up, with three Ready nodes. Scanning 47,675 artifact files found no original API key or
+authentication token values; nine local native-rollout copies contain account identifier metadata.
+They remain in ignored `work/`; raw histories and credential values are not committed.
+
+**Historical record: the repaired second run passes 13 real-model workflow checks.** One SWE-bench development
 task completed checkpointing, cross-agent handoff, native Codex continuation and independent grading
 of four branches. M4 and formal effectiveness evaluation remain incomplete. This attempt made 13 API
 requests for $0.02641425; both attempts total 19 requests and **$0.04215240** under the same $8 budget.
@@ -140,7 +166,7 @@ namespace credentials.
 
 ## Frozen experiment and cost
 
-Both runs cover only `sympy__sympy-22914`, preserving the existing protocol, images, hidden-test
+All three runs cover only `sympy__sympy-22914`, preserving the existing protocol, images, hidden-test
 separation and four-arm order. Agents receive the public issue and selected handoff context, without
 scripted repairs or the reference solution. Preparation does not access real credentials.
 
@@ -160,10 +186,10 @@ and prefix accounting. Incomplete verification is not a graded outcome. An hones
 result remains an observation; the launcher does not retry until the repair succeeds.
 
 The [official OpenAI pricing](https://developers.openai.com/api/docs/models/gpt-5.4-mini), checked on
-2026-10-12, lists $0.75 input, $0.075 cached input and $4.50 output per million tokens. This transport
-allows 40,000 input bytes and 4,096 output tokens per request, reserving a non-reusable $0.062.
-Each run allows up to 32 requests reserving **$1.984**. Both attempts share the owner's **$8 total
-API budget** and leave the remaining budget unused. This is local
+2026-10-12, lists $0.75 input, $0.075 cached input and $4.50 output per million tokens. The first two
+attempts used 40,000 bytes / $0.062, reserving up to **$1.984** per run under the then-current $8
+stage budget. The third explicitly selects 160,000 bytes / $0.16, reserving up to **$5.12** per run;
+the cumulative budget is now **$20**. Output remains capped at 4,096 tokens. This is local
 admission accounting, not a provider invoice guarantee. Two Codex stages additionally consume
 existing subscription allowance; their dollar cost stays unknown rather than free. No cloud
 resources are provisioned. Authentication follows the
@@ -180,17 +206,18 @@ port-forward and Temporal service running. Package and runtime paths must be on 
 ```bash
 # No model calls or credentials: freeze a plan using fresh plan and runtime paths.
 .venv/bin/python scripts/m4_model_pilot.py prepare \
-  --config work/m4-data/model-repository-package-1/config-limits-v1.json \
+  --config work/m4-data/model-repository-package-1/config-160kb-v1.json \
   --contract work/m4-data/model-repository-package-1/contract.json \
   --root work/m4-data/real-model-pilot-next \
-  --output work/m4-control/model-pilot-next.json
+  --output work/m4-control/model-pilot-next.json \
+  --api-envelope mini-160kb-v1
 
 # Only after owner approval. Credentials must be private regular files outside the shared volume.
 .venv/bin/python scripts/m4_model_pilot.py run \
   --prepared work/m4-control/model-pilot-next.json \
   --auth-file "$HOME/.codex/auth.json" \
   --api-key-file work/openai-api-key.txt \
-  --allow-model-calls --allow-api-calls --approved-budget-usd 2
+  --allow-model-calls --allow-api-calls --approved-budget-usd 5.12
 ```
 
 Execution exports `run.json`, ledgers, observations and checks, then cleans up owned Jobs, Pods and
@@ -203,9 +230,9 @@ client import, log leakage and cleanup. It does not run the production superviso
 first attempt encountered the Kubernetes Python client's JSON-log-to-dictionary-to-string conversion;
 reading raw log bytes fixed it. That failed attempt is retained.
 
-`model-pilot-prepared-3.json` has completed; do not reuse its runtime root. Next, prioritize zero-model
+`model-pilot-prepared-4.json` has completed; do not reuse its runtime root. Next, prioritize zero-model
 preflights for the other three development environments and design a comparison with unfinished work
 at the prefix boundary. Freeze a new protocol before changing stage budgets or context policies;
 never edit past records. The evaluation set, real-model fault experiments and full report remain
-outstanding. Review remaining authorization before future paid runs; a third attempt is not started
+outstanding. Review remaining authorization before future paid runs; a fourth attempt is not started
 automatically.

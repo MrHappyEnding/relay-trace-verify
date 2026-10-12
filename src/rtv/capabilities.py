@@ -109,10 +109,10 @@ def capability_report() -> dict:
             "credential_projection_verified": "fake credentials on both local nodes; 17 checks",
             "real_cluster_model_verified": True,
             "real_model_pilot": (
-                "second attempt passes 13 workflow checks on sympy__sympy-22914; "
-                "three solved and one unsolved branch, no strategy-advantage claim"
+                "third attempt passes 13 workflow checks on sympy__sympy-22914; "
+                "160 KB inputs, four solved branches, no strategy-advantage claim"
             ),
-            "real_model_evidence": "docs/evidence/m4-real-pilot-2-arm64-20261012.json",
+            "real_model_evidence": "docs/evidence/m4-real-pilot-3-arm64-20261012.json",
             "credential_evidence": "docs/evidence/m4-credentials-arm64-20261012.json",
             "security_scope": "trusted local experiments; privileged outer DinD Pod",
             "storage": "shared local bind volume; no host-loss or storage-HA claim",
@@ -131,6 +131,11 @@ def capability_report() -> dict:
             "portable_context": "text projection, not native tool-history import",
             "transport": "host-side Responses API; credentials not mounted into sandbox",
             "request_limits": {"calls": 8, "input_bytes": 40000, "max_output_tokens": 4096},
+            "repository_input_envelopes": {
+                "default": "mini-40kb-v1: 40000 bytes, $0.062 per request",
+                "opt_in": "mini-160kb-v1: 160000 bytes, $0.16 per request",
+                "binding": "immutable trial spec, run SHA and credential admission",
+            },
             "budget": "non-reusable $0.062 reservation per request, $0.50 per branch; no retries",
             "strict_budget_admission": False,
             "budget_scope": "pinned transport reservation; not a provider invoice guarantee",
@@ -148,11 +153,13 @@ def capability_report() -> dict:
             "kubernetes_repository_controls_verified": True,
             "runtime_observation_linkage": (
                 "one oracle pair; failed first real attempt retained separately; "
-                "second real attempt has four graded observations on one development task"
+                "third attempt has four solved observations on one development task; "
+                "B-workspace exhausted its request allowance but passed independent grading"
             ),
             "paid_experiment_authorized": False,
             "authorization_scope": (
-                "no standing execution permission; two approved attempts share one $8 budget"
+                "no standing execution permission; third attempt authorized under a $20 "
+                "cumulative M4 budget including both earlier attempts"
             ),
             "repository_runtime": {
                 "scope": "one local Docker/Kubernetes SWE-bench pilot; scripted/oracle controls, "
@@ -173,6 +180,7 @@ def capability_report() -> dict:
                 "docs/evidence/m4-repository-cluster-arm64-20261012.json",
                 "docs/evidence/m4-real-pilot-1-arm64-20261012.json",
                 "docs/evidence/m4-real-pilot-2-arm64-20261012.json",
+                "docs/evidence/m4-real-pilot-3-arm64-20261012.json",
             ],
         },
         "relay": {
@@ -184,12 +192,13 @@ def capability_report() -> dict:
             "verified_scope": "Codex-to-mini workspace/summary/text projection on one fixed task",
             "repository_scope": (
                 "workspace/summary handoff on one SWE-bench development task; "
-                "continuations retained the prefix tracked patch, no unfinished-repair rescue"
+                "continuations retained the prefix core repair, no unfinished-repair rescue"
             ),
             "evidence": [
                 "docs/evidence/m3-runtime-arm64-20261009.json",
                 "docs/evidence/m3-real-arm64-20261009.json",
                 "docs/evidence/m4-real-pilot-2-arm64-20261012.json",
+                "docs/evidence/m4-real-pilot-3-arm64-20261012.json",
             ],
         },
         "not_verified": [

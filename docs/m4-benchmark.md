@@ -133,4 +133,4 @@ CLI 默认配置面向本仓库 checkout；安装 wheel 后应显式传配置与
 任务感知的本机 runtime 已接入 `/testbed`，完成真实仓库 checkpoint 导出、独立恢复、
 隐藏测试隔离、600 秒 verifier 和 16 请求 fresh 入口；见[真实仓库接入](m4-repositories.md)。
 本节证据为脚本/参考解控制；后续真实模型会话验收见 pilot 指南。Kubernetes 资源、AMD64 执行、材料交付
-及统计关联见[集群仓库接入](m4-repository-cluster.md)。[凭据通道与 pilot 启动器](m4-model-pilot.md)已完成一个任务的真实流程验收；首轮失败与获批后的第二轮结果独立保存。剩余工作为其余 3 个开发环境预检、未完成前缀的开发对照和正式评测。
+及统计关联见[集群仓库接入](m4-repository-cluster.md)。[凭据通道与 pilot 启动器](m4-model-pilot.md)已完成一个任务的真实流程验收；首轮失败、第二轮以及 160 KB 配置的第三轮结果独立保存，第三轮四分支均 solved。剩余工作为其余 3 个开发环境预检、未完成前缀的开发对照和正式评测。

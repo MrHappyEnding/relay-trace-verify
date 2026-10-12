@@ -2,23 +2,46 @@
 
 [![中文](assets/lang-zh.svg)](m4-model-pilot.md) [![English](assets/lang-en.svg)](m4-model-pilot.en.md)
 
-## 160 KB 输入配置（第三轮准备）
+## 第三轮：输入提高到 160 KB，四个分支均 solved
 
-所有者已将本阶段累计 API 预算从 $8 提高到 **$20**，包括前两轮。新一轮采用
-`mini-160kb-v1`：160,000 输入字节、4,096 输出 token、每请求预约 $0.16，最多 32 请求，
-本轮准入额度 **$5.12**。前两轮预约 $1.178，本轮按满额计算累计 $6.298；历史已知费用
-$0.04215240，预约不是实付金额。执行仍需明确 opt-in，不自动重跑。
+所有者将本阶段累计 API 预算从 $8 提高到 **$20**，包括前两轮。使用冻结的
+`mini-160kb-v1` 配置运行一次，615.34 秒完成，**13 项真实模型流程检查通过**。
+见[第三轮证据](evidence/m4-real-pilot-3-arm64-20261012.json)。正式评测与整个 M4 仍未完成。
 
-这是传输额度修订，不更换模型、任务、采样协议、时间限制或分支顺序。采样协议中的
-$0.062 是原计划估算；实际额度由冻结 spec 的 `api_envelope`、run SHA、准备文件及凭据
-授权共同绑定。未声明配置的历史实验仍用 `mini-40kb-v1`（40,000 字节 / $0.062），
-M3 默认值不变；旧实验可按原值重建。每轮准入额度与 $20 累计预算分别核对。
+| 分支 | Agent 退出情况 | 独立判分 | API 请求 | 最大已发送输入 | 本轮 API 美元 |
+| --- | --- | --- | ---: | ---: | ---: |
+| A-continue | 原生会话正常完成，session ID 保持 | solved / 1 | 0 | 不适用 | 订阅成本未知 |
+| B-workspace | `LimitsExceeded`，8 次请求用完 | solved / 1 | 8 | 59,482 字节 | 0.02299590 |
+| B-summary | `Submitted` | solved / 1 | 8 | 45,342 字节 | 0.01889490 |
+| B-fresh | `Submitted` | solved / 1 | 10 | 69,052 字节 | 0.03321300 |
+
+26 次 API 请求中有 10 次超过旧的 40 KB 限制，没有输入超限停止。B-workspace 仍保留
+`failed / agent_limit_or_error` 的运行状态，独立 verifier 按实际代码判为 solved；
+请求次数耗尽和代码正确性分开记录。B-fresh 从上一轮 unsolved 变为本轮正常提交且 solved，
+说明本次扩大额度允许它继续完成；单任务随机重跑不能据此估计成功率提升。
+
+本轮已知 API 费用 **$0.07510380**；三轮累计 45 次请求、**$0.11725620**，无 UNKNOWN API
+回执。每请求预约 $0.16，本轮最多 32 次请求的准入额度为 $5.12，实际占用预约 $4.16。
+累计不可复用的请求预约为 **$5.338**，按此保守口径 $20 中还剩 **$14.662**。
+预约不是实际收费，Codex 订阅美元成本未知；未使用 GPU 或云资源。
+
+公共前缀已包含核心修复。A-continue 的 tracked patch 与前缀相同且通过判分；两个 mini
+继续分支保留同一修复源文件并补充测试，尚未证明接手者救回未完成任务。三轮仍只有
+一个独立任务，4 个开发任务所需 16 条观察中本轮只有 4 条，不展示置信区间或接力优势。
+启动器收尾取消源 Trial；原始 checkpoint 仍记录 `sealed` 和未运行隐藏 verifier。
+
+新配置限制 160,000 输入字节与 4,096 输出 token，不更换模型、采样协议、任务或时限。
+采样协议中的 $0.062 是原计划估算；本轮实际额度由 spec 中的 `api_envelope`、run SHA、
+准备文件和凭据授权共同绑定。未声明配置的历史运行仍按 `mini-40kb-v1`（40,000 字节 /
+$0.062）重建，M3 默认不变。每轮额度与 $20 累计额度分别核对，不自动重跑。
 
 零模型验证：192 项单元/模拟测试通过，1 项真实容器测试需显式启用；Python 3.11
-核心测试 108 项通过、54 项可选依赖测试跳过。测试覆盖 45 KB 输入可发送、160 KB
-超限不发送、不预约，以及扩大额度后无法沿用较低的授权。真实第三轮结果待运行。
+核心测试 108 项通过、54 项可选依赖测试跳过。52 个镜像源码文件匹配，17 项双节点假凭据
+检查通过。真实运行后 Job、Pod、Secret 和资源预约均清理，3 个节点 Ready。
+47,675 个运行产物文件未发现原 API key 或认证 token；9 个本地原生轨迹副本含账号标识
+元数据，保留在忽略的 `work/`，不提交原始轨迹或凭据值。
 
-**状态：修复版第二轮通过 13 项真实模型流程验收。** 一个 SWE-bench 开发任务完成检查点、
+**历史记录：修复版第二轮通过 13 项真实模型流程验收。** 一个 SWE-bench 开发任务完成检查点、
 双 agent 接力、Codex 原会话继续和四分支独立判分；整个 M4 与正式效果评测仍未完成。
 本轮 13 次 API 请求记录 $0.02641425，两轮累计 19 次请求、**$0.04215240**，计入同一 $8 总预算。
 Codex 订阅美元成本未知，没有使用 GPU 或云资源。
@@ -116,7 +139,7 @@ Kubernetes Secret，并把 **name + UID 引用**加入该运行的配置。正�
 
 ## 冻结试验与费用
 
-两轮均只运行 `sympy__sympy-22914`，沿用原有协议、任务镜像、隐藏测试隔离和四分支顺序。
+三轮均只运行 `sympy__sympy-22914`，沿用原有协议、任务镜像、隐藏测试隔离和四分支顺序。
 agent 输入只有公开任务与所选上下文策略，没有脚本修复或参考解。准备命令不接触真实凭据。
 
 | 阶段 | 配置 | 限制 |
@@ -135,8 +158,8 @@ checkpoint 与前缀账本；未完成验证不能当成成功或失败的已评
 
 2026-10-12 查询的 [OpenAI 官方价格](https://developers.openai.com/api/docs/models/gpt-5.4-mini)
 为每百万 token 输入 $0.75、缓存输入 $0.075、输出 $4.50。
-当前 transport 每请求限制 40,000 输入字节与 4,096 输出 token，预约 $0.062，预约不复用；
-每轮最多 32 个请求合计 **$1.984**；两轮共享所有者批准的 **$8 API 总预算**，余额保留。
+前两轮使用 40,000 字节 / $0.062 配置，每轮最多预约 **$1.984**，当时共享 $8 总预算。
+第三轮显式选择 160,000 字节 / $0.16 配置，每轮最多预约 **$5.12**；累计预算已提高到 **$20**。
 这是本地调用准入边界，不是供应商账单保证。
 2 个 Codex 阶段另消耗已有订阅额度；其美元成本保留未知，不标为免费。此轮没有云资源开销。
 认证缓存机制参考 [OpenAI 官方认证说明](https://learn.chatgpt.com/docs/auth)，API transport 和
@@ -151,17 +174,18 @@ Codex adapter 继续复用 M3 的实现；没有升级模型。
 ```bash
 # 零模型、零凭据：冻结待批准的计划；输出与 runtime root 都必须使用新路径。
 .venv/bin/python scripts/m4_model_pilot.py prepare \
-  --config work/m4-data/model-repository-package-1/config-limits-v1.json \
+  --config work/m4-data/model-repository-package-1/config-160kb-v1.json \
   --contract work/m4-data/model-repository-package-1/contract.json \
   --root work/m4-data/real-model-pilot-next \
-  --output work/m4-control/model-pilot-next.json
+  --output work/m4-control/model-pilot-next.json \
+  --api-envelope mini-160kb-v1
 
 # 仅在所有者批准本轮费用之后执行；认证文件为私有普通文件，且在集群共享目录之外。
 .venv/bin/python scripts/m4_model_pilot.py run \
   --prepared work/m4-control/model-pilot-next.json \
   --auth-file "$HOME/.codex/auth.json" \
   --api-key-file work/openai-api-key.txt \
-  --allow-model-calls --allow-api-calls --approved-budget-usd 2
+  --allow-model-calls --allow-api-calls --approved-budget-usd 5.12
 ```
 
 运行会导出 `run.json`、账本及观察记录、检查结果；退出时清理该运行的 Job/Pod/Secret。
@@ -173,7 +197,7 @@ Codex adapter 继续复用 M3 的实现；没有升级模型。
 它不启动正式 supervisor 或模型。首次验收碰到 Kubernetes Python client 将 JSON 日志解码为
 Python 字典再转成字符串的问题；改为读取原始日志字节后通过，失败记录保留。
 
-`model-pilot-prepared-3.json` 已执行完毕，不再复用该运行目录。
+`model-pilot-prepared-4.json` 已执行完毕，不再复用该运行目录。
 下一步优先完成其余 3 个开发环境的零模型预检，并设计能观察“前缀尚未修完”的开发任务对照；
 如需调整阶段预算或上下文策略，先固定新协议，不能修改已有记录。之后仍需正式评测集、
-真实模型故障实验与完整报告。未来付费运行仍须核对剩余授权，不自动启动第三轮。
+真实模型故障实验与完整报告。未来付费运行仍须核对 $20 累计预算中的剩余额度，不自动启动第四轮。
