@@ -153,6 +153,6 @@ Kubernetes. Earlier permission, packaging-commit and exit-code adaptation failur
 The local runtime now supports declared `/testbed` tasks, checkpoint export, isolated restoration,
 hidden-test separation, a 600-second verifier and a 16-request fresh entry point; see
 [repository integration](m4-repositories.en.md). Evidence uses scripted/reference controls, not real
-model sessions. Remaining work includes the Kubernetes 1536 MiB Job quota (tasks declare 4096 MiB),
-AMD64 inner execution, task/credential delivery, statistical linkage and the other three development
-environment preflights. Real-model paired experiments require those checks and budget approval.
+model sessions. Kubernetes resources, AMD64 execution, task delivery and observation linkage are covered
+in [cluster repository integration](m4-repository-cluster.en.md). Credential delivery, the other three
+pilot preflights and real-session compatibility remain pending before budget-approved model experiments.

@@ -21,7 +21,9 @@ async def isolated_verify(task, row, workspace, output):
         "verifier",
         image,
         session_id=sandbox.session(row) + "-verify",
-        environment_type=sandbox.bounded_environment_type(),
+        environment_type=sandbox.bounded_environment_type(
+            startup_timeout_seconds=180 if declared else 60
+        ),
         network_policy=NetworkPolicy(network_mode=NetworkMode.NO_NETWORK),
         platform=declared["platform"] if declared else None,
         workspace=scope,

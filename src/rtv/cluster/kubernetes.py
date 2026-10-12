@@ -19,6 +19,7 @@ def job_manifest(settings, config, row, allocation):
         "RTV_IMAGES_ARCHIVE": config.images_archive,
         "RTV_IMAGES_SHA256": config.images_sha256,
         "RTV_CLUSTER_JOB": "1",
+        "RTV_CLUSTER_POOL": json.dumps(config.frozen(), sort_keys=True),
         "DOCKER_HOST": "unix:///var/run/docker.sock",
     }
     container = {
@@ -30,7 +31,11 @@ def job_manifest(settings, config, row, allocation):
         + [{"name": "RTV_POD_UID", "valueFrom": {"fieldRef": {"fieldPath": "metadata.uid"}}}],
         "securityContext": {"privileged": True},
         "resources": {
-            k: {"cpu": f"{config.cpu_millis}m", "memory": f"{config.memory_mb}Mi"}
+            k: {
+                "cpu": f"{config.cpu_millis}m",
+                "memory": f"{config.memory_mb}Mi",
+                "ephemeral-storage": f"{config.engine_disk_gib + 1}Gi",
+            }
             for k in ("requests", "limits")
         },
         "volumeMounts": [
@@ -80,7 +85,7 @@ def job_manifest(settings, config, row, allocation):
                         "name": "artifacts",
                         "hostPath": {"path": config.shared_path, "type": "Directory"},
                     },
-                    {"name": "engine", "emptyDir": {"sizeLimit": "4Gi"}},
+                    {"name": "engine", "emptyDir": {"sizeLimit": f"{config.engine_disk_gib}Gi"}},
                 ],
             },
         },

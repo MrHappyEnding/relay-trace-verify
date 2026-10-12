@@ -28,7 +28,7 @@ def recover(settings, row, key, *, recovery=True):
     cp = store.checkpoint(checkpoint_id)
     if cp["stage"] >= row["spec"].get("stages", 1):
         raise ValueError("All planned stages already completed")
-    with TemporaryDirectory(dir=settings.root, prefix="recovery-check-") as temporary:
+    with TemporaryDirectory(prefix="rtv-recovery-check-") as temporary:
         checkpoint.validate(settings, cp, Path(temporary) / "bundle")
     store.advance(row, key, recovery=recovery)
     return store.get(row["trial_id"])

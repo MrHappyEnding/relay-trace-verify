@@ -105,9 +105,10 @@ def capability_report() -> dict:
             "cleanup": "UID-conditional deletion; retain reservation until Job and Pods absent",
             "recovery": "fresh Job/epoch/workspace from committed checkpoint, unchanged TTL",
             "model_calls_enabled": False,
-            "security_scope": "trusted local fixtures; privileged outer DinD Pod",
+            "security_scope": "trusted local fixture/oracle controls; privileged outer DinD Pod",
             "storage": "shared local bind volume; no host-loss or storage-HA claim",
             "evidence": "docs/evidence/m4-runtime-arm64-20261011.json",
+            "repository_evidence": "docs/evidence/m4-repository-cluster-arm64-20261012.json",
         },
         "mini": {
             "version": "2.4.6",
@@ -134,9 +135,11 @@ def capability_report() -> dict:
             "verifier_scope": "offline AMD64 Docker controls on an ARM64 host; no agents",
             "real_model_benchmark_verified": False,
             "kubernetes_benchmark_verified": False,
+            "kubernetes_repository_controls_verified": True,
+            "runtime_observation_linkage": "one oracle pilot pair; real-model importer disabled",
             "paid_experiment_authorized": False,
             "repository_runtime": {
-                "scope": "one local SWE-bench pilot; scripted/oracle controls, "
+                "scope": "one local Docker/Kubernetes SWE-bench pilot; scripted/oracle controls, "
                 "no real-model result",
                 "workspace": "/testbed",
                 "checkpoint_manifest": 3,
@@ -150,6 +153,7 @@ def capability_report() -> dict:
                 "docs/evidence/m4-benchmark-preflight-arm64-20261011.json",
                 "docs/evidence/m4-benchmark-protocol-20261011.json",
                 "docs/evidence/m4-repository-runtime-arm64-20261011.json",
+                "docs/evidence/m4-repository-cluster-arm64-20261012.json",
             ],
         },
         "relay": {

@@ -1,6 +1,7 @@
 """One Job, one daemon, one physical execution; never restart an agent turn."""
 
 import hashlib
+import json
 import os
 import signal
 import subprocess
@@ -29,8 +30,10 @@ def main(trial_id, execution_id):
         raise ValueError(
             "M4 development runner is model-free; paid credential delivery is not enabled"
         )
-    if row["spec"].get("task_contract"):
-        raise ValueError("Repository Jobs require validated resources/platform and task delivery")
+    from rtv.cluster.repository import validate_spec
+
+    pool = json.loads(os.environ["RTV_CLUSTER_POOL"])
+    validate_spec(pool, row["spec"])
     archive = Path(os.environ["RTV_IMAGES_ARCHIVE"])
     with archive.open("rb") as stream:
         if hashlib.file_digest(stream, "sha256").hexdigest() != os.environ["RTV_IMAGES_SHA256"]:
@@ -77,9 +80,15 @@ def main(trial_id, execution_id):
         subprocess.run(
             ["docker", "load", "--input", str(archive)],
             check=True,
-            timeout=90,
+            timeout=pool["image_load_seconds"],
             stdout=subprocess.DEVNULL,
         )
+        declared = row["spec"].get("task_contract")
+        if declared:
+            for image in {declared["agent_image_id"], declared["verifier_image_id"]}:
+                info = json.loads(subprocess.check_output(["docker", "image", "inspect", image]))[0]
+                if info["Id"] != image or (info["Os"], info["Architecture"]) != ("linux", "amd64"):
+                    raise ValueError("Loaded repository image does not match its contract")
         with (output / "supervisor.log").open("ab") as log:
             child = subprocess.Popen(
                 [sys.executable, "-m", "rtv.runtime.supervisor", trial_id, execution_id],

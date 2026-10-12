@@ -344,3 +344,55 @@ def test_stage_deadline_cancels_turn_without_mislabeling_internal_timeouts():
 
     with pytest.raises(TimeoutError, match="tool failed"):
         asyncio.run(bounded_turn(internal_timeout(), 1))
+
+
+def test_large_image_startup_timeout_does_not_extend_tool_timeouts(monkeypatch):
+    pytest.importorskip("harbor")
+    from harbor.environments.docker.docker import DockerEnvironment
+
+    from rtv.runtime.sandbox import bounded_environment_type
+
+    timeouts = []
+
+    async def command(self, args, **kwargs):
+        timeouts.append(kwargs["timeout_sec"])
+
+    monkeypatch.setattr(DockerEnvironment, "_run_docker_compose_command", command)
+    cls = bounded_environment_type(startup_timeout_seconds=180)
+    env = cls.__new__(cls)
+    asyncio.run(env._run_docker_compose_command(["up", "-d"]))
+    asyncio.run(env._run_docker_compose_command(["exec", "main", "true"]))
+    asyncio.run(env._run_docker_compose_command(["up"], timeout_sec=20))
+    assert timeouts == [180, 60, 20]
+    with pytest.raises(ValueError):
+        bounded_environment_type(startup_timeout_seconds=301)
+
+
+def test_checkpoint_validation_scratch_is_not_shared_storage(tmp_path, monkeypatch):
+    pytest.importorskip("psycopg")
+    from unittest.mock import Mock
+
+    from rtv.runtime import checkpoint
+
+    cp_id = uuid4()
+    store, storage = Mock(), Mock()
+    store.checkpoint_prepare.return_value = {"checkpoint_id": str(cp_id)}
+    storage.root = tmp_path / "artifacts"
+    storage.commit.return_value = SimpleNamespace(manifest_sha256="a" * 64)
+    monkeypatch.setattr(checkpoint, "Store", lambda _: store)
+    monkeypatch.setattr(checkpoint, "artifacts", lambda _: storage)
+    seen = []
+
+    def validate(settings, cp, destination):
+        assert not destination.resolve().is_relative_to(tmp_path.resolve())
+        destination.mkdir()
+        (destination / "verified").write_text("private scratch")
+        seen.append(destination)
+
+    monkeypatch.setattr(checkpoint, "validate", validate)
+    row = {**ExecutionRef(trial_id=uuid4()).to_dict(), "stage": 1}
+    checkpoint.publish(
+        SimpleNamespace(root=tmp_path), row, tmp_path / "bundle", {"event_cursor": 1}
+    )
+    assert len(seen) == 1 and not seen[0].exists()
+    store.checkpoint_commit.assert_called_once()

@@ -11,7 +11,6 @@ from rtv.checkpoints import CheckpointRef
 from rtv.codex_agent import CODEX_VERSION, validate_bundle
 from rtv.domain import ExecutionRef
 from rtv.harbor_probe import HARBOR_VERSION, _docker, tree_digest
-from rtv.runtime.config import execution_dir
 from rtv.runtime.store import Store
 from rtv.runtime.tasks import contract, workspace, workspace_digest
 from rtv.storage import LocalCheckpointStore
@@ -145,7 +144,9 @@ def publish(settings, row, bundle, context):
             exclude_names=tuple(context.get("workspace_excludes", [])),
         )
     uploaded = {**cp, "manifest_sha256": ref.manifest_sha256}
-    with TemporaryDirectory(dir=execution_dir(settings, row), prefix="validate-") as temporary:
+    # Validation is process-local scratch, not a durable artifact. Shared macOS
+    # directories can gain host metadata while rmtree is traversing them.
+    with TemporaryDirectory(prefix="rtv-validate-") as temporary:
         validate(settings, uploaded, Path(temporary) / "bundle")
     return store.checkpoint_commit(row, cp["checkpoint_id"], ref.manifest_sha256, context)
 

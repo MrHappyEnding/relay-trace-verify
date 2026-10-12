@@ -5,8 +5,11 @@ import asyncio
 from rtv.harbor_probe import _container_ids, _docker
 
 
-def bounded_environment_type():
+def bounded_environment_type(*, startup_timeout_seconds=60):
     from harbor.environments.docker.docker import DockerEnvironment
+
+    if not 30 <= startup_timeout_seconds <= 300:
+        raise ValueError("Environment startup timeout must be 30–300 seconds")
 
     class BoundedDockerEnvironment(DockerEnvironment):
         # Pinned Harbor 0.24.0 has no public default command timeout. Its timeout
@@ -17,7 +20,7 @@ def bounded_environment_type():
             return await super()._run_docker_compose_command(
                 command,
                 check=check,
-                timeout_sec=timeout_sec or 60,
+                timeout_sec=timeout_sec or (startup_timeout_seconds if command[0] == "up" else 60),
                 stdin_data=stdin_data,
                 on_output=on_output,
             )

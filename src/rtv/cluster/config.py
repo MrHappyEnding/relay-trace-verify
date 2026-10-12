@@ -24,6 +24,9 @@ class ClusterConfig:
     max_jobs: int = 2
     cpu_millis: int = 1000
     memory_mb: int = 1536
+    engine_disk_gib: int = 4
+    image_load_seconds: int = 90
+    repository_contract_sha256: str | None = None
 
     def __post_init__(self):
         if not re.fullmatch(r"[a-z0-9][a-z0-9-]{0,61}[a-z0-9]", self.namespace):
@@ -42,6 +45,17 @@ class ClusterConfig:
             raise ValueError("Invalid bounded job/CPU capacity")
         if not 512 <= self.memory_mb <= 16384:
             raise ValueError("Invalid job memory capacity")
+        if not 4 <= self.engine_disk_gib <= 64 or not 30 <= self.image_load_seconds <= 600:
+            raise ValueError("Invalid executor disk or image-load envelope")
+        if self.repository_contract_sha256 is not None and (
+            not re.fullmatch(r"[0-9a-f]{64}", self.repository_contract_sha256)
+            or self.memory_mb < 5120
+            or self.cpu_millis < 2000
+            or self.engine_disk_gib < 16
+        ):
+            raise ValueError(
+                "Repository pool requires a pinned contract, 2 CPU, 5 GiB and 16 GiB disk"
+            )
 
     @classmethod
     def load(cls):

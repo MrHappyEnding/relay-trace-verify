@@ -21,6 +21,13 @@ def add_parser(commands):
     submit.add_argument("--staged", action="store_true")
     submit.add_argument("--pause-after-checkpoint", action="store_true")
     submit.add_argument("--max-recoveries", type=int, default=0)
+    submit.add_argument("--task-contract", type=Path)
+    submit.add_argument("--scripted-controls", type=Path)
+    submit.add_argument("--adapter", choices=["fixture", "mini-fixture"], default="fixture")
+    submit.add_argument("--agent-seconds", type=int, default=300)
+    prepare = sub.add_parser("prepare-repository")
+    prepare.add_argument("--contract", type=Path, required=True)
+    prepare.add_argument("--output", type=Path, required=True)
     for name in ("status", "cancel", "events", "history", "ledger"):
         sub.add_parser(name).add_argument("trial_id")
     report = sub.add_parser("report")
@@ -57,6 +64,9 @@ def fixture_spec(**overrides):
         staged=False,
         max_recoveries=0,
         pause_after_checkpoint=False,
+        allow_api_calls=False,
+        api_call_limit=8,
+        api_budget_usd=0,
     )
     values.update(overrides)
     spec = make_spec(argparse.Namespace(**values))
@@ -81,16 +91,31 @@ def run(args):
         asyncio.run(serve(settings))
         return 0
     elif cmd == "submit":
-        row = store.submit(
-            args.key,
-            fixture_spec(
-                **{
-                    k: getattr(args, k)
-                    for k in ("ttl", "delay", "staged", "pause_after_checkpoint", "max_recoveries")
-                }
-            ),
+        from rtv.cluster.repository import validate_spec
+
+        spec = fixture_spec(
+            **{
+                k: getattr(args, k)
+                for k in (
+                    "ttl",
+                    "delay",
+                    "staged",
+                    "pause_after_checkpoint",
+                    "max_recoveries",
+                    "task_contract",
+                    "scripted_controls",
+                    "adapter",
+                    "agent_seconds",
+                )
+            }
         )
+        validate_spec(config.frozen(), spec)
+        row = store.submit(args.key, spec)
         result = summary(row)
+    elif cmd == "prepare-repository":
+        from rtv.cluster.repository import prepare
+
+        result = prepare(config, json.loads(args.contract.read_text()), args.output)
     elif cmd == "pool":
         result = store.pool_status()
     elif cmd == "report":

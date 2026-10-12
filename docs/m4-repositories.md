@@ -81,7 +81,7 @@ verifier 镜像保持独立。构建与 `codex --version` 通过不代表真实�
 开发者入口 `rtv runtime submit --task-contract ...` 支持 `fixture/mini-fixture/codex/mini`。
 脚本 adapter 必须传 `--scripted-controls`，真实 adapter 拒绝该参数。真实 Codex/API 调用需要
 提交端及 worker 的双重开关和相应凭据，M4 仍须事先单独批准预算；本次没有读取模型凭据。
-不要直接把本机契约交给 Kubernetes runner：它会明确拒绝，避免默用过小的资源配额或缺失任务路径。
+Kubernetes 接入请使用新增的[仓库任务交付](m4-repository-cluster.md)入口；未绑定到执行池的本机契约仍会被拒绝。
 
 ## 证据与下一步
 
@@ -90,6 +90,6 @@ verifier 镜像保持独立。构建与 `codex --version` 通过不代表真实�
 恢复副本和独立 verifier 日志。`.DS_Store` 造成的失败没有从历史删除。
 正式统计配置仍使用上一阶段的 SHA，不因这次脚本结果改变选题。
 
-本阶段 API 调用 0、云费用 $0、GPU 使用 0。下一步需要把任务材料、AMD64 镜像、
-4 GiB 任务资源及凭据通道接入 Kubernetes，并完成原始运行记录到配对统计的自动关联。
+本阶段 API 调用 0、云费用 $0、GPU 使用 0。后续的任务材料、AMD64 镜像、资源配置及统计关联
+见[Kubernetes 仓库接入](m4-repository-cluster.md)；真实模型凭据通道仍未启用。
 真实双 agent 在这个仓库上的会话交接与效果仍待批准预算后的独立验收；其余 3 个开发任务也尚待环境检查。

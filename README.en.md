@@ -14,6 +14,10 @@ Local checkpoints, scripted relay, a fresh baseline and fault recovery for the f
 pass 26 checks; see [repository integration](docs/m4-repositories.en.md). Reference-patch controls do
 not establish model effectiveness.
 
+Subsequent [Kubernetes repository acceptance](docs/m4-repository-cluster.en.md) passes 28 checks for
+task delivery, four-branch observation linkage and recovery on another node after Job loss.
+This covers scripted controls on one development repository only.
+
 RTV supports learning through reproduction, system implementation, and original exploration. Existing approaches remain learning material and comparison baselines; see the [learning and resource plan](docs/learning-plan.en.md) for sources and scope. No model-performance advantage or multi-physical-host reliability claim has been established.
 
 ## Quick start
@@ -65,6 +69,7 @@ RTV focuses on three capabilities:
 | [M4 Kubernetes execution](docs/m4.en.md) | Local multi-worker/node faults, resource quotas, recovery and raw reports |
 | [M4 real tasks and statistics](docs/m4-benchmark.en.md) | Frozen SWE-bench subset, paired protocol, offline controls, missing data and UNKNOWN costs |
 | [M4 repository integration](docs/m4-repositories.en.md) | Task contracts, directory-mode snapshots, hidden-test separation and scripted recovery |
+| [M4 repository Jobs and observations](docs/m4-repository-cluster.en.md) | Task delivery, resources, cross-node recovery and runtime-derived paired records |
 | [Learning and resource plan](docs/learning-plan.en.md) | Open-source references, reproduction goals, lab GPUs, and spending agreement |
 | [System design](docs/design.en.md) | Object relationships, invariants, checkpoint protocol, failure handling, budgets, and adapter capabilities |
 | [Experiment protocol](docs/experiments.en.md) | Paired branches, budget accounting, baselines, statistics, and result artifacts |

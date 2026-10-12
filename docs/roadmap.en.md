@@ -2,7 +2,7 @@
 
 [![中文](assets/lang-zh.svg)](roadmap.md) [![English](assets/lang-en.svg)](roadmap.en.md)
 
-Status: F0-M3 accepted locally; M4 local foundation and task/statistics protocol implemented, milestone still in progress (2026-10-11)
+Status: F0-M3 accepted locally; M4 local foundation and task/statistics protocol implemented, milestone still in progress (2026-10-12)
 
 The initial framework completes F0 below. M0 is accepted within the first Codex adapter’s stated scope; M1/M2 are implemented on one host; M3 protocol, scripted-model and real two-agent development-task acceptance are complete; M4 has a local model-free Kubernetes foundation; formal experiments remain outstanding. Local fixtures and mocked protocol tests do not replace real-container or real-agent compatibility tests. Reproduction and original implementation both remain in scope; see the [learning plan](learning-plan.en.md).
 
@@ -74,6 +74,7 @@ Accepted within the local scope: [M2 guide](m2.en.md), 40 runtime/protocol check
 - [x] Local Kubernetes backend; distinct owners for Job/Pod and inner sandbox lifecycles.
 - [x] Bounded concurrency, admission, node/worker recovery and cleanup in the local multi-node scope.
 - [x] Freeze tasks, execution caps, exclusions and statistics; revalidate and approve API reservations before paid execution.
+- [x] Kubernetes delivery, scripted relay, cross-node recovery and observation linkage for the first real repository; no real-model result yet.
 - [ ] Run real-model experiments and system fault experiments; produce raw artifacts and reports.
 - [ ] Document deployment steps, operating costs, known limitations, and the full demonstration.
 
@@ -99,4 +100,4 @@ Tool-boundary checkpoints, more agents, trajectory judges calibrated against lab
 | Control language | Python | Harbor integration cost and typed contracts |
 | First execution backend | Local containers | Validate the protocol before distributed faults |
 
-Local real-repository checkpoints, independent restoration, verifier isolation and scripted branches pass [26 checks](m4-repositories.en.md). Next: integrate task materialization, resources, AMD64 images and credential delivery with Kubernetes, then connect runtime records to paired analysis. Real Codex sessions and API branches still need separate acceptance. The prior $8 approval covered M3 debugging; new M4 costs require a separate budget.
+Local real-repository checkpoints, independent restoration, verifier isolation and scripted branches pass [26 checks](m4-repositories.en.md). Kubernetes task delivery, resources, AMD64 execution and statistical linkage are covered in [cluster repository integration](m4-repository-cluster.en.md). Next: model credential delivery, Codex repository sessions/API compatibility and the remaining pilot environment preflights. The prior $8 approval covered M3 debugging; new M4 costs require a separate budget.

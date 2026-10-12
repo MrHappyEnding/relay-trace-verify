@@ -91,7 +91,9 @@ async def execute(settings, row, output):
         "sandbox",
         spec["image_id"],
         session_id=sandbox.session(row),
-        environment_type=sandbox.bounded_environment_type(),
+        environment_type=sandbox.bounded_environment_type(
+            startup_timeout_seconds=180 if contract else 60
+        ),
         platform=contract["platform"] if contract else None,
         workspace=scope,
         network_policy=network,

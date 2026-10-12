@@ -24,6 +24,11 @@ def add_parser(commands):
     prepare.add_argument("--preflight", type=Path, required=True)
     prepare.add_argument("--agent-image")
     prepare.add_argument("--output", type=Path, required=True)
+    collect = sub.add_parser(
+        "collect-run", help="Derive pilot observations from frozen runtime assignments"
+    )
+    collect.add_argument("--run", type=Path, required=True)
+    collect.add_argument("--output", type=Path, required=True)
     analyze = sub.add_parser("analyze")
     analyze.add_argument("--split", choices=["pilot", "evaluation"], required=True)
     analyze.add_argument("--mode", choices=["scripted", "oracle", "real-model"], required=True)
@@ -33,7 +38,16 @@ def add_parser(commands):
 
 def run(args):
     plan = load(args.plan)
-    if args.benchmark_command == "prepare-task":
+    if args.benchmark_command == "collect-run":
+        from rtv.benchmark.execution import collect
+        from rtv.runtime.config import Settings
+        from rtv.runtime.store import Store
+
+        result = collect(
+            plan, json.loads(args.run.read_text()), Store(Settings.load()), args.output
+        )
+        result = {k: v for k, v in result.items() if k != "observations"}
+    elif args.benchmark_command == "prepare-task":
         from rtv.runtime.tasks import prepare_contract
 
         result = prepare_contract(

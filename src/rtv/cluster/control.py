@@ -91,6 +91,13 @@ def reconcile(settings, trial_id, *, launch=True):
             if allocation is None:
                 if not launch:
                     return summary(row)
+                from rtv.cluster.repository import validate_spec
+
+                try:
+                    validate_spec(config.frozen(), row["spec"])
+                except ValueError:
+                    store.finish(row, empty_result(row, "invalid_cluster_task"), controller=True)
+                    return summary(store.get(trial_id))
                 allocation = store.reserve(row)
                 if allocation is None:
                     return summary(row)
@@ -127,9 +134,9 @@ def reconcile(settings, trial_id, *, launch=True):
             )
             lost = row["execution_state"] == "running" and not row["lease_valid"]
             if result is None and (lost or failed):
-                if row["latest_checkpoint"] and row["recoveries"] < row["spec"].get(
-                    "max_recoveries", 0
-                ):
+                if (row["latest_checkpoint"] or row["resume_from"]) and row["recoveries"] < row[
+                    "spec"
+                ].get("max_recoveries", 0):
                     # Each epoch has a different Job and writable directory. Keep
                     # the old allocation charged until deletion is acknowledged.
                     cleanup(store, backend, row)

@@ -1,0 +1,190 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-12",
+  "status": "passed",
+  "mode": "real-local-kubernetes-oracle-controls",
+  "scope": "One local SWE-bench pilot repository; oracle/scripted actions on two Kubernetes nodes sharing one physical host; no model effectiveness claim.",
+  "task": "sympy__sympy-22914",
+  "protocol_sha256": "dbd68d56849681a5ac991409743d0276ee8b5572992c3570a18ae532ab4cd8bb",
+  "run_sha256": "ee98211e9965e7077a4082342cd4e792071bfc2a15ffb543ab5f57c32713603a",
+  "paid_api_calls": 0,
+  "model_calls": 0,
+  "cloud_spend_usd": 0,
+  "gpu_jobs": 0,
+  "checks": {
+    "source_sealed_without_verifier": true,
+    "B-summary_preassigned_identity": true,
+    "B-summary_oracle_verified": true,
+    "B-summary_exact_prefix": true,
+    "B-workspace_preassigned_identity": true,
+    "B-workspace_oracle_verified": true,
+    "B-workspace_exact_prefix": true,
+    "B-fresh_preassigned_identity": true,
+    "B-fresh_oracle_verified": true,
+    "fresh_no_prefix": true,
+    "A-continue_preassigned_identity": true,
+    "A-continue_oracle_verified": true,
+    "A-continue_exact_prefix": true,
+    "frozen_branch_order": true,
+    "four_linked_observations": true,
+    "other_pilot_tasks_stay_missing": true,
+    "no_incomplete_confidence_intervals": true,
+    "uncommitted_marker_observed_before_fault": true,
+    "fault_has_adopted_job_uid": true,
+    "inherited_checkpoint_recovery": true,
+    "recovery_deadline_unchanged": true,
+    "recovered_trial_verified": true,
+    "recovery_on_other_node": true,
+    "unknown_operation_retained": true,
+    "inflight_write_discarded": true,
+    "source_snapshot_unchanged": true,
+    "fault_not_in_paired_statistics": true,
+    "all_owned_jobs_and_pods_removed": true
+  },
+  "elapsed_seconds": 640.39,
+  "execution": {
+    "trials": 6,
+    "executions": 7,
+    "nodes": [
+      "k3d-rtv-m4-agent-0",
+      "k3d-rtv-m4-agent-1"
+    ],
+    "unknown_operations": 1,
+    "all_allocations_released": true,
+    "runner_image": "docker.io/library/rtv-m4-runner@sha256:d7e8e07b9860967411e070f9544ce808b27a98114c6f38bf41cc7d9b7deca88c",
+    "images_archive_sha256": "87d179154d07f7c3d9195be39ffdb95908e9ea666fcb102f8f9a9326ce415061",
+    "repository_contract_sha256": "84f8212f03c7e040d144e3127f05fdabdc9def0a989bf75b5059e23ec2f99a07",
+    "max_jobs": 1,
+    "cpu_millis": 2000,
+    "memory_mb": 5120,
+    "engine_disk_gib": 16,
+    "container_startup_seconds": 180,
+    "image_load_seconds": 300
+  },
+  "observations": {
+    "mode": "oracle",
+    "received": 4,
+    "planned": 16,
+    "missing": 12,
+    "confidence_intervals_withheld": true,
+    "fault_trial_excluded": true,
+    "after_source_cleanup_export_verified": true,
+    "raw_runtime_snapshots_hashed": 6
+  },
+  "regressions": {
+    "m3": {
+      "status": "passed",
+      "checks": 48,
+      "elapsed_seconds": 287.82
+    },
+    "m4_fixture": {
+      "status": "passed",
+      "checks": 27,
+      "elapsed_seconds": 274.28
+    }
+  },
+  "tests": {
+    "runtime_passed": 162,
+    "runtime_skipped": 1,
+    "core_python": "3.11",
+    "core_passed": 108,
+    "core_optional_skipped": 46,
+    "new_tests": 16
+  },
+  "runner_source_audit": {
+    "python_files": 51,
+    "matched_worktree_at_acceptance": true,
+    "subsequent_metadata_only_update": "src/rtv/capabilities.py"
+  },
+  "shared_mount_permissions": {
+    "scope": "observed Desktop shared-mount view difference",
+    "entries": [
+      {
+        "path": "workspace/.git/objects/7e/fc643deee7b83ae54909886fc4d12c9f90922d",
+        "manifest_mode": "0o444",
+        "host_mode": "0o644",
+        "content_matches": true
+      },
+      {
+        "path": "workspace/.git/objects/info/commit-graph",
+        "manifest_mode": "0o444",
+        "host_mode": "0o644",
+        "content_matches": true
+      },
+      {
+        "path": "workspace/.git/objects/pack/pack-5a8fcf37519498ff5e5cb451bbe07a47b5fedf39.idx",
+        "manifest_mode": "0o444",
+        "host_mode": "0o644",
+        "content_matches": true
+      },
+      {
+        "path": "workspace/.git/objects/pack/pack-5a8fcf37519498ff5e5cb451bbe07a47b5fedf39.pack",
+        "manifest_mode": "0o444",
+        "host_mode": "0o644",
+        "content_matches": true
+      }
+    ]
+  },
+  "attempt_history": [
+    {
+      "path": "work/m4-data/repository-cluster-1/report.json",
+      "status": "failed",
+      "elapsed_seconds": 135.24,
+      "owned_resources_removed": true,
+      "note": "Acceptance compared Linux 0444 Git files with the macOS 0644 shared-mount view; now compare within each view and retain container restore digest checks."
+    },
+    {
+      "path": "work/m4-data/repository-cluster-2/report.json",
+      "status": "failed",
+      "elapsed_seconds": 574.45,
+      "owned_resources_removed": true,
+      "note": "Recovered repair and verifier ran, but .DS_Store appeared during shared validation scratch cleanup, preventing checkpoint commit; validation scratch is now process-private."
+    },
+    {
+      "path": "work/m4-data/repository-cluster-3/report.json",
+      "status": "failed",
+      "elapsed_seconds": 123.09,
+      "owned_resources_removed": true,
+      "note": "Repository container startup exceeded the legacy 60-second bound while local regression also ran; repository startup is now bounded separately at 180 seconds and heavy runs are serialized."
+    },
+    {
+      "path": "work/m4-data/repository-cluster-4/report.json",
+      "status": "passed",
+      "elapsed_seconds": 640.39,
+      "owned_resources_removed": true,
+      "note": "28 checks passed, including observed uncommitted write followed by Job deletion and recovery on another node."
+    }
+  ],
+  "not_tested": [
+    "real models",
+    "Codex native session",
+    "credential delivery",
+    "physical multi-host fault",
+    "full pilot/evaluation",
+    "GPU inference",
+    "production untrusted workload isolation",
+    "full formal experiment scheduler"
+  ],
+  "artifact_sha256": {
+    "work/m4-data/repository-cluster-4/report.json": "76dcb6087c0659fc203ee1247a9534324c5aee1efb232d15b7e7b6e08e368a7c",
+    "work/m4-data/repository-cluster-4/run.json": "b1595abf47d0f5e8f3c65a3f3401e7c208b0e1d3adfe3439fb91b16138ec70fc",
+    "work/m4-data/repository-cluster-4/pods.json": "5aaf40172f36477ee2c6e1434e4bb37c6042800d1a2814a912cc3b423b548de8",
+    "work/m4-data/repository-cluster-4/reliability/report.json": "6379188ebeb36f57fe114c23dac32a0e993b28f563456da16d8c9c8272b15a3a",
+    "work/m4-data/repository-cluster-4/observations/provenance.json": "91f62ab1c572dcc6d027df4185f3537d174a6350dc6c665abb6366c65708abd0",
+    "work/m4-data/repository-cluster-4/observations/records.jsonl": "e885bc0d1a8c8940e41646b11e58604e1531618056252b9dfba3fab55941afcf",
+    "work/m4-data/repository-cluster-4/observations/analysis/report.json": "03dc73734bbf536bf17b290d1d9e0c408faf06b923cbbc8856df533f63332ca6",
+    "work/m4-data/repository-cluster-4/observations-after-cleanup/provenance.json": "380cbf13909c224ebae568c8ab4d709582461bf9db2d12ef7823fd127afd4841",
+    "work/m4-data/repository-cluster-4/observations-after-cleanup/analysis/report.json": "03dc73734bbf536bf17b290d1d9e0c408faf06b923cbbc8856df533f63332ca6",
+    "work/m4-data/regression-repositories-1/acceptance.json": "b1fb94975f4f5e759a6f665469c864fb31fd0fd6ac9dd96d864b5364e351818e",
+    "work/m4-benchmark/m3-regression-cluster-repositories/report.json": "d8e3507ead23f6dce0578f4a77b266828e3d2d9149e51b610381fe6dff1322b7",
+    "work/m4-data/regression-repositories-1/final-report/report.json": "d5315bdaa549dd2e9674d793f3270dd692036c2e04b45a962a15d701f3ee36ee",
+    "work/m4-data/repository-package-1/contract.json": "01be97aa41ec1964fdb5acd98461d12e01f264b6264afebb808f755cad3e7297",
+    "work/m4-control/runner-source-20261012.json": "6f774c7514e3799389a692d67d1bb579cce56851e33a7d0c9f5a05e54b4904cc",
+    "work/m4-control/workspace-mode-audit-20261012.json": "9a2a7d21e0863dac0d29faf0857411543c36f7feefd74196c020261a7a1ee80f",
+    "work/m4-control/repository-unit-tests-final2.log": "6b26b70e3300ee14986484a80b2ed1f85ab6dfdd90824532f7f020212319c0d8",
+    "work/m4-control/repository-core-tests-final2.log": "46b45399da8897b63bfa0ef5ba2770d55ee71520d8258f692ff04e9cf53d116f",
+    "work/m4-data/repository-cluster-1/report.json": "aa646b4dcd87fbe8b7a8e5fc0cac58bdaa92ae0b54b004fa161d8af7c61a6563",
+    "work/m4-data/repository-cluster-2/report.json": "a241fe7f06f98c258c33933138a784a1576df79e477109d53e6da25d83dedd45",
+    "work/m4-data/repository-cluster-3/report.json": "7256b348b6af0a53fa34b6a1ce49e0634acbe79a3338986620d01c207794deda"
+  }
+}

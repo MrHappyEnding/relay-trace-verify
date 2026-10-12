@@ -13,6 +13,9 @@
 首个真实仓库的本机 checkpoint、脚本接力、fresh 基线与故障恢复已通过 26 项检查，
 见[真实仓库接入](docs/m4-repositories.md)。修复使用参考补丁，不能作为模型效果证据。
 
+后续 [Kubernetes 仓库验收](docs/m4-repository-cluster.md)通过 28 项检查，覆盖任务交付、
+四分支统计关联和 Job 丢失后的换节点恢复。当前只有 1 个开发仓库的脚本控制结果。
+
 RTV 同时用于学习复现、系统实现和自主探索。已有方案会保留为学习材料与对照基线，参考来源和复现范围见[学习与资源计划](docs/learning-plan.md)。目前没有模型效果优势或多物理宿主可靠性结论。
 
 ## 快速开始
@@ -64,6 +67,7 @@ RTV 围绕三个能力展开：
 | [M4 Kubernetes 执行](docs/m4.md) | 本机多 worker / 节点故障、资源配额、恢复与原始报告 |
 | [M4 真实任务与统计](docs/m4-benchmark.md) | 固定 SWE-bench 子集、配对协议、离线验证、缺失及 UNKNOWN 费用 |
 | [M4 真实仓库接入](docs/m4-repositories.md) | 任务契约、目录权限快照、隐藏测试隔离与脚本恢复验收 |
+| [M4 仓库集群执行与统计](docs/m4-repository-cluster.md) | 任务交付、资源配额、换节点恢复和实际运行记录关联 |
 | [学习与资源计划](docs/learning-plan.md) | 开源参考、复现目标、lab GPU 与费用约定 |
 | [系统设计](docs/design.md) | 对象关系、不变量、检查点协议、故障处理、预算与能力矩阵 |
 | [实验协议](docs/experiments.md) | 配对分支、预算口径、基线、统计及结果产物 |

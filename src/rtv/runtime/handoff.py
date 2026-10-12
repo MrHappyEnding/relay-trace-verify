@@ -111,7 +111,7 @@ def prepare(settings, hid):
             "text": "",
             "losses": [],
         }
-        with TemporaryDirectory(dir=path.parent) as temporary:
+        with TemporaryDirectory(prefix="rtv-handoff-check-") as temporary:
             bundle = Path(temporary) / "bundle"
             checkpoint.validate(settings, cp, bundle)
             if h["policy"] == "native":

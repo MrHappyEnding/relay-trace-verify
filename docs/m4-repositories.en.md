@@ -92,8 +92,8 @@ image remains separate. Building and checking the CLI version do not verify real
 The developer entry point `rtv runtime submit --task-contract ...` supports
 `fixture/mini-fixture/codex/mini`. Scripted adapters require `--scripted-controls`; real adapters reject
 that option. Real Codex/API calls need both submission and worker opt-ins plus credentials, and a
-separately approved M4 budget. No model credentials were read this stage. Kubernetes runners explicitly
-reject repository contracts until resources, platform support and task delivery are validated.
+separately approved M4 budget. No model credentials were read this stage. Use the new
+[Kubernetes delivery entry point](m4-repository-cluster.en.md); contracts not bound to the pool are rejected.
 
 ## Evidence and remaining work
 
@@ -102,7 +102,7 @@ Raw artifacts under `work/m4-benchmark/repository-3/` include experiment data, e
 manifests, restored files and isolated verifier logs. Host-metadata failures remain in history.
 The frozen statistical protocol and selection are unchanged by these scripted results.
 
-This stage uses zero API calls, $0 cloud spend and no GPUs. Next integrate task materialization,
-AMD64 images, 4 GiB task resources and credential delivery with Kubernetes, then connect raw runtime
-records to paired analysis. Real dual-agent repository handoff and effectiveness still need separate
+This stage uses zero API calls, $0 cloud spend and no GPUs. Subsequent task delivery, AMD64 images,
+resources and statistical linkage are covered in [Kubernetes repository integration](m4-repository-cluster.en.md).
+Model credentials remain disabled. Real dual-agent repository handoff and effectiveness still need separate
 budget-approved acceptance. The other three development environments also remain to be checked.
