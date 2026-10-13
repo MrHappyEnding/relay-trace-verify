@@ -2,10 +2,10 @@
 
 [![中文](assets/lang-zh.svg)](m4-tool-prefix.md) [![English](assets/lang-en.svg)](m4-tool-prefix.en.md)
 
-2026-10-12: verifier environments for all four development tasks pass. The tool-prefix implementation,
-unit tests and offline native CLI recovery probe are complete. **The new policy has not run against
-a real model; formal evaluation is incomplete.** This update uses zero model calls and adds $0 in
-API/cloud charges.
+2026-10-12: all four verifier environments pass, and the new policy has completed its
+[four-task real-model round](m4-tool-prefix-results.en.md): sixteen observations, fourteen workflow
+checks per task, and four post hoc offline prefix grades. This page describes the mechanism and its
+earlier zero-model tests; formal evaluation remains incomplete.
 
 ## Development preflights
 
@@ -97,9 +97,7 @@ protocol SHA, run SHA and credential grants change.
   --root <fresh-runtime-root> --output <fresh-plan-file>
 ```
 
-Next: run development comparisons, inspect whether useful work remains at handoff, then freeze the
-final policy before evaluating twenty held-out tasks. Known cumulative API charges remain $0.11725620.
-Conservative non-reusable reservations leave $14.662 under the $20 budget. The 160 KB envelope reserves
-at most $5.12 per task, or $20.48 for four tasks; a complete new development round would bring cumulative
-reservations to $25.818 and requires reporting an increase first. Reservations are not expected bills
-or invoice guarantees. No paid execution was started in this update.
+The approved four-task round is complete. See [results and costs](m4-tool-prefix-results.en.md).
+Next, analyze failed continuations and regressions, improve unfinished-prefix coverage under a new
+preregistered development policy, then freeze the final evaluation strategy. The twenty-task evaluation
+and real-model fault experiments remain pending.

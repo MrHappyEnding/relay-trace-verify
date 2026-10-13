@@ -2,7 +2,7 @@
 
 [![中文](assets/lang-zh.svg)](m4-model-pilot.md) [![English](assets/lang-en.svg)](m4-model-pilot.en.md)
 
-See the new [development preflights and mid-task handoff](m4-tool-prefix.en.md): all four environments pass and the tool-prefix policy is tested without model calls. Real-model runs of this policy remain pending.
+The later [four-task tool-prefix round](m4-tool-prefix-results.en.md) is complete, including sixteen real-model grades and post hoc prefix diagnosis. This page preserves the three historical natural-turn pilots.
 
 ## Third run: 160 KB inputs, all four branches solved
 
@@ -232,9 +232,6 @@ client import, log leakage and cleanup. It does not run the production superviso
 first attempt encountered the Kubernetes Python client's JSON-log-to-dictionary-to-string conversion;
 reading raw log bytes fixed it. That failed attempt is retained.
 
-`model-pilot-prepared-4.json` has completed; do not reuse its runtime root. Next, prioritize zero-model
-preflights for the other three development environments and design a comparison with unfinished work
-at the prefix boundary. Freeze a new protocol before changing stage budgets or context policies;
-never edit past records. The evaluation set, real-model fault experiments and full report remain
-outstanding. Review remaining authorization before future paid runs; a fourth attempt is not started
-automatically.
+`model-pilot-prepared-4.json` is finished; never reuse its runtime root. The later four-task round
+uses separate roots and a new protocol, with [results and updated budget](m4-tool-prefix-results.en.md).
+Formal evaluation, real-model fault experiments and the full M4 report remain outstanding.

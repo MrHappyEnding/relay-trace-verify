@@ -2,7 +2,7 @@
 
 [![中文](assets/lang-zh.svg)](m4-model-pilot.md) [![English](assets/lang-en.svg)](m4-model-pilot.en.md)
 
-新增[开发集预检与中途交接](m4-tool-prefix.md)：全部 4 题环境通过，工具额度策略完成零模型验证；尚未运行新策略的真实模型试验。
+后续[四题工具额度开发试验](m4-tool-prefix-results.md)已完成，包含 16 条真实模型判分及事后前缀诊断。本文保留此前三轮自然结束试验。
 
 ## 第三轮：输入提高到 160 KB，四个分支均 solved
 
@@ -199,7 +199,5 @@ Codex adapter 继续复用 M3 的实现；没有升级模型。
 它不启动正式 supervisor 或模型。首次验收碰到 Kubernetes Python client 将 JSON 日志解码为
 Python 字典再转成字符串的问题；改为读取原始日志字节后通过，失败记录保留。
 
-`model-pilot-prepared-4.json` 已执行完毕，不再复用该运行目录。
-下一步优先完成其余 3 个开发环境的零模型预检，并设计能观察“前缀尚未修完”的开发任务对照；
-如需调整阶段预算或上下文策略，先固定新协议，不能修改已有记录。之后仍需正式评测集、
-真实模型故障实验与完整报告。未来付费运行仍须核对 $20 累计预算中的剩余额度，不自动启动第四轮。
+`model-pilot-prepared-4.json` 已完成，不再复用该运行目录。后续四题试验使用独立目录和新协议，
+见[结果与更新后的费用](m4-tool-prefix-results.md)。正式评测、真实模型故障实验及完整 M4 报告仍待完成。

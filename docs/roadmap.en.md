@@ -78,7 +78,8 @@ Accepted within the local scope: [M2 guide](m2.en.md), 40 runtime/protocol check
 - [x] Run-bound model credentials, 17 real-cluster fake-credential checks and the real pilot launcher; retain the failed first attempt.
 - [x] Four real-model branches on one development repository: the third run passes 13 checks with 160 KB inputs and four solved branches, covering native continuation, handoff and isolated grading.
 - [x] Offline controls for all four development environments; tool-prefix and fresh-container native recovery tests without model calls.
-- [ ] Run real-model experiments and system fault experiments; produce raw artifacts and reports.
+- [x] Four development tasks under tool-prefix policy: sixteen observations, post hoc prefix grading and cost audit.
+- [ ] Formal real-model evaluation and real-model system fault experiments; complete the report.
 - [ ] Document deployment steps, operating costs, known limitations, and the full demonstration.
 
 **Acceptance evidence**: experiments can be repeated from their configuration; reliability and strategy effectiveness each have measured evidence; and every published result can be traced to raw records.
@@ -86,7 +87,7 @@ Accepted within the local scope: [M2 guide](m2.en.md), 40 runtime/protocol check
 Phase-one deployment, real-service faults, zero-model cost and reporting boundaries are in the [M4 guide](m4.en.md). Multiple local k3d nodes do not establish multi-physical-host HA; checked items apply only to this scope.
 Four development and twenty evaluation SWE-bench Verified tasks are frozen. Paired analysis and
 offline positive/negative verifier controls for all four development tasks pass; see the
-[task/statistics protocol](m4-benchmark.en.md). The repaired real pilot has four graded branches; see the [attempt record](m4-model-pilot.en.md). Functional acceptance on one task does not complete M4.
+[task/statistics protocol](m4-benchmark.en.md). The [four-task development round](m4-tool-prefix-results.en.md) has sixteen graded branches. Development evidence does not complete M4.
 
 ## Later candidates
 
@@ -103,4 +104,11 @@ Broader tool coverage and time-triggered checkpoints, more agents, trajectory ju
 | Control language | Python | Harbor integration cost and typed contracts |
 | First execution backend | Local containers | Validate the protocol before distributed faults |
 
-Local real-repository checkpoints, independent restoration, verifier isolation and scripted branches pass [26 checks](m4-repositories.en.md). Kubernetes task delivery, resources, AMD64 execution and statistical linkage are covered in [cluster repository integration](m4-repository-cluster.en.md). The [credential path and launcher](m4-model-pilot.en.md) pass real-model workflow acceptance on one task. Three attempts record $0.11725620 in API usage under a $20 cumulative budget; the 160 KB third run grades all four branches solved. Continuations retained an existing prefix repair, so relay effectiveness is not established. All four development environments now pass preflight; the [tool-prefix policy](m4-tool-prefix.en.md) passes zero-model recovery tests. Next: build a runner containing the new code, run development comparisons and inspect remaining work at handoff, then freeze the final policy before formal evaluation and real-model fault experiments.
+Local repository controls, Kubernetes execution and the credential path remain documented in the
+[repository guide](m4-repositories.en.md), [cluster guide](m4-repository-cluster.en.md), and
+[historical pilots](m4-model-pilot.en.md). The [four-task tool-prefix round](m4-tool-prefix-results.en.md)
+now provides sixteen real-model grades and four offline prefix diagnoses. Native continuation solves
+4/4, summary relay 3/4, and workspace relay and fresh execution 2/4 each. Three prefixes already pass;
+only native continuation repairs the unfinished one. M4 known API charges total $0.33947070 under the
+approved approximately $25.82 reservation ceiling. Next: analyze regressions and unfinished-prefix
+coverage, preregister any development-policy change, then freeze formal evaluation and fault tests.
