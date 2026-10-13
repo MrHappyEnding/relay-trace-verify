@@ -4,6 +4,7 @@ import asyncio
 import json
 import os
 import re
+import shlex
 import threading
 from dataclasses import dataclass
 from pathlib import Path
@@ -330,7 +331,11 @@ async def execute_mini(env, instruction, output, *, settings, row, operation, sc
                 raise ValueError("Expected bash command text")
 
             async def invoke():
-                return await env.exec(command=command, cwd=scope, timeout_sec=30)
+                # Harbor exec uses bash -c. SWE-bench images activate testbed in
+                # the login profile, as Codex's default shell does. Quote the
+                # whole action so multiline scripts/exit codes remain intact.
+                shell_command = "bash -lc " + shlex.quote(command) if repository else command
+                return await env.exec(command=shell_command, cwd=scope, timeout_sec=30)
 
             reply = asyncio.run_coroutine_threadsafe(invoke(), loop).result(timeout=40)
             observation = {
@@ -353,7 +358,15 @@ async def execute_mini(env, instruction, output, *, settings, row, operation, sc
 
         def serialize(self):
             return {
-                "info": {"config": {"environment": {"type": "HarborDockerBridge", "cwd": scope}}}
+                "info": {
+                    "config": {
+                        "environment": {
+                            "type": "HarborDockerBridge",
+                            "cwd": scope,
+                            "shell": "bash-login-v1" if repository else "harbor-default",
+                        }
+                    }
+                }
             }
 
     config = {k: v for k, v in templates["agent"].items() if k != "mode"}

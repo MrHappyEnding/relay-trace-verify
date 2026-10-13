@@ -254,6 +254,11 @@ def test_mini_scripted_scaffold_uses_declared_cwd(declared, tmp_path, monkeypatc
 
     class Env:
         async def exec(self, *, command, cwd, timeout_sec):
+            import shlex
+
+            argv = shlex.split(command)
+            assert argv[:2] == ["bash", "-lc"] and len(argv) == 3
+            command = argv[2]
             calls.append((command, cwd))
             return SimpleNamespace(
                 return_code=0,
