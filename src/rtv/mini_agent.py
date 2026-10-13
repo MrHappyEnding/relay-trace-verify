@@ -149,6 +149,12 @@ class MiniResult:
     synthetic: bool
 
 
+def repository_command(command):
+    # Terminate the command's process group inside the sandbox. A Harbor/Docker
+    # client timeout alone can leave the command running and aborts the agent.
+    return "/usr/bin/timeout --signal=TERM --kill-after=2s 30s bash -lc " + shlex.quote(command)
+
+
 async def execute_mini(env, instruction, output, *, settings, row, operation, scripted=False):
     # Upstream loads a global dotenv file on import. Give this invocation an empty,
     # controlled directory rather than reading any user's mini-swe configuration.
@@ -334,10 +340,14 @@ async def execute_mini(env, instruction, output, *, settings, row, operation, sc
                 # Harbor exec uses bash -c. SWE-bench images activate testbed in
                 # the login profile, as Codex's default shell does. Quote the
                 # whole action so multiline scripts/exit codes remain intact.
-                shell_command = "bash -lc " + shlex.quote(command) if repository else command
-                return await env.exec(command=shell_command, cwd=scope, timeout_sec=30)
+                shell_command = repository_command(command) if repository else command
+                return await env.exec(
+                    command=shell_command, cwd=scope, timeout_sec=40 if repository else 30
+                )
 
-            reply = asyncio.run_coroutine_threadsafe(invoke(), loop).result(timeout=40)
+            reply = asyncio.run_coroutine_threadsafe(invoke(), loop).result(
+                timeout=50 if repository else 40
+            )
             observation = {
                 "output": ((reply.stdout or "") + (reply.stderr or ""))[:20000],
                 "returncode": reply.return_code,
@@ -363,7 +373,9 @@ async def execute_mini(env, instruction, output, *, settings, row, operation, sc
                         "environment": {
                             "type": "HarborDockerBridge",
                             "cwd": scope,
-                            "shell": "bash-login-v1" if repository else "harbor-default",
+                            "shell": "bash-login-timeout-v1" if repository else "harbor-default",
+                            "tool_timeout_seconds": 30 if repository else None,
+                            "kill_grace_seconds": 2 if repository else None,
                         }
                     }
                 }

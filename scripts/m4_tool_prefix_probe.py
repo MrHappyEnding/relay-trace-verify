@@ -25,7 +25,7 @@ def write(path, value):
     path.write_text(json.dumps(value, indent=2) + "\n")
 
 
-def inside(output, stage):
+def inside(output, stage, gate_version):
     home = Path("/tmp/rtv-offline-codex")
     home.mkdir()
     logs = output / "agent"
@@ -44,7 +44,7 @@ def inside(output, stage):
         shutil.copy2(native, sessions / native.name)
     gate = logs / "tool-gate.json"
     if stage == "prefix":
-        write(gate, codex_gate.initial({"version": codex_gate.VERSION, "max_tools": 2}))
+        write(gate, codex_gate.initial({"version": gate_version, "max_tools": 2}))
     calls = (
         [
             'let p=await tools.exec_command({"cmd":"sleep 2; printf prefix > rtv-prefix.txt",'
@@ -151,7 +151,10 @@ def inside(output, stage):
     ]
     if stage == "prefix":
         command.append("--dangerously-bypass-hook-trust")
-    command += ["--", "Offline scripted transport test; no model inference."]
+    instruction = "Offline scripted transport test; no model inference."
+    if stage == "prefix":
+        instruction += codex_gate.prefix_instruction({"version": gate_version, "max_tools": 2})
+    command += ["--", instruction]
     try:
         before = codex_gate.process_snapshot()
         result = subprocess.run(
@@ -174,9 +177,7 @@ def inside(output, stage):
     turn = read_turn(logs, native=native, workspace="/testbed")
     report = {"session_id": turn.session_id, "fixture_responses": len(requests)}
     if stage == "prefix":
-        report["boundary"] = codex_gate.audit(
-            gate, turn, {"version": codex_gate.VERSION, "max_tools": 2}
-        )
+        report["boundary"] = codex_gate.audit(gate, turn, {"version": gate_version, "max_tools": 2})
         assert (workspace / "rtv-prefix.txt").read_text() == "prefix"
         assert (workspace / "rtv-patch.txt").read_text() == "patch saved\n"
         assert not (workspace / "rtv-forbidden.txt").exists()
@@ -239,6 +240,8 @@ def main(args):
                 stage,
                 "--output",
                 "/output",
+                "--gate-version",
+                args.gate_version,
             ],
             text=True,
         ).strip()
@@ -266,6 +269,7 @@ def main(args):
         "real_model_calls": 0,
         "image_id": image["Id"],
         "cli_version": CODEX_VERSION,
+        "gate_version": args.gate_version,
         "network": "none",
         "checks": {},
         "status": "failed",
@@ -310,9 +314,14 @@ if __name__ == "__main__":
     parser.add_argument("--image")
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--inside", choices=("prefix", "resume"))
+    parser.add_argument(
+        "--gate-version",
+        choices=(codex_gate.VERSION, codex_gate.RUNTIME_NOTICE_VERSION),
+        default=codex_gate.VERSION,
+    )
     args = parser.parse_args()
     if args.inside:
-        inside(args.output, args.inside)
+        inside(args.output, args.inside, args.gate_version)
     else:
         if not args.image:
             parser.error("--image required")

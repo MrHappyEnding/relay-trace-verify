@@ -233,7 +233,10 @@ def test_paid_repository_submission_requires_opt_in_and_excludes_controls(declar
         make_repository_spec(args)
 
 
-def test_mini_scripted_scaffold_uses_declared_cwd(declared, tmp_path, monkeypatch):
+@pytest.mark.parametrize("tool_return_code", [0, 124])
+def test_mini_scripted_scaffold_uses_declared_cwd(
+    declared, tmp_path, monkeypatch, tool_return_code
+):
     pytest.importorskip("psycopg")
     monkeypatch.setenv("MSWEA_GLOBAL_CONFIG_DIR", str(tmp_path / "mini-config"))
     monkeypatch.setenv("MSWEA_SILENT_STARTUP", "1")
@@ -257,11 +260,16 @@ def test_mini_scripted_scaffold_uses_declared_cwd(declared, tmp_path, monkeypatc
             import shlex
 
             argv = shlex.split(command)
-            assert argv[:2] == ["bash", "-lc"] and len(argv) == 3
-            command = argv[2]
+            assert (
+                argv[:6]
+                == ["/usr/bin/timeout", "--signal=TERM", "--kill-after=2s", "30s", "bash", "-lc"]
+                and len(argv) == 7
+            )
+            assert timeout_sec == 40
+            command = argv[6]
             calls.append((command, cwd))
             return SimpleNamespace(
-                return_code=0,
+                return_code=0 if command.startswith("echo COMPLETE") else tool_return_code,
                 stdout="COMPLETE_TASK_AND_SUBMIT_FINAL_OUTPUT\n"
                 if command.startswith("echo COMPLETE")
                 else "ok",

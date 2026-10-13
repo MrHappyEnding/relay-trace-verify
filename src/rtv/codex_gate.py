@@ -12,6 +12,7 @@ import sys
 from pathlib import Path
 
 VERSION = "codex-tools-v1"
+RUNTIME_NOTICE_VERSION = "codex-tools-v2"
 REMOTE_SCRIPT = "/tmp/rtv-codex-gate.py"
 REMOTE_STATE = "/logs/agent/tool-gate.json"
 NOTICE = (
@@ -25,12 +26,37 @@ def policy(value):
     if (
         not isinstance(value, dict)
         or set(value) != {"version", "max_tools"}
-        or value["version"] != VERSION
+        or value["version"] not in (VERSION, RUNTIME_NOTICE_VERSION)
         or type(value["max_tools"]) is not int
         or not 1 <= value["max_tools"] <= 100
     ):
         raise ValueError("Invalid Codex tool-prefix policy")
     return dict(value)
+
+
+def prefix_instruction(value):
+    value = policy(value)
+    restrictions = (
+        "Use only shell and apply_patch tools (write_stdin may finish "
+        "an existing shell). Do not background/detach commands or change RTV hooks. "
+    )
+    ending = (
+        "finish this turn with changes, public test results and remaining work. "
+        "You may finish earlier; do not introduce a defect."
+    )
+    if value["version"] == VERSION:
+        return (
+            f"\nRTV prefix allowance: at most {value['max_tools']} Bash/apply_patch "
+            "tool admissions. " + restrictions + "When the allowance is reached, " + ending
+        )
+    # Keep the predeclared quota in the receipt, but do not tell the model its
+    # numeric value up front. The same PostToolUse notice defines the boundary.
+    return (
+        "\nRTV may request a handoff during execution. "
+        + restrictions
+        + "When a tool hook requests handoff, "
+        + ending
+    )
 
 
 def initial(value):

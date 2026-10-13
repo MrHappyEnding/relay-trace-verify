@@ -165,7 +165,8 @@ def test_resumed_usage_subtracts_imported_prefix_and_keeps_uncertainty(tmp_path)
     assert incremental_usage({"input_tokens": 10}, None) is None
 
 
-def test_adapter_installs_only_vetted_gate_and_audits_receipts(tmp_path, monkeypatch):
+@pytest.mark.parametrize("gate_version", ["codex-tools-v1", "codex-tools-v2"])
+def test_adapter_installs_only_vetted_gate_and_audits_receipts(tmp_path, monkeypatch, gate_version):
     harbor = pytest.importorskip("harbor.agents.installed.codex")
     from rtv import codex_gate
 
@@ -215,11 +216,15 @@ def test_adapter_installs_only_vetted_gate_and_audits_receipts(tmp_path, monkeyp
         adapter.execute(
             Environment(),
             "public task",
-            tool_prefix={"version": codex_gate.VERSION, "max_tools": 6},
+            tool_prefix={"version": gate_version, "max_tools": 6},
         )
     )
     assert calls["config"]["hooks"] == codex_gate.hook_config()
     assert calls["dangerously_bypass_hook_trust"] is True
     assert uploads[0] == (Path(codex_gate.__file__), codex_gate.REMOTE_SCRIPT)
     assert turn.prefix_boundary["trigger"] == "natural_completion"
-    assert "at most 6" in calls["prompt"]
+    if gate_version == codex_gate.VERSION:
+        assert "at most 6" in calls["prompt"]
+    else:
+        assert "at most" not in calls["prompt"] and "6" not in calls["prompt"]
+        assert "When a tool hook requests handoff" in calls["prompt"]

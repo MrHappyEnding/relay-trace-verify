@@ -1,0 +1,733 @@
+{
+  "schema_version": 1,
+  "name": "rtv-swebench-verified-tool-prefix-v3",
+  "status": "development: runtime-notified 2-tool prefix and sandbox command timeout correction; evaluation not executed",
+  "sources": {
+    "dataset": "princeton-nlp/SWE-bench_Verified",
+    "dataset_revision": "c104f840cc67f8b6eec6f759ebc8b2693d585d4a",
+    "parquet_sha256": "a45b1fe4e2f0c8390b2b2938ac83e92ed5979000856808f3679c07812e9e6dcd",
+    "harbor_git_url": "https://github.com/laude-institute/harbor-datasets.git",
+    "harbor_commit": "86723674f04e4209ac479d0fb75d9d9f44b4377e",
+    "harbor_registry_version": "1.0",
+    "harbor_runtime": "0.24.0"
+  },
+  "selection": {
+    "method": "sha256-rank-before-outcomes",
+    "salt": "rtv-m4-swe-v1",
+    "catalog_count": 500,
+    "pilot_count": 4,
+    "evaluation_count": 20,
+    "exclusions": "none; unsupported environments remain recorded, no substitution"
+  },
+  "tasks": [
+    {
+      "instance_id": "sympy__sympy-22914",
+      "repo": "sympy/sympy",
+      "base_commit": "c4e836cdf73fc6aa7bab6a86719a0f08861ffb1d",
+      "split": "pilot",
+      "harbor_path": "datasets/swebench-verified/sympy__sympy-22914",
+      "harbor_commit": "86723674f04e4209ac479d0fb75d9d9f44b4377e",
+      "files_sha256": {
+        "environment/Dockerfile": "8c53422852cead10899a8ec0edfd6b93c8ce593b64cf1deb44887b06c1ca323a",
+        "instruction.md": "be377ea6dfeca4dd2f216e643813ea44aae68aa2b55718287e43e19e34805446",
+        "solution/solve.sh": "e8c2bf811ff334394dfe06d6c18354745e312be88885f6531856a0cec41ec4c1",
+        "task.toml": "89760344f93862da427f7f5e9a443cb4cdbc04c75522a8f40e49acff3f0bc1b1",
+        "tests/config.json": "b195a5fbba82df8195631f4e584711c362323fd52da4ceaaaba7b21cebb72ba5",
+        "tests/test.sh": "558e2156b55d7096256de925e11e4a6669534c3e11a64691c3791208c70ea113"
+      },
+      "image": {
+        "reference": "swebench/sweb.eval.x86_64.sympy_1776_sympy-22914:latest",
+        "pinned": "swebench/sweb.eval.x86_64.sympy_1776_sympy-22914@sha256:60ed5f8510af33c88c1932aac9c22c9bdae5bfe2a673a9a662bac0fbe3102539",
+        "platform": "linux/amd64"
+      },
+      "resources": {
+        "cpus": 1,
+        "memory_mb": 4096,
+        "storage_mb": 10240
+      }
+    },
+    {
+      "instance_id": "sympy__sympy-15599",
+      "repo": "sympy/sympy",
+      "base_commit": "5e17a90c19f7eecfa10c1ab872648ae7e2131323",
+      "split": "pilot",
+      "harbor_path": "datasets/swebench-verified/sympy__sympy-15599",
+      "harbor_commit": "86723674f04e4209ac479d0fb75d9d9f44b4377e",
+      "files_sha256": {
+        "environment/Dockerfile": "1b3af85f9d98996bc930c95f9077df75f3c2afaa67f52a3fba6df2fb7d335cfe",
+        "instruction.md": "cf4081c50e2bce78ef90503152dbf7f94f2f8cf0323ee9cd68cf0e3a60835d6e",
+        "solution/solve.sh": "8f385cb595a57ab71b1b8704677853a4efc165fcc848e5b1e22cc5677bc87a06",
+        "task.toml": "89760344f93862da427f7f5e9a443cb4cdbc04c75522a8f40e49acff3f0bc1b1",
+        "tests/config.json": "fa0fd0c26415abb5ba14b2d8ad7b812686586241f8ca4bab9b6c0070f7a360fb",
+        "tests/test.sh": "7f966ebdbf92637ba123bd0b8ac4425c2ca2c4e5954f3b721a1e20f04c99ef29"
+      },
+      "image": {
+        "reference": "swebench/sweb.eval.x86_64.sympy_1776_sympy-15599:latest",
+        "pinned": "swebench/sweb.eval.x86_64.sympy_1776_sympy-15599@sha256:068c2c597f9dffc4344f276d9a9d1e0557b9e32b15b8ff4c4ffba76995ce6853",
+        "platform": "linux/amd64"
+      },
+      "resources": {
+        "cpus": 1,
+        "memory_mb": 4096,
+        "storage_mb": 10240
+      }
+    },
+    {
+      "instance_id": "sympy__sympy-13091",
+      "repo": "sympy/sympy",
+      "base_commit": "d1320814eda6549996190618a21eaf212cfd4d1e",
+      "split": "pilot",
+      "harbor_path": "datasets/swebench-verified/sympy__sympy-13091",
+      "harbor_commit": "86723674f04e4209ac479d0fb75d9d9f44b4377e",
+      "files_sha256": {
+        "environment/Dockerfile": "1d399e9af5e5e8c6878ca6a58d4b2606738c0cd06f2f10cde273b979a2086c97",
+        "instruction.md": "56dd1975c2cdb9924609fb6ce9a46f4a1269dce8da33bf80032d1c9d8a73e7db",
+        "solution/solve.sh": "37da4466d2a6b6d3c6b0dd51fca74d7867b52b638f8b9820ee2f6e30915febb7",
+        "task.toml": "89760344f93862da427f7f5e9a443cb4cdbc04c75522a8f40e49acff3f0bc1b1",
+        "tests/config.json": "cc58298f0bd6b1ba23b3fd4eb57ac2ef6ed1adc6a271f6d7e4cf5aa53d4abba2",
+        "tests/test.sh": "34e512d2b2347bd99d3df995bdd6b16af90ba0b1db5e47eea9331491e1dccb6f"
+      },
+      "image": {
+        "reference": "swebench/sweb.eval.x86_64.sympy_1776_sympy-13091:latest",
+        "pinned": "swebench/sweb.eval.x86_64.sympy_1776_sympy-13091@sha256:471f39923e1ace96073b57b4585fcb180fe825176ee42589c46d50ccca9ed9a6",
+        "platform": "linux/amd64"
+      },
+      "resources": {
+        "cpus": 1,
+        "memory_mb": 4096,
+        "storage_mb": 10240
+      }
+    },
+    {
+      "instance_id": "scikit-learn__scikit-learn-9288",
+      "repo": "scikit-learn/scikit-learn",
+      "base_commit": "3eacf948e0f95ef957862568d87ce082f378e186",
+      "split": "pilot",
+      "harbor_path": "datasets/swebench-verified/scikit-learn__scikit-learn-9288",
+      "harbor_commit": "86723674f04e4209ac479d0fb75d9d9f44b4377e",
+      "files_sha256": {
+        "environment/Dockerfile": "c08342d86932bc1bb829f3e67748bd915c741a132142d0ce247bfd08b48dfc20",
+        "instruction.md": "9604c3c81d47d0d1b0627ab5f6ea97a6e657cf68c94d05b2c27042fbadbf7ead",
+        "solution/solve.sh": "3c12dec64dce72de128d3e5f73ae5dc38a19410fe1b9e30e015602340e8bf28e",
+        "task.toml": "89760344f93862da427f7f5e9a443cb4cdbc04c75522a8f40e49acff3f0bc1b1",
+        "tests/config.json": "1c85c376dbd521c70d29504c8914fc5499677f4fd2a4870a0cb8fd65bd97fa1a",
+        "tests/test.sh": "4cbfad46c9eab812aa4d24adc61a5bb1437fdefb3502b8608f052a822552aed0"
+      },
+      "image": {
+        "reference": "swebench/sweb.eval.x86_64.scikit-learn_1776_scikit-learn-9288:latest",
+        "pinned": "swebench/sweb.eval.x86_64.scikit-learn_1776_scikit-learn-9288@sha256:702434646ba19a69bf216770efdbc2010f64aad9f1162be14abec1bb52399662",
+        "platform": "linux/amd64"
+      },
+      "resources": {
+        "cpus": 1,
+        "memory_mb": 4096,
+        "storage_mb": 10240
+      }
+    },
+    {
+      "instance_id": "django__django-11163",
+      "repo": "django/django",
+      "base_commit": "e6588aa4e793b7f56f4cadbfa155b581e0efc59a",
+      "split": "evaluation",
+      "harbor_path": "datasets/swebench-verified/django__django-11163",
+      "harbor_commit": "86723674f04e4209ac479d0fb75d9d9f44b4377e",
+      "files_sha256": {
+        "environment/Dockerfile": "696e921bb3b48ef3e7e9b55e85da7f1f38fc7034d1baa1e775c30e80fb36e78a",
+        "instruction.md": "bf9f25c3955001d2c7cd88dce3d71e609f8ad1625945bd4d5ccfe61a843927ce",
+        "solution/solve.sh": "5990de27b70a4f4fe5e30dfd3c1dd226ee04251998f429a4034fc40312aa1e9a",
+        "task.toml": "e9a5d7dd94ed43a89396fc12e7b7b32578c9114806bf017620aa694525dd9cba",
+        "tests/config.json": "6aa2470ebda9ee160564cca2342eb43d325677157c738e6f750764bcd01af7e5",
+        "tests/test.sh": "28b7dccaf64f0e33afe5e04c6e7728241b636a80fc0e701b0726f09dbaaf84bf"
+      },
+      "image": {
+        "reference": "swebench/sweb.eval.x86_64.django_1776_django-11163:latest",
+        "pinned": "swebench/sweb.eval.x86_64.django_1776_django-11163@sha256:ae0b96085340fc1c0cc2962ba5ac39f9cc935cbd50fbc98229b635fd80df31a3",
+        "platform": "linux/amd64"
+      },
+      "resources": {
+        "cpus": 1,
+        "memory_mb": 4096,
+        "storage_mb": 10240
+      }
+    },
+    {
+      "instance_id": "scikit-learn__scikit-learn-12585",
+      "repo": "scikit-learn/scikit-learn",
+      "base_commit": "bfc4a566423e036fbdc9fb02765fd893e4860c85",
+      "split": "evaluation",
+      "harbor_path": "datasets/swebench-verified/scikit-learn__scikit-learn-12585",
+      "harbor_commit": "86723674f04e4209ac479d0fb75d9d9f44b4377e",
+      "files_sha256": {
+        "environment/Dockerfile": "e3549fa1e3cfcd6fbf25244f0bd53cec3618c04bfac1be476d03d4061fa74ce6",
+        "instruction.md": "6bc2846aaad6d30d34091ebb13f9f941e635926055fb118ba888c9af891d19a3",
+        "solution/solve.sh": "6163f431eef0cec6efd99616b22dee521dceee27b22aaf84fb4c49ac0a54e761",
+        "task.toml": "e9a5d7dd94ed43a89396fc12e7b7b32578c9114806bf017620aa694525dd9cba",
+        "tests/config.json": "7835d59e2f1fb14a18ec28b83bd494de75fb0cdbbf1c0718444c75bad7c464e0",
+        "tests/test.sh": "9441a644baf191f854d0bcae0bde0bdacf3a3ab5492ebade687530e99c0f6c8b"
+      },
+      "image": {
+        "reference": "swebench/sweb.eval.x86_64.scikit-learn_1776_scikit-learn-12585:latest",
+        "pinned": "swebench/sweb.eval.x86_64.scikit-learn_1776_scikit-learn-12585@sha256:cdd7ee1f8be0ad736dad1a201aedd1683f8535f9cc7a1aa489e992a71fcc81f8",
+        "platform": "linux/amd64"
+      },
+      "resources": {
+        "cpus": 1,
+        "memory_mb": 4096,
+        "storage_mb": 10240
+      }
+    },
+    {
+      "instance_id": "matplotlib__matplotlib-25775",
+      "repo": "matplotlib/matplotlib",
+      "base_commit": "26224d96066b5c60882296c551f54ca7732c0af0",
+      "split": "evaluation",
+      "harbor_path": "datasets/swebench-verified/matplotlib__matplotlib-25775",
+      "harbor_commit": "86723674f04e4209ac479d0fb75d9d9f44b4377e",
+      "files_sha256": {
+        "environment/Dockerfile": "f421ba0104b2b62a52975b862caf53bba64d6c62d3b0d2304f3bca7e984b5a8f",
+        "instruction.md": "a15b46987ceec554e057cf8fc62b015b435221182f76357b9d54ada6417c6401",
+        "solution/solve.sh": "a03d7e2ce7aa9afbf1de9416a9619a93af4273e257bc5595c3ae24c0947d6157",
+        "task.toml": "89760344f93862da427f7f5e9a443cb4cdbc04c75522a8f40e49acff3f0bc1b1",
+        "tests/config.json": "11013d635d1370c4f08fe1e3b67c83955d0ecdd3b504fb83377536d11a9523d5",
+        "tests/test.sh": "98b29dd6b64256440fb4eb9ff147f1f4f05a64170a1d9af531629fa865d006c9"
+      },
+      "image": {
+        "reference": "swebench/sweb.eval.x86_64.matplotlib_1776_matplotlib-25775:latest",
+        "pinned": "swebench/sweb.eval.x86_64.matplotlib_1776_matplotlib-25775@sha256:0e72108fafecbb2cdc5c8d17ce24327e5aeff3033c81625dde59ca5d2d42b573",
+        "platform": "linux/amd64"
+      },
+      "resources": {
+        "cpus": 1,
+        "memory_mb": 4096,
+        "storage_mb": 10240
+      }
+    },
+    {
+      "instance_id": "django__django-14089",
+      "repo": "django/django",
+      "base_commit": "d01709aae21de9cd2565b9c52f32732ea28a2d98",
+      "split": "evaluation",
+      "harbor_path": "datasets/swebench-verified/django__django-14089",
+      "harbor_commit": "86723674f04e4209ac479d0fb75d9d9f44b4377e",
+      "files_sha256": {
+        "environment/Dockerfile": "2589119422ce63eab238b7973042324dedb777fd2d6cfc5be5f728fed1ba481a",
+        "instruction.md": "b97eac3fa6e1ec5c8d83c9881f91405b7398951df8ad3e2d7d730b3d4bfc66ce",
+        "solution/solve.sh": "f75b59c852ff7df8e2348d7a900cfddf5291f0694872b8dac1fc77ee4233c918",
+        "task.toml": "e9a5d7dd94ed43a89396fc12e7b7b32578c9114806bf017620aa694525dd9cba",
+        "tests/config.json": "a464c0e9e18de9a72b608b4636f145dbd534355bab49cea1c38a2ca8d96e2625",
+        "tests/test.sh": "e09137bd9b829e8e489ed278fae8709d33333d973204beb76cb042b930a1517b"
+      },
+      "image": {
+        "reference": "swebench/sweb.eval.x86_64.django_1776_django-14089:latest",
+        "pinned": "swebench/sweb.eval.x86_64.django_1776_django-14089@sha256:350ca9194f232f18e2e5e38b2fe7b0f3669cebb94b25d6fa2e3f2307ada0a6b7",
+        "platform": "linux/amd64"
+      },
+      "resources": {
+        "cpus": 1,
+        "memory_mb": 4096,
+        "storage_mb": 10240
+      }
+    },
+    {
+      "instance_id": "django__django-12419",
+      "repo": "django/django",
+      "base_commit": "7fa1a93c6c8109010a6ff3f604fda83b604e0e97",
+      "split": "evaluation",
+      "harbor_path": "datasets/swebench-verified/django__django-12419",
+      "harbor_commit": "86723674f04e4209ac479d0fb75d9d9f44b4377e",
+      "files_sha256": {
+        "environment/Dockerfile": "738923dc20968f047f5bdd5dc5ae6db034a2ee49d038fb4a601cbaa17348d6ed",
+        "instruction.md": "b16917f566c994286b7a94a0a428839b91699baecbceb56532fec7792808fe8c",
+        "solution/solve.sh": "94f96fbd27a4f06e42601381a6bcbf61abd566ae9299abbfdc3c775534c4e24f",
+        "task.toml": "e9a5d7dd94ed43a89396fc12e7b7b32578c9114806bf017620aa694525dd9cba",
+        "tests/config.json": "1aad7a330e0e35156336f05b95c0aa22d5ae438fab0ee657885ac062181eea53",
+        "tests/test.sh": "20c33d0f0bb68bc2282eadcef5a953e42fb8130becbc15b315d4598e10b33e7d"
+      },
+      "image": {
+        "reference": "swebench/sweb.eval.x86_64.django_1776_django-12419:latest",
+        "pinned": "swebench/sweb.eval.x86_64.django_1776_django-12419@sha256:6c6b1fec0a323b9225564620cd34f2d39828cef8f32496ad4a6c9ca0f7256768",
+        "platform": "linux/amd64"
+      },
+      "resources": {
+        "cpus": 1,
+        "memory_mb": 4096,
+        "storage_mb": 10240
+      }
+    },
+    {
+      "instance_id": "scikit-learn__scikit-learn-13328",
+      "repo": "scikit-learn/scikit-learn",
+      "base_commit": "37b0e66c871e8fb032a9c7086b2a1d5419838154",
+      "split": "evaluation",
+      "harbor_path": "datasets/swebench-verified/scikit-learn__scikit-learn-13328",
+      "harbor_commit": "86723674f04e4209ac479d0fb75d9d9f44b4377e",
+      "files_sha256": {
+        "environment/Dockerfile": "da8dd86efef9d9e5cf4aaf13462dc5102a40a985cd48c00af304bf0f53769c41",
+        "instruction.md": "625f602b1ea6633ddcfbed3f5064e828335a22e413a7881f66b367bf44b7bd47",
+        "solution/solve.sh": "303abbe2b89eca7185c946b2e81a92da0049d9c112e8cecdf3c8be3c1a0cd09c",
+        "task.toml": "e9a5d7dd94ed43a89396fc12e7b7b32578c9114806bf017620aa694525dd9cba",
+        "tests/config.json": "96377a890e868526f9eb8f2a3e65ae0a9fe60e6dc4f7f378e1737634d034b6a0",
+        "tests/test.sh": "b00423ddf92ce0e99027437a175683d03438d317d2e520a4608cea115eddf481"
+      },
+      "image": {
+        "reference": "swebench/sweb.eval.x86_64.scikit-learn_1776_scikit-learn-13328:latest",
+        "pinned": "swebench/sweb.eval.x86_64.scikit-learn_1776_scikit-learn-13328@sha256:bf8c3425ac315ced20986def6adcd580ce4536ded6247d80f99d4c4352c85dab",
+        "platform": "linux/amd64"
+      },
+      "resources": {
+        "cpus": 1,
+        "memory_mb": 4096,
+        "storage_mb": 10240
+      }
+    },
+    {
+      "instance_id": "django__django-16032",
+      "repo": "django/django",
+      "base_commit": "0c3981eb5094419fe200eb46c71b5376a2266166",
+      "split": "evaluation",
+      "harbor_path": "datasets/swebench-verified/django__django-16032",
+      "harbor_commit": "86723674f04e4209ac479d0fb75d9d9f44b4377e",
+      "files_sha256": {
+        "environment/Dockerfile": "72b4c3f5c93664c0c064cbb7f860a68b1b5f5485e431a4dd0e773110a626ff4c",
+        "instruction.md": "a15fe4bd2bfe5c471ab450fe21b75031885503d3e70b8148995445088b48ff3c",
+        "solution/solve.sh": "b9589018117df3fcd7d77297b20c556ed954a196215e6a9aa6fead9f389ea851",
+        "task.toml": "89760344f93862da427f7f5e9a443cb4cdbc04c75522a8f40e49acff3f0bc1b1",
+        "tests/config.json": "169eea051d6bf357b7a58ce780e9ecf655bb591b6307673e6a53beec216e4246",
+        "tests/test.sh": "cc138d936aa1ffa6e592fc22374aeefa15ba4506f02112cc94797621398130d0"
+      },
+      "image": {
+        "reference": "swebench/sweb.eval.x86_64.django_1776_django-16032:latest",
+        "pinned": "swebench/sweb.eval.x86_64.django_1776_django-16032@sha256:2b05c0e1e5815995e627e3780e332cafad8b06acb1fee06a9b7db4e2cff18066",
+        "platform": "linux/amd64"
+      },
+      "resources": {
+        "cpus": 1,
+        "memory_mb": 4096,
+        "storage_mb": 10240
+      }
+    },
+    {
+      "instance_id": "django__django-16938",
+      "repo": "django/django",
+      "base_commit": "1136aa5005f0ae70fea12796b7e37d6f027b9263",
+      "split": "evaluation",
+      "harbor_path": "datasets/swebench-verified/django__django-16938",
+      "harbor_commit": "86723674f04e4209ac479d0fb75d9d9f44b4377e",
+      "files_sha256": {
+        "environment/Dockerfile": "035e3333076a57152c7900805f8306637d4c19eac4dedd32dcf9c3c9102e69b1",
+        "instruction.md": "8c1655f792841d3d0433734d797712f2c77fe77dd310567ef8992611ae56ce3e",
+        "solution/solve.sh": "eabe3ddb32de697295dc12784426f2c134afa2d3ed8ec6f8d173dcdf98fc107b",
+        "task.toml": "89760344f93862da427f7f5e9a443cb4cdbc04c75522a8f40e49acff3f0bc1b1",
+        "tests/config.json": "e650af0a7465131766a3080c8f9cabc3523d1410db210f8436fa42788cfd07d1",
+        "tests/test.sh": "25b20210fe9f7ac16757ed06fc057c00fd3f433093bf09530b6a4e9f86439a76"
+      },
+      "image": {
+        "reference": "swebench/sweb.eval.x86_64.django_1776_django-16938:latest",
+        "pinned": "swebench/sweb.eval.x86_64.django_1776_django-16938@sha256:6f012c1325955fbe013ad32c1a621a8d43bed37b10b0c4c008716a97a00171c6",
+        "platform": "linux/amd64"
+      },
+      "resources": {
+        "cpus": 1,
+        "memory_mb": 4096,
+        "storage_mb": 10240
+      }
+    },
+    {
+      "instance_id": "scikit-learn__scikit-learn-14053",
+      "repo": "scikit-learn/scikit-learn",
+      "base_commit": "6ab8c86c383dd847a1be7103ad115f174fe23ffd",
+      "split": "evaluation",
+      "harbor_path": "datasets/swebench-verified/scikit-learn__scikit-learn-14053",
+      "harbor_commit": "86723674f04e4209ac479d0fb75d9d9f44b4377e",
+      "files_sha256": {
+        "environment/Dockerfile": "a6c59919b4ce623baf2f0164cdc1d27440cc95eec3afad7cbfd674f965b27009",
+        "instruction.md": "6e36fd68ab654a7617abca04c3e4103ea5b6a3953947a6a73edfd59e730625f5",
+        "solution/solve.sh": "509c4e435b11aedaea69edee2582356638fa0a1ba9d12acc907c9acc5535c0fc",
+        "task.toml": "89760344f93862da427f7f5e9a443cb4cdbc04c75522a8f40e49acff3f0bc1b1",
+        "tests/config.json": "ec007e6a3e09f8a350d0c30adadbdb2c553ec32093db2ebe91fdbe84edcb45c4",
+        "tests/test.sh": "815b28b6fb6e7681e493c0683eb11c4edcb2005b613ad731b616439624ec2f3a"
+      },
+      "image": {
+        "reference": "swebench/sweb.eval.x86_64.scikit-learn_1776_scikit-learn-14053:latest",
+        "pinned": "swebench/sweb.eval.x86_64.scikit-learn_1776_scikit-learn-14053@sha256:5a0a67e6c20dc0ec7587d1efa8ae25c3b3775be682e67df94767c68b388a6d42",
+        "platform": "linux/amd64"
+      },
+      "resources": {
+        "cpus": 1,
+        "memory_mb": 4096,
+        "storage_mb": 10240
+      }
+    },
+    {
+      "instance_id": "scikit-learn__scikit-learn-10844",
+      "repo": "scikit-learn/scikit-learn",
+      "base_commit": "97523985b39ecde369d83352d7c3baf403b60a22",
+      "split": "evaluation",
+      "harbor_path": "datasets/swebench-verified/scikit-learn__scikit-learn-10844",
+      "harbor_commit": "86723674f04e4209ac479d0fb75d9d9f44b4377e",
+      "files_sha256": {
+        "environment/Dockerfile": "387fec3570b2301ff1abe065ab24d9cfea7a8b8ec3274f6fb088e51285e355b2",
+        "instruction.md": "862360b8b4bc0421305762fa2c9387437f8eb7c2f35c68fffa78391c702b902c",
+        "solution/solve.sh": "fcdd4c88fb16163e78e9802bb94de986aef9d3a8d73d30a6f16c7fd0b90f15ff",
+        "task.toml": "89760344f93862da427f7f5e9a443cb4cdbc04c75522a8f40e49acff3f0bc1b1",
+        "tests/config.json": "a33a0fbdc0cebf4b286fbcf3b9507ddf7cb07706ec275c2c89fb69c577decffc",
+        "tests/test.sh": "f67099ed05f3e20078ef0dcdbb4027a7cbeece03665f2a99be66728825725d00"
+      },
+      "image": {
+        "reference": "swebench/sweb.eval.x86_64.scikit-learn_1776_scikit-learn-10844:latest",
+        "pinned": "swebench/sweb.eval.x86_64.scikit-learn_1776_scikit-learn-10844@sha256:0721acd36a3d3f0504af91510930b5915b131a1f60583654f3bd5f6a1a65bf5f",
+        "platform": "linux/amd64"
+      },
+      "resources": {
+        "cpus": 1,
+        "memory_mb": 4096,
+        "storage_mb": 10240
+      }
+    },
+    {
+      "instance_id": "django__django-16429",
+      "repo": "django/django",
+      "base_commit": "6c86495bcee22eac19d7fb040b2988b830707cbd",
+      "split": "evaluation",
+      "harbor_path": "datasets/swebench-verified/django__django-16429",
+      "harbor_commit": "86723674f04e4209ac479d0fb75d9d9f44b4377e",
+      "files_sha256": {
+        "environment/Dockerfile": "b2a16813e5da529f8c2031900c9802a383f316837a42551a295b415ac4b9668d",
+        "instruction.md": "f7484924850e2fb1f5dfa67a3d5ca2ee393cf34b0cdde6bfcc9af007f43e8cfa",
+        "solution/solve.sh": "576dcc0f636ecc26a4b9809f798bd98018bd68fb6b0ddfd167ecce755e379011",
+        "task.toml": "e9a5d7dd94ed43a89396fc12e7b7b32578c9114806bf017620aa694525dd9cba",
+        "tests/config.json": "7dabef043cdb31c237428b88518610814fcfdb415929f76efb7eafb6ed1d1e45",
+        "tests/test.sh": "d31bf53f869fe664c25ca60c43f36847a1f223cb2eba30b67e24cb761448b3c6"
+      },
+      "image": {
+        "reference": "swebench/sweb.eval.x86_64.django_1776_django-16429:latest",
+        "pinned": "swebench/sweb.eval.x86_64.django_1776_django-16429@sha256:2c6681b7bc14c7b0847d3c0b5c5b3bd1ef41e3764b43852ac5415a6e5dde3ae8",
+        "platform": "linux/amd64"
+      },
+      "resources": {
+        "cpus": 1,
+        "memory_mb": 4096,
+        "storage_mb": 10240
+      }
+    },
+    {
+      "instance_id": "django__django-16569",
+      "repo": "django/django",
+      "base_commit": "278881e37619278789942513916acafaa88d26f3",
+      "split": "evaluation",
+      "harbor_path": "datasets/swebench-verified/django__django-16569",
+      "harbor_commit": "86723674f04e4209ac479d0fb75d9d9f44b4377e",
+      "files_sha256": {
+        "environment/Dockerfile": "e635dfc3ad0cbb0eeadd1ddd0f3ceccea5ef9bbf062399d94a8687f5bfe87ac5",
+        "instruction.md": "5d427f10455eb0bd7032fdf281256aaf8913a022d1779e5d7212f3a8aca816eb",
+        "solution/solve.sh": "301b76a115ffc8e84918b328bae7cee5078be0a2d8a9c5c0c36010edb60be2f5",
+        "task.toml": "e9a5d7dd94ed43a89396fc12e7b7b32578c9114806bf017620aa694525dd9cba",
+        "tests/config.json": "cc1dcc2ed822f02f7b31c7c1974dfe18c1904ffb9ad98ff69419af159bfc2ac6",
+        "tests/test.sh": "f251608ce2379892ff139a49eafd0eb2c290059cc4ce3481b059c79d1bec8626"
+      },
+      "image": {
+        "reference": "swebench/sweb.eval.x86_64.django_1776_django-16569:latest",
+        "pinned": "swebench/sweb.eval.x86_64.django_1776_django-16569@sha256:c9c5cbfba8c3f8668d942bdcc892aa5d5e59627f979f4bb91d931184f3f62354",
+        "platform": "linux/amd64"
+      },
+      "resources": {
+        "cpus": 1,
+        "memory_mb": 4096,
+        "storage_mb": 10240
+      }
+    },
+    {
+      "instance_id": "django__django-11265",
+      "repo": "django/django",
+      "base_commit": "21aa2a5e785eef1f47beb1c3760fdd7d8915ae09",
+      "split": "evaluation",
+      "harbor_path": "datasets/swebench-verified/django__django-11265",
+      "harbor_commit": "86723674f04e4209ac479d0fb75d9d9f44b4377e",
+      "files_sha256": {
+        "environment/Dockerfile": "993c4b3bc97fcced0a31712ea686c6e62c16ec8555c3d2a59f80dab55ca1332a",
+        "instruction.md": "89d64e10fe1e246a294891c45d66c081dea8bf27c29c3466f3ae2bf8c7939e35",
+        "solution/solve.sh": "b5faa1321d4738979a7c470eabdc7dd21642c3b55f611d5937d58efc9e312b1d",
+        "task.toml": "89760344f93862da427f7f5e9a443cb4cdbc04c75522a8f40e49acff3f0bc1b1",
+        "tests/config.json": "422e43bc2f1bddb68ce56b68c57aa37d5dd3abc07c9e8cd4c91c626dd3567226",
+        "tests/test.sh": "5889ba9744a5a913ddae088d68d7e5a0902f35e742cb0f72e4d5c37efe967c40"
+      },
+      "image": {
+        "reference": "swebench/sweb.eval.x86_64.django_1776_django-11265:latest",
+        "pinned": "swebench/sweb.eval.x86_64.django_1776_django-11265@sha256:8e8eb63519510156e4bd1bcb930a817f1f6b958d19db6987bfdcc60c90bf1dcf",
+        "platform": "linux/amd64"
+      },
+      "resources": {
+        "cpus": 1,
+        "memory_mb": 4096,
+        "storage_mb": 10240
+      }
+    },
+    {
+      "instance_id": "scikit-learn__scikit-learn-12682",
+      "repo": "scikit-learn/scikit-learn",
+      "base_commit": "d360ffa7c5896a91ae498b3fb9cf464464ce8f34",
+      "split": "evaluation",
+      "harbor_path": "datasets/swebench-verified/scikit-learn__scikit-learn-12682",
+      "harbor_commit": "86723674f04e4209ac479d0fb75d9d9f44b4377e",
+      "files_sha256": {
+        "environment/Dockerfile": "67eec0f53b46093eb70e555301c7122f38754f3ee7f1065c8b2185eb6f30ba96",
+        "instruction.md": "4dcadd0e9335f9d8fdd65b5192353e4b58702fc3370a468414ad8e5de7d891b2",
+        "solution/solve.sh": "38c3779a24e7986cf2bcf2c7e4de877b6e02ee98e2febf0a69a5320b79a348df",
+        "task.toml": "89760344f93862da427f7f5e9a443cb4cdbc04c75522a8f40e49acff3f0bc1b1",
+        "tests/config.json": "7c4fa1e9b2f147c5dd9a0b1ec363706ebd133d9c1f1ea8f48279348405de60ae",
+        "tests/test.sh": "8105a2eaee3bb620c0e2a0fd43d6d3520ca2fa28faf82505f88d519640f50e73"
+      },
+      "image": {
+        "reference": "swebench/sweb.eval.x86_64.scikit-learn_1776_scikit-learn-12682:latest",
+        "pinned": "swebench/sweb.eval.x86_64.scikit-learn_1776_scikit-learn-12682@sha256:d0777cff82b76decb07e2590d65e1807d52d0084eed90f22fa76e384ea715fe1",
+        "platform": "linux/amd64"
+      },
+      "resources": {
+        "cpus": 1,
+        "memory_mb": 4096,
+        "storage_mb": 10240
+      }
+    },
+    {
+      "instance_id": "sphinx-doc__sphinx-10323",
+      "repo": "sphinx-doc/sphinx",
+      "base_commit": "31eba1a76dd485dc633cae48227b46879eda5df4",
+      "split": "evaluation",
+      "harbor_path": "datasets/swebench-verified/sphinx-doc__sphinx-10323",
+      "harbor_commit": "86723674f04e4209ac479d0fb75d9d9f44b4377e",
+      "files_sha256": {
+        "environment/Dockerfile": "fc153712e4a16456f47ba5251d910ebbfbcaded75a9899529a2341aa1abcfbe9",
+        "instruction.md": "789a19432537c3948b2c7389aa497711b6ec5a68c9f0d8c3ce2b73eb15f57753",
+        "solution/solve.sh": "320efe07964c00e4b0e0fd167acf0901af5f1dc3485d293c74dc13287bd633de",
+        "task.toml": "e9a5d7dd94ed43a89396fc12e7b7b32578c9114806bf017620aa694525dd9cba",
+        "tests/config.json": "6333044f55a03e53f4cf6b62de83e91e2542cc85fc4bb20729337a821f0b0b76",
+        "tests/test.sh": "55dceeeb797fbc3581a127be3951511d4711435c2b56652d9fc3a69dcbd38d42"
+      },
+      "image": {
+        "reference": "swebench/sweb.eval.x86_64.sphinx-doc_1776_sphinx-10323:latest",
+        "pinned": "swebench/sweb.eval.x86_64.sphinx-doc_1776_sphinx-10323@sha256:30b09bb22c96bc3aeb3de19069452b4363805718e28bca5aa1e6199676243959",
+        "platform": "linux/amd64"
+      },
+      "resources": {
+        "cpus": 1,
+        "memory_mb": 4096,
+        "storage_mb": 10240
+      }
+    },
+    {
+      "instance_id": "pydata__xarray-4695",
+      "repo": "pydata/xarray",
+      "base_commit": "51ef2a66c4e0896eab7d2b03e3dfb3963e338e3c",
+      "split": "evaluation",
+      "harbor_path": "datasets/swebench-verified/pydata__xarray-4695",
+      "harbor_commit": "86723674f04e4209ac479d0fb75d9d9f44b4377e",
+      "files_sha256": {
+        "environment/Dockerfile": "ee39f79f3043e828ebc79ac05c995e244ffda08f48d90d9a6849753f9c1be598",
+        "instruction.md": "d378a2e446861782b11185db2975536904b4d9c306734e14a5ceceee1f94cdef",
+        "solution/solve.sh": "1b514d0bdae74f306997495e16908afd6a7beec09ae15df639bb4d1b4affe213",
+        "task.toml": "89760344f93862da427f7f5e9a443cb4cdbc04c75522a8f40e49acff3f0bc1b1",
+        "tests/config.json": "7b4a48926a74887391809d0019b925ae4e9122c90d4fef1d9902bafba781a0e1",
+        "tests/test.sh": "2a3b75d0a28377c27e8acccbcf6cb5aeb8d5af7370960d9532c8c59f6ecbd424"
+      },
+      "image": {
+        "reference": "swebench/sweb.eval.x86_64.pydata_1776_xarray-4695:latest",
+        "pinned": "swebench/sweb.eval.x86_64.pydata_1776_xarray-4695@sha256:93a1265e6fe32cda6fe8d5fb5f8eba4d689fedeaae1228abc7948f2403de98a5",
+        "platform": "linux/amd64"
+      },
+      "resources": {
+        "cpus": 1,
+        "memory_mb": 4096,
+        "storage_mb": 10240
+      }
+    },
+    {
+      "instance_id": "django__django-11451",
+      "repo": "django/django",
+      "base_commit": "e065b293878b1e3ea56655aa9d33e87576cd77ff",
+      "split": "evaluation",
+      "harbor_path": "datasets/swebench-verified/django__django-11451",
+      "harbor_commit": "86723674f04e4209ac479d0fb75d9d9f44b4377e",
+      "files_sha256": {
+        "environment/Dockerfile": "4f1f6dd360fbea1e66f9de115c66371038af1f8de8cc58968366c6656b6055d1",
+        "instruction.md": "144dd9d188cfe2edc88d9dce1c15261f48d50064d3558bea4ebfc098721b785d",
+        "solution/solve.sh": "16d64ca4fbb9b05515622d637ac1151013e42fcd29aff5f2fd41fabafd7294e7",
+        "task.toml": "e9a5d7dd94ed43a89396fc12e7b7b32578c9114806bf017620aa694525dd9cba",
+        "tests/config.json": "9070e5cc5d026de598cb5edc95bb928b149778629bae5c895a3271947e1daca0",
+        "tests/test.sh": "104e1c1b7afca91a6f3eb9a866bae2dfe24378b95509f9e54029a2779f33a72b"
+      },
+      "image": {
+        "reference": "swebench/sweb.eval.x86_64.django_1776_django-11451:latest",
+        "pinned": "swebench/sweb.eval.x86_64.django_1776_django-11451@sha256:e2c2c0e62a1c20b86f394eb12bda5efb503f1cc336069583d932dc7dfa81efb0",
+        "platform": "linux/amd64"
+      },
+      "resources": {
+        "cpus": 1,
+        "memory_mb": 4096,
+        "storage_mb": 10240
+      }
+    },
+    {
+      "instance_id": "django__django-15022",
+      "repo": "django/django",
+      "base_commit": "e1d673c373a7d032060872b690a92fc95496612e",
+      "split": "evaluation",
+      "harbor_path": "datasets/swebench-verified/django__django-15022",
+      "harbor_commit": "86723674f04e4209ac479d0fb75d9d9f44b4377e",
+      "files_sha256": {
+        "environment/Dockerfile": "04cdbdb425f5b0c39febe37fc9a08d674383ec5d2fa187142e81b9d9d6b2e6a2",
+        "instruction.md": "0fb226ce67b9bef39e1e6dd3ca644a86afb787e312ab1f8e4dd9086c62d9479c",
+        "solution/solve.sh": "7810be4119f90755840dde15d8c135dc37b140b4c5008b10f15419ea2839ba73",
+        "task.toml": "89760344f93862da427f7f5e9a443cb4cdbc04c75522a8f40e49acff3f0bc1b1",
+        "tests/config.json": "cb2d12c6d46660bfe431e4360bfbe3586d4080fe1cd70a47fe36255cd35fb312",
+        "tests/test.sh": "b91af77d65fbde20243a9c00b893c91d68b89fe09941287a5cc3145b6f014615"
+      },
+      "image": {
+        "reference": "swebench/sweb.eval.x86_64.django_1776_django-15022:latest",
+        "pinned": "swebench/sweb.eval.x86_64.django_1776_django-15022@sha256:a5648b63cd3b579c7d8be9d7b8cedb4f6649d1754c524c36da24669ad86fccaa",
+        "platform": "linux/amd64"
+      },
+      "resources": {
+        "cpus": 1,
+        "memory_mb": 4096,
+        "storage_mb": 10240
+      }
+    },
+    {
+      "instance_id": "sympy__sympy-20438",
+      "repo": "sympy/sympy",
+      "base_commit": "33b47e4bd60e2302e42616141e76285038b724d6",
+      "split": "evaluation",
+      "harbor_path": "datasets/swebench-verified/sympy__sympy-20438",
+      "harbor_commit": "86723674f04e4209ac479d0fb75d9d9f44b4377e",
+      "files_sha256": {
+        "environment/Dockerfile": "4137428896f7f99ff65aaf4f5ebf167ac12cf0b652f15e36e3c67da86b6928ab",
+        "instruction.md": "ab48dc1dc9b89443d93044930f964e8d4dfe25706fceb03dddf2295c060d339a",
+        "solution/solve.sh": "b7b32c218d94039442e23a9ebf385c3fdfee0fba7b2ea53bed3b6cf5d6aeb20b",
+        "task.toml": "89760344f93862da427f7f5e9a443cb4cdbc04c75522a8f40e49acff3f0bc1b1",
+        "tests/config.json": "897cb99764d437c474495150c05d1d047ffe4cd36c23b205a96c65bb1c292f3e",
+        "tests/test.sh": "29d78afe46a0d727f78d8caffa9aaa7ac0dc328a21033bdd5c6be45c655eb0f8"
+      },
+      "image": {
+        "reference": "swebench/sweb.eval.x86_64.sympy_1776_sympy-20438:latest",
+        "pinned": "swebench/sweb.eval.x86_64.sympy_1776_sympy-20438@sha256:cb6d4d5d94b5ef2dbf611a8caf1a82b52b88564c286767cd460c33cad9965ae0",
+        "platform": "linux/amd64"
+      },
+      "resources": {
+        "cpus": 1,
+        "memory_mb": 4096,
+        "storage_mb": 10240
+      }
+    },
+    {
+      "instance_id": "pytest-dev__pytest-7324",
+      "repo": "pytest-dev/pytest",
+      "base_commit": "19ad5889353c7f5f2b65cc2acd346b7a9e95dfcd",
+      "split": "evaluation",
+      "harbor_path": "datasets/swebench-verified/pytest-dev__pytest-7324",
+      "harbor_commit": "86723674f04e4209ac479d0fb75d9d9f44b4377e",
+      "files_sha256": {
+        "environment/Dockerfile": "6d26365ccf4449aa38dcfc14d114062dbe4658fd069064f87c118e5a4423240f",
+        "instruction.md": "c86104555dc540eca4e1fc4625c95084e5ebe6bb5484acc6a9d4b2fca7378634",
+        "solution/solve.sh": "9d4554bcd56afe3b4d3c770f7834c5a186237972c43d878913675b026d794ac5",
+        "task.toml": "89760344f93862da427f7f5e9a443cb4cdbc04c75522a8f40e49acff3f0bc1b1",
+        "tests/config.json": "63754e5cdbda4376d213d53075f87d0793f117acea51795b2ee8351c8a299dcf",
+        "tests/test.sh": "e5e78ab9e9f9ee24619ac0448384f1afd9469a416a99b61ce7cf3ee17a9ee818"
+      },
+      "image": {
+        "reference": "swebench/sweb.eval.x86_64.pytest-dev_1776_pytest-7324:latest",
+        "pinned": "swebench/sweb.eval.x86_64.pytest-dev_1776_pytest-7324@sha256:90f6a7d3146119f5505ab807c1cfe51d63f2cc2547b764fade3e710c87db6b5e",
+        "platform": "linux/amd64"
+      },
+      "resources": {
+        "cpus": 1,
+        "memory_mb": 4096,
+        "storage_mb": 10240
+      }
+    }
+  ],
+  "branches": [
+    "A-continue",
+    "B-workspace",
+    "B-summary",
+    "B-fresh"
+  ],
+  "repeats": {
+    "pilot": 1,
+    "evaluation": 2
+  },
+  "agents": {
+    "A": {
+      "scaffold": "codex-cli",
+      "version": "0.160.1",
+      "model": "gpt-6-astra",
+      "billing": "subscription; usage reported, no invented USD price"
+    },
+    "B": {
+      "scaffold": "mini-swe-agent",
+      "version": "2.4.6",
+      "model": "gpt-5.4-mini-2026-03-17",
+      "billing": "metered API"
+    }
+  },
+  "budget": {
+    "primary_constraint": "wall-clock service time, queue reported separately",
+    "prefix_seconds": 300,
+    "continuation_seconds": 300,
+    "fresh_seconds": 600,
+    "api_requests": {
+      "A-continue": 0,
+      "B-workspace": 8,
+      "B-summary": 8,
+      "B-fresh": 16
+    },
+    "reservation_per_request_usd": 0.16,
+    "reservation_status": "mini-160kb-v1: 160000 input bytes, 4096 output tokens; current bounded transport",
+    "automatic_retries": 0,
+    "paid_execution_authorized": false
+  },
+  "checkpoint": {
+    "trigger": "cooperative yield on a runtime hook notice after at most 2 admitted Bash/apply_patch tools; no numerical quota in initial prompt; retain natural early completion",
+    "on_prefix_timeout": "no checkpoint; retain source_failed and costs; never seal unmatched tool receipts",
+    "eligibility": "all planned tasks; never inspect hidden reward to decide whether to fork",
+    "hidden_verification": "final branches only; no hidden feedback in handoff",
+    "summary": "source final message, labeled unverified; no extra model call",
+    "prefix_policy": {
+      "version": "codex-tools-v2",
+      "max_tools": 2
+    }
+  },
+  "statistics": {
+    "primary_contrast": "B-summary minus A-continue",
+    "unit": "task; keep repeats and branches within their task cluster",
+    "bootstrap_replicates": 10000,
+    "bootstrap_seed": 20261011,
+    "ci": "paired task-cluster percentile 95%; no CI with missing observations",
+    "secondary": "descriptive exploratory contrasts; no unadjusted significance claims",
+    "infra_policy": "unsuccessful in ITT; graded-only denominator separately visible",
+    "unknown_cost": "null plus known lower bound; never zero-fill",
+    "reruns": "no automatic replacement; new protocol/run identity and retain prior failures",
+    "scope": "20-task fixed exploratory subset; not an official 500-task score"
+  },
+  "execution_gate": [
+    "real-repository checkpoint/restore compatibility",
+    "offline isolated verifier negative and oracle controls",
+    "Kubernetes memory/storage quota and AMD64 capability",
+    "credential delivery and task-aware agent prompts",
+    "current price/envelope check and explicit paid budget approval"
+  ],
+  "environment_protocol_sha256": "dbd68d56849681a5ac991409743d0276ee8b5572992c3570a18ae532ab4cd8bb",
+  "execution_policy": {
+    "mini_repository_shell": "bash-login-timeout-v1",
+    "prefix_notification": "runtime hook notice; numerical limit retained in receipts but omitted from initial prompt",
+    "tool_timeout_seconds": 30,
+    "tool_kill_grace_seconds": 2,
+    "tool_transport_timeout_seconds": 40,
+    "changes_from_v2": [
+      "source does not receive numeric quota up front",
+      "mini tool timeout managed inside sandbox process group with normal command exit feedback"
+    ],
+    "inference_limit": "joint development revision; small repeated development set; not an isolated causal ablation",
+    "hidden_feedback": "posthoc source grading only after all four tasks and branches finish; no filtering"
+  },
+  "protocol_sha256": "461eed77395789d561bc483453352bea9faaa5d26377c239d1e05967e6cb73f6"
+}

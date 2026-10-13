@@ -1,0 +1,2393 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-12",
+  "status": "completed_with_recorded_failure",
+  "mode": "real-local-kubernetes-four-task-development",
+  "scope": "Second development round; 2-tool prefix plus mini login-shell correction. No isolated causal claim, official score, or held-out evaluation.",
+  "executed_commit": "3de0652e1245c6a950d73d124798973f6febfc71",
+  "runner_image": "docker.io/library/rtv-m4-runner@sha256:98dcc042f0dd271f1613ac9fda8b4ba3d079d8e9aa63a1a19bf4b0b442586b6f",
+  "protocol_sha256": "10b54fe6ed59e40d12e796517c79fbcc25d701fcff893a9efa2e115568bbe888",
+  "frozen_runs": [
+    {
+      "task": "sympy__sympy-22914",
+      "prepared_sha256": "4c4b06b4c40aaf95d2fca6b39a95d5bff588bb115abb1bfcf8340f31e9e1b96f",
+      "run_sha256": "30479aa88879b61063c9922333ba9eed266f33d60644c8bff61bc02e71bb21b4",
+      "protocol_sha256": "10b54fe6ed59e40d12e796517c79fbcc25d701fcff893a9efa2e115568bbe888",
+      "runner_image": "docker.io/library/rtv-m4-runner@sha256:98dcc042f0dd271f1613ac9fda8b4ba3d079d8e9aa63a1a19bf4b0b442586b6f",
+      "source_policy": {
+        "version": "codex-tools-v1",
+        "max_tools": 2
+      },
+      "branches": [
+        "B-workspace",
+        "B-fresh",
+        "B-summary",
+        "A-continue"
+      ],
+      "maximum_requests": 32,
+      "allowance_usd": 5.12
+    },
+    {
+      "task": "sympy__sympy-15599",
+      "prepared_sha256": "8d7ae00c08909181b91e397b609b6f0cebeda455126fb38b5153b86d24a6163c",
+      "run_sha256": "969d197ed841b755ed31978616f75d45636384fe8ee01d2b7a33b927ad204553",
+      "protocol_sha256": "10b54fe6ed59e40d12e796517c79fbcc25d701fcff893a9efa2e115568bbe888",
+      "runner_image": "docker.io/library/rtv-m4-runner@sha256:98dcc042f0dd271f1613ac9fda8b4ba3d079d8e9aa63a1a19bf4b0b442586b6f",
+      "source_policy": {
+        "version": "codex-tools-v1",
+        "max_tools": 2
+      },
+      "branches": [
+        "B-workspace",
+        "B-summary",
+        "B-fresh",
+        "A-continue"
+      ],
+      "maximum_requests": 32,
+      "allowance_usd": 5.12
+    },
+    {
+      "task": "sympy__sympy-13091",
+      "prepared_sha256": "ccaee9fc15b4dc4d666845b9eb6e4363e50cd5939e0d82113fddcfa0401c9caa",
+      "run_sha256": "debdea58b2a98a05487ca08fc81dc538fbc6b4edbb470c598de87754ad5cfb7d",
+      "protocol_sha256": "10b54fe6ed59e40d12e796517c79fbcc25d701fcff893a9efa2e115568bbe888",
+      "runner_image": "docker.io/library/rtv-m4-runner@sha256:98dcc042f0dd271f1613ac9fda8b4ba3d079d8e9aa63a1a19bf4b0b442586b6f",
+      "source_policy": {
+        "version": "codex-tools-v1",
+        "max_tools": 2
+      },
+      "branches": [
+        "B-summary",
+        "A-continue",
+        "B-workspace",
+        "B-fresh"
+      ],
+      "maximum_requests": 32,
+      "allowance_usd": 5.12
+    },
+    {
+      "task": "scikit-learn__scikit-learn-9288",
+      "prepared_sha256": "97dec6ccfa3b24023a16413c4cc5d5905ff7ccee517dad8082962cd070d50889",
+      "run_sha256": "bd67a4eae903874ae611dde8e7aa1c513a2013da7b4dd76a91f24fd83c002cd5",
+      "protocol_sha256": "10b54fe6ed59e40d12e796517c79fbcc25d701fcff893a9efa2e115568bbe888",
+      "runner_image": "docker.io/library/rtv-m4-runner@sha256:98dcc042f0dd271f1613ac9fda8b4ba3d079d8e9aa63a1a19bf4b0b442586b6f",
+      "source_policy": {
+        "version": "codex-tools-v1",
+        "max_tools": 2
+      },
+      "branches": [
+        "B-summary",
+        "A-continue",
+        "B-fresh",
+        "B-workspace"
+      ],
+      "maximum_requests": 32,
+      "allowance_usd": 5.12
+    }
+  ],
+  "approval": {
+    "authorization": "Owner explicitly authorizes direct execution within USD 30; no further confirmation required.",
+    "accounting": "settled known API cost + full unknown/pending reservations + planned maximum; historical gross reservations remain unchanged",
+    "approved_ceiling_usd": 30,
+    "prior_known_api_cost_usd": 0.3394707,
+    "prior_unknown_api_requests": 0,
+    "prior_gross_reservations_usd": 19.898,
+    "round_maximum_api_reservation_usd": 20.48,
+    "maximum_known_plus_reserved_usd": 20.8194707,
+    "maximum_api_requests": 128,
+    "maximum_subscription_stages": 8,
+    "automatic_paid_retries": 0,
+    "source_commit": "3de0652e1245c6a950d73d124798973f6febfc71",
+    "invoice_guarantee": false
+  },
+  "runs": [
+    {
+      "task": "sympy__sympy-22914",
+      "prepared_sha256": "4c4b06b4c40aaf95d2fca6b39a95d5bff588bb115abb1bfcf8340f31e9e1b96f",
+      "run_sha256": "30479aa88879b61063c9922333ba9eed266f33d60644c8bff61bc02e71bb21b4",
+      "execution": {
+        "status": "passed",
+        "mode": "real-model-pilot",
+        "run_sha256": "30479aa88879b61063c9922333ba9eed266f33d60644c8bff61bc02e71bb21b4",
+        "checks": {
+          "source_sealed_without_hidden_verifier": true,
+          "source_tool_boundary_audited": true,
+          "B-workspace_verifier_completed": true,
+          "B-workspace_prefix_restored": true,
+          "B-fresh_verifier_completed": true,
+          "B-summary_verifier_completed": true,
+          "B-summary_prefix_restored": true,
+          "A-continue_verifier_completed": true,
+          "native_session_preserved": true,
+          "A-continue_prefix_restored": true,
+          "all_allocations_released": true,
+          "four_observations_linked": true,
+          "api_reservations_within_approval": true,
+          "no_api_request_replay": true
+        },
+        "errors": [],
+        "api_requests": 30,
+        "codex_stages": 2,
+        "subscription_cost_usd": null,
+        "unknown_api_requests": 0,
+        "api_reserved_usd": 4.8,
+        "known_api_cost_usd": 0.0641109,
+        "api_cost_usd": 0.0641109,
+        "approved_budget_usd": 5.12,
+        "elapsed_seconds": 590.58,
+        "limit": "One pilot; scaffold and model both change; no superiority conclusion."
+      },
+      "stages": [
+        {
+          "branch": "prefix",
+          "trial_id": "45eda117-909f-5bca-b9b5-20f714eb5f27",
+          "runtime_status": "cancelled",
+          "stage_result_status": "sealed",
+          "reason": "prefix_tool_budget",
+          "agent_exit_status": null,
+          "prefix_boundary": {
+            "policy": {
+              "version": "codex-tools-v1",
+              "max_tools": 2
+            },
+            "trigger": "tool_budget",
+            "boundary": "cooperative completed turn; sandbox quiescence still required",
+            "denied_tools": 0,
+            "admitted_tools": 2,
+            "receipt_sha256": "c067c753684db20123eab86a7ccba848a4e7341768721558bc8599953cab67ed",
+            "completed_tools": 2
+          },
+          "verification": "not_run",
+          "reward": null,
+          "benchmark_status": null,
+          "api_requests": 0,
+          "known_api_cost_usd": 0,
+          "api_reserved_usd": 0,
+          "unknown_operations": 0,
+          "execution_count": 1,
+          "agent_seconds": 48.035,
+          "tracked_patch_sha256": "f53da784c8c7494699abb13e2edb02f33b819f1174ea6a0ce8d34a610dd3fe43",
+          "tracked_patch_bytes": 2145,
+          "sent_input_bytes": []
+        },
+        {
+          "branch": "B-workspace",
+          "trial_id": "6f5067ff-33c5-570d-bccf-8934a366739d",
+          "runtime_status": "failed",
+          "stage_result_status": "failed",
+          "reason": "agent_limit_or_error",
+          "agent_exit_status": "LimitsExceeded",
+          "prefix_boundary": null,
+          "verification": "completed",
+          "reward": 1.0,
+          "benchmark_status": "solved",
+          "api_requests": 8,
+          "known_api_cost_usd": 0.0197442,
+          "api_reserved_usd": 1.28,
+          "unknown_operations": 0,
+          "execution_count": 1,
+          "agent_seconds": 24.456,
+          "tracked_patch_sha256": "7337b48814582eee7a77074ea062d5e6084c42765f7dc8bcce73412e3f47c282",
+          "tracked_patch_bytes": 2448,
+          "sent_input_bytes": [
+            4243,
+            11327,
+            20982,
+            24149,
+            28169,
+            32115,
+            36917,
+            41367
+          ]
+        },
+        {
+          "branch": "B-fresh",
+          "trial_id": "7cfa631a-5f25-5cce-a07b-02c6255a1326",
+          "runtime_status": "failed",
+          "stage_result_status": "failed",
+          "reason": "agent_limit_or_error",
+          "agent_exit_status": "LimitsExceeded",
+          "prefix_boundary": null,
+          "verification": "completed",
+          "reward": 0.0,
+          "benchmark_status": "unsolved",
+          "api_requests": 16,
+          "known_api_cost_usd": 0.0339735,
+          "api_reserved_usd": 2.56,
+          "unknown_operations": 0,
+          "execution_count": 1,
+          "agent_seconds": 33.982,
+          "tracked_patch_sha256": "352db667ee469206fff7d77cf15ee3068ff18432ed61e03899938e04bcbb3016",
+          "tracked_patch_bytes": 1301,
+          "sent_input_bytes": [
+            4243,
+            6815,
+            12040,
+            14321,
+            29343,
+            31887,
+            35613,
+            50372,
+            53031,
+            56610,
+            59054,
+            62264,
+            66549,
+            69090,
+            73330,
+            76439
+          ]
+        },
+        {
+          "branch": "B-summary",
+          "trial_id": "06b39395-2574-591b-9614-04acf8c43fcf",
+          "runtime_status": "succeeded",
+          "stage_result_status": "succeeded",
+          "reason": "verified",
+          "agent_exit_status": "Submitted",
+          "prefix_boundary": null,
+          "verification": "completed",
+          "reward": 1.0,
+          "benchmark_status": "solved",
+          "api_requests": 6,
+          "known_api_cost_usd": 0.0103932,
+          "api_reserved_usd": 0.96,
+          "unknown_operations": 0,
+          "execution_count": 1,
+          "agent_seconds": 13.223,
+          "tracked_patch_sha256": "f53da784c8c7494699abb13e2edb02f33b819f1174ea6a0ce8d34a610dd3fe43",
+          "tracked_patch_bytes": 2145,
+          "sent_input_bytes": [
+            4804,
+            11819,
+            18365,
+            21149,
+            24181,
+            29500
+          ]
+        },
+        {
+          "branch": "A-continue",
+          "trial_id": "7a1bc230-fbf9-5047-93c6-002af1b736cc",
+          "runtime_status": "succeeded",
+          "stage_result_status": "succeeded",
+          "reason": "verified",
+          "agent_exit_status": null,
+          "prefix_boundary": null,
+          "verification": "completed",
+          "reward": 1.0,
+          "benchmark_status": "solved",
+          "api_requests": 0,
+          "known_api_cost_usd": 0,
+          "api_reserved_usd": 0,
+          "unknown_operations": 0,
+          "execution_count": 1,
+          "agent_seconds": 33.295,
+          "tracked_patch_sha256": "f53da784c8c7494699abb13e2edb02f33b819f1174ea6a0ce8d34a610dd3fe43",
+          "tracked_patch_bytes": 2145,
+          "sent_input_bytes": []
+        }
+      ]
+    },
+    {
+      "task": "sympy__sympy-15599",
+      "prepared_sha256": "8d7ae00c08909181b91e397b609b6f0cebeda455126fb38b5153b86d24a6163c",
+      "run_sha256": "969d197ed841b755ed31978616f75d45636384fe8ee01d2b7a33b927ad204553",
+      "execution": {
+        "status": "passed",
+        "mode": "real-model-pilot",
+        "run_sha256": "969d197ed841b755ed31978616f75d45636384fe8ee01d2b7a33b927ad204553",
+        "checks": {
+          "source_sealed_without_hidden_verifier": true,
+          "source_tool_boundary_audited": true,
+          "B-workspace_verifier_completed": true,
+          "B-workspace_prefix_restored": true,
+          "B-summary_verifier_completed": true,
+          "B-summary_prefix_restored": true,
+          "B-fresh_verifier_completed": true,
+          "A-continue_verifier_completed": true,
+          "native_session_preserved": true,
+          "A-continue_prefix_restored": true,
+          "all_allocations_released": true,
+          "four_observations_linked": true,
+          "api_reservations_within_approval": true,
+          "no_api_request_replay": true
+        },
+        "errors": [],
+        "api_requests": 25,
+        "codex_stages": 2,
+        "subscription_cost_usd": null,
+        "unknown_api_requests": 0,
+        "api_reserved_usd": 4.0,
+        "known_api_cost_usd": 0.0688443,
+        "api_cost_usd": 0.0688443,
+        "approved_budget_usd": 5.12,
+        "elapsed_seconds": 602.88,
+        "limit": "One pilot; scaffold and model both change; no superiority conclusion."
+      },
+      "stages": [
+        {
+          "branch": "prefix",
+          "trial_id": "7b9cc2d9-f12f-5b96-ae07-e7d3f5356bd9",
+          "runtime_status": "cancelled",
+          "stage_result_status": "sealed",
+          "reason": "prefix_tool_budget",
+          "agent_exit_status": null,
+          "prefix_boundary": {
+            "policy": {
+              "version": "codex-tools-v1",
+              "max_tools": 2
+            },
+            "trigger": "tool_budget",
+            "boundary": "cooperative completed turn; sandbox quiescence still required",
+            "denied_tools": 0,
+            "admitted_tools": 2,
+            "receipt_sha256": "7e76f9a609356e89a34e4231679bcabc79c74a59f72164d6bd54936d65455fe8",
+            "completed_tools": 2
+          },
+          "verification": "not_run",
+          "reward": null,
+          "benchmark_status": null,
+          "api_requests": 0,
+          "known_api_cost_usd": 0,
+          "api_reserved_usd": 0,
+          "unknown_operations": 0,
+          "execution_count": 1,
+          "agent_seconds": 55.242,
+          "tracked_patch_sha256": "0b182bfe099dbedf33aa7444bbe688daa0454e047d669865acd0cdf2d0d3e3f1",
+          "tracked_patch_bytes": 1430,
+          "sent_input_bytes": []
+        },
+        {
+          "branch": "B-workspace",
+          "trial_id": "a73b7e68-60f7-5cd7-9b5b-5b9c9d6aada5",
+          "runtime_status": "succeeded",
+          "stage_result_status": "succeeded",
+          "reason": "verified",
+          "agent_exit_status": "Submitted",
+          "prefix_boundary": null,
+          "verification": "completed",
+          "reward": 1.0,
+          "benchmark_status": "solved",
+          "api_requests": 6,
+          "known_api_cost_usd": 0.01061805,
+          "api_reserved_usd": 0.96,
+          "unknown_operations": 0,
+          "execution_count": 1,
+          "agent_seconds": 26.532,
+          "tracked_patch_sha256": "0b182bfe099dbedf33aa7444bbe688daa0454e047d669865acd0cdf2d0d3e3f1",
+          "tracked_patch_bytes": 1430,
+          "sent_input_bytes": [
+            5436,
+            8279,
+            20466,
+            23665,
+            26815,
+            30702
+          ]
+        },
+        {
+          "branch": "B-summary",
+          "trial_id": "917efb01-2abd-5a30-981b-0353480f98c1",
+          "runtime_status": "succeeded",
+          "stage_result_status": "succeeded",
+          "reason": "verified",
+          "agent_exit_status": "Submitted",
+          "prefix_boundary": null,
+          "verification": "completed",
+          "reward": 1.0,
+          "benchmark_status": "solved",
+          "api_requests": 6,
+          "known_api_cost_usd": 0.0108252,
+          "api_reserved_usd": 0.96,
+          "unknown_operations": 0,
+          "execution_count": 1,
+          "agent_seconds": 16.542,
+          "tracked_patch_sha256": "0b182bfe099dbedf33aa7444bbe688daa0454e047d669865acd0cdf2d0d3e3f1",
+          "tracked_patch_bytes": 1430,
+          "sent_input_bytes": [
+            5975,
+            8810,
+            13051,
+            18305,
+            26131,
+            29908
+          ]
+        },
+        {
+          "branch": "B-fresh",
+          "trial_id": "3166b853-1902-5aec-bd5a-c0eaeb23e923",
+          "runtime_status": "failed",
+          "stage_result_status": "failed",
+          "reason": "verification_failed",
+          "agent_exit_status": "Submitted",
+          "prefix_boundary": null,
+          "verification": "completed",
+          "reward": 0.0,
+          "benchmark_status": "unsolved",
+          "api_requests": 13,
+          "known_api_cost_usd": 0.04740105,
+          "api_reserved_usd": 2.08,
+          "unknown_operations": 0,
+          "execution_count": 1,
+          "agent_seconds": 43.553,
+          "tracked_patch_sha256": "96499bb8e7dc464d41ac9a4d91776f0ef322f040e29f1facfbce5aedf0d52a2d",
+          "tracked_patch_bytes": 1565,
+          "sent_input_bytes": [
+            5436,
+            8204,
+            22255,
+            27111,
+            30525,
+            35974,
+            51350,
+            68728,
+            72516,
+            84900,
+            90068,
+            92637,
+            101185
+          ]
+        },
+        {
+          "branch": "A-continue",
+          "trial_id": "fcbb09db-d03e-5421-838e-276c02085c85",
+          "runtime_status": "succeeded",
+          "stage_result_status": "succeeded",
+          "reason": "verified",
+          "agent_exit_status": null,
+          "prefix_boundary": null,
+          "verification": "completed",
+          "reward": 1.0,
+          "benchmark_status": "solved",
+          "api_requests": 0,
+          "known_api_cost_usd": 0,
+          "api_reserved_usd": 0,
+          "unknown_operations": 0,
+          "execution_count": 1,
+          "agent_seconds": 40.867,
+          "tracked_patch_sha256": "0b182bfe099dbedf33aa7444bbe688daa0454e047d669865acd0cdf2d0d3e3f1",
+          "tracked_patch_bytes": 1430,
+          "sent_input_bytes": []
+        }
+      ]
+    },
+    {
+      "task": "sympy__sympy-13091",
+      "prepared_sha256": "ccaee9fc15b4dc4d666845b9eb6e4363e50cd5939e0d82113fddcfa0401c9caa",
+      "run_sha256": "debdea58b2a98a05487ca08fc81dc538fbc6b4edbb470c598de87754ad5cfb7d",
+      "execution": {
+        "status": "passed",
+        "mode": "real-model-pilot",
+        "run_sha256": "debdea58b2a98a05487ca08fc81dc538fbc6b4edbb470c598de87754ad5cfb7d",
+        "checks": {
+          "source_sealed_without_hidden_verifier": true,
+          "source_tool_boundary_audited": true,
+          "B-summary_verifier_completed": true,
+          "B-summary_prefix_restored": true,
+          "A-continue_verifier_completed": true,
+          "native_session_preserved": true,
+          "A-continue_prefix_restored": true,
+          "B-workspace_verifier_completed": true,
+          "B-workspace_prefix_restored": true,
+          "B-fresh_verifier_completed": true,
+          "all_allocations_released": true,
+          "four_observations_linked": true,
+          "api_reservations_within_approval": true,
+          "no_api_request_replay": true
+        },
+        "errors": [],
+        "api_requests": 27,
+        "codex_stages": 2,
+        "subscription_cost_usd": null,
+        "unknown_api_requests": 0,
+        "api_reserved_usd": 4.32,
+        "known_api_cost_usd": 0.0555375,
+        "api_cost_usd": 0.0555375,
+        "approved_budget_usd": 5.12,
+        "elapsed_seconds": 596.76,
+        "limit": "One pilot; scaffold and model both change; no superiority conclusion."
+      },
+      "stages": [
+        {
+          "branch": "prefix",
+          "trial_id": "dc0553ac-0ad1-5ae3-8230-ffe997ffacaa",
+          "runtime_status": "cancelled",
+          "stage_result_status": "sealed",
+          "reason": "prefix_tool_budget",
+          "agent_exit_status": null,
+          "prefix_boundary": {
+            "policy": {
+              "version": "codex-tools-v1",
+              "max_tools": 2
+            },
+            "trigger": "tool_budget",
+            "boundary": "cooperative completed turn; sandbox quiescence still required",
+            "denied_tools": 0,
+            "admitted_tools": 2,
+            "receipt_sha256": "8b3e2061aa3a0841ee1c6e6b46c8c3517aad30d9ac08b2561146f7af300b96f1",
+            "completed_tools": 2
+          },
+          "verification": "not_run",
+          "reward": null,
+          "benchmark_status": null,
+          "api_requests": 0,
+          "known_api_cost_usd": 0,
+          "api_reserved_usd": 0,
+          "unknown_operations": 0,
+          "execution_count": 1,
+          "agent_seconds": 59.073,
+          "tracked_patch_sha256": "cf35ea0d9b42e7167a1c65ce22ea117d2413ee9d20279b0b536f361955501da8",
+          "tracked_patch_bytes": 2160,
+          "sent_input_bytes": []
+        },
+        {
+          "branch": "B-summary",
+          "trial_id": "471984ca-ee68-51f3-8c4d-6c1260614291",
+          "runtime_status": "failed",
+          "stage_result_status": "failed",
+          "reason": "verification_failed",
+          "agent_exit_status": "Submitted",
+          "prefix_boundary": null,
+          "verification": "completed",
+          "reward": 0.0,
+          "benchmark_status": "unsolved",
+          "api_requests": 8,
+          "known_api_cost_usd": 0.01608555,
+          "api_reserved_usd": 1.28,
+          "unknown_operations": 0,
+          "execution_count": 1,
+          "agent_seconds": 19.601,
+          "tracked_patch_sha256": "cf35ea0d9b42e7167a1c65ce22ea117d2413ee9d20279b0b536f361955501da8",
+          "tracked_patch_bytes": 2160,
+          "sent_input_bytes": [
+            6065,
+            15475,
+            25981,
+            31431,
+            34847,
+            39832,
+            42581,
+            46310
+          ]
+        },
+        {
+          "branch": "A-continue",
+          "trial_id": "07ddf13f-e619-54c1-a733-7c9044ebedb4",
+          "runtime_status": "succeeded",
+          "stage_result_status": "succeeded",
+          "reason": "verified",
+          "agent_exit_status": null,
+          "prefix_boundary": null,
+          "verification": "completed",
+          "reward": 1.0,
+          "benchmark_status": "solved",
+          "api_requests": 0,
+          "known_api_cost_usd": 0,
+          "api_reserved_usd": 0,
+          "unknown_operations": 0,
+          "execution_count": 1,
+          "agent_seconds": 93.705,
+          "tracked_patch_sha256": "d54d39333d628af58843777a3b55705f420bf4b58e11584af8e13f803f88e9a8",
+          "tracked_patch_bytes": 18730,
+          "sent_input_bytes": []
+        },
+        {
+          "branch": "B-workspace",
+          "trial_id": "428eed24-941f-5836-847b-1ae5d93eb72f",
+          "runtime_status": "failed",
+          "stage_result_status": "failed",
+          "reason": "agent_limit_or_error",
+          "agent_exit_status": "LimitsExceeded",
+          "prefix_boundary": null,
+          "verification": "completed",
+          "reward": 0.0,
+          "benchmark_status": "unsolved",
+          "api_requests": 8,
+          "known_api_cost_usd": 0.0169869,
+          "api_reserved_usd": 1.28,
+          "unknown_operations": 0,
+          "execution_count": 1,
+          "agent_seconds": 21.514,
+          "tracked_patch_sha256": "1b44b0a8c27ae91bf39b532fb79163ef26474bf70d2701e99f39879abdabe7ca",
+          "tracked_patch_bytes": 2878,
+          "sent_input_bytes": [
+            5429,
+            12376,
+            22590,
+            27902,
+            32481,
+            38182,
+            42481,
+            47584
+          ]
+        },
+        {
+          "branch": "B-fresh",
+          "trial_id": "956da78b-e7bc-5e2b-9c62-280d925dbdc2",
+          "runtime_status": "failed",
+          "stage_result_status": "failed",
+          "reason": "verification_failed",
+          "agent_exit_status": "Submitted",
+          "prefix_boundary": null,
+          "verification": "completed",
+          "reward": 0.0,
+          "benchmark_status": "unsolved",
+          "api_requests": 11,
+          "known_api_cost_usd": 0.02246505,
+          "api_reserved_usd": 1.76,
+          "unknown_operations": 0,
+          "execution_count": 1,
+          "agent_seconds": 28.757,
+          "tracked_patch_sha256": "f2d768017051f58caa16aed2b9bc6656e9eb8b6ecf2c4359e9820c4fe7eb1f90",
+          "tracked_patch_bytes": 886,
+          "sent_input_bytes": [
+            5429,
+            11844,
+            19937,
+            24431,
+            32658,
+            39433,
+            43342,
+            46005,
+            49014,
+            53970
+          ]
+        }
+      ]
+    },
+    {
+      "task": "scikit-learn__scikit-learn-9288",
+      "prepared_sha256": "97dec6ccfa3b24023a16413c4cc5d5905ff7ccee517dad8082962cd070d50889",
+      "run_sha256": "bd67a4eae903874ae611dde8e7aa1c513a2013da7b4dd76a91f24fd83c002cd5",
+      "execution": {
+        "status": "failed",
+        "mode": "real-model-pilot",
+        "run_sha256": "bd67a4eae903874ae611dde8e7aa1c513a2013da7b4dd76a91f24fd83c002cd5",
+        "checks": {
+          "source_sealed_without_hidden_verifier": true,
+          "source_tool_boundary_audited": true,
+          "B-summary_verifier_completed": false,
+          "B-summary_prefix_restored": true,
+          "A-continue_verifier_completed": true,
+          "native_session_preserved": true,
+          "A-continue_prefix_restored": true,
+          "B-fresh_verifier_completed": false,
+          "B-workspace_verifier_completed": true,
+          "B-workspace_prefix_restored": true,
+          "all_allocations_released": true,
+          "four_observations_linked": true,
+          "api_reservations_within_approval": true,
+          "no_api_request_replay": true
+        },
+        "errors": [],
+        "api_requests": 17,
+        "codex_stages": 2,
+        "subscription_cost_usd": null,
+        "unknown_api_requests": 0,
+        "api_reserved_usd": 2.72,
+        "known_api_cost_usd": 0.0484809,
+        "api_cost_usd": 0.0484809,
+        "approved_budget_usd": 5.12,
+        "elapsed_seconds": 822.18,
+        "limit": "One pilot; scaffold and model both change; no superiority conclusion."
+      },
+      "stages": [
+        {
+          "branch": "prefix",
+          "trial_id": "5bb61262-d790-5326-b8a0-e7cc1614388f",
+          "runtime_status": "cancelled",
+          "stage_result_status": "sealed",
+          "reason": "prefix_tool_budget",
+          "agent_exit_status": null,
+          "prefix_boundary": {
+            "policy": {
+              "version": "codex-tools-v1",
+              "max_tools": 2
+            },
+            "trigger": "tool_budget",
+            "boundary": "cooperative completed turn; sandbox quiescence still required",
+            "denied_tools": 0,
+            "admitted_tools": 2,
+            "receipt_sha256": "df21ce9faefbc2075a4efa7b08c4b7f1e42e10e290e4958bb6e93fc8e814c7e4",
+            "completed_tools": 2
+          },
+          "verification": "not_run",
+          "reward": null,
+          "benchmark_status": null,
+          "api_requests": 0,
+          "known_api_cost_usd": 0,
+          "api_reserved_usd": 0,
+          "unknown_operations": 0,
+          "execution_count": 1,
+          "agent_seconds": 81.569,
+          "tracked_patch_sha256": "4fd812e5187ff4d4d401afa319028c67a48bb022fc769e4747196074a630961e",
+          "tracked_patch_bytes": 3333,
+          "sent_input_bytes": []
+        },
+        {
+          "branch": "B-summary",
+          "trial_id": "2381f90a-3f31-5935-8d15-c3b242d990f7",
+          "runtime_status": "failed",
+          "stage_result_status": "failed",
+          "reason": "RuntimeError",
+          "agent_exit_status": null,
+          "prefix_boundary": null,
+          "verification": null,
+          "reward": null,
+          "benchmark_status": "infra_error",
+          "api_requests": 4,
+          "known_api_cost_usd": 0.0081534,
+          "api_reserved_usd": 0.64,
+          "unknown_operations": 1,
+          "execution_count": 1,
+          "agent_seconds": null,
+          "tracked_patch_sha256": null,
+          "tracked_patch_bytes": null,
+          "sent_input_bytes": [
+            7507,
+            12208,
+            23562,
+            28072
+          ]
+        },
+        {
+          "branch": "A-continue",
+          "trial_id": "33760b4a-5285-551a-853e-7cd1c8c1105f",
+          "runtime_status": "succeeded",
+          "stage_result_status": "succeeded",
+          "reason": "verified",
+          "agent_exit_status": null,
+          "prefix_boundary": null,
+          "verification": "completed",
+          "reward": 1.0,
+          "benchmark_status": "solved",
+          "api_requests": 0,
+          "known_api_cost_usd": 0,
+          "api_reserved_usd": 0,
+          "unknown_operations": 0,
+          "execution_count": 1,
+          "agent_seconds": 59.059,
+          "tracked_patch_sha256": "4fd812e5187ff4d4d401afa319028c67a48bb022fc769e4747196074a630961e",
+          "tracked_patch_bytes": 3333,
+          "sent_input_bytes": []
+        },
+        {
+          "branch": "B-fresh",
+          "trial_id": "86f852ed-245c-5f1c-adaa-06e54e52a249",
+          "runtime_status": "failed",
+          "stage_result_status": "failed",
+          "reason": "RuntimeError",
+          "agent_exit_status": null,
+          "prefix_boundary": null,
+          "verification": null,
+          "reward": null,
+          "benchmark_status": "infra_error",
+          "api_requests": 6,
+          "known_api_cost_usd": 0.02041005,
+          "api_reserved_usd": 0.96,
+          "unknown_operations": 1,
+          "execution_count": 1,
+          "agent_seconds": null,
+          "tracked_patch_sha256": null,
+          "tracked_patch_bytes": null,
+          "sent_input_bytes": [
+            6980,
+            16224,
+            29996,
+            37249,
+            44911,
+            54975
+          ]
+        },
+        {
+          "branch": "B-workspace",
+          "trial_id": "8986afac-6e6d-5018-9824-ad9ad3f8e0ca",
+          "runtime_status": "succeeded",
+          "stage_result_status": "succeeded",
+          "reason": "verified",
+          "agent_exit_status": "Submitted",
+          "prefix_boundary": null,
+          "verification": "completed",
+          "reward": 1.0,
+          "benchmark_status": "solved",
+          "api_requests": 7,
+          "known_api_cost_usd": 0.01991745,
+          "api_reserved_usd": 1.12,
+          "unknown_operations": 0,
+          "execution_count": 1,
+          "agent_seconds": 54.042,
+          "tracked_patch_sha256": "4fd812e5187ff4d4d401afa319028c67a48bb022fc769e4747196074a630961e",
+          "tracked_patch_bytes": 3333,
+          "sent_input_bytes": [
+            6980,
+            19678,
+            33742,
+            44360,
+            48371,
+            53128,
+            60114
+          ]
+        }
+      ]
+    }
+  ],
+  "api_budget": {
+    "approved_ceiling_usd": 30,
+    "accounting": "settled known API cost + full unknown/pending reservations + planned maximum; historical gross reservations remain unchanged",
+    "round_maximum_api_allowance_usd": 20.48,
+    "round_api_requests": 99,
+    "round_known_api_cost_usd": 0.2369736,
+    "round_gross_reservations_usd": 15.84,
+    "unknown_api_requests": 0,
+    "unknown_api_reserved_usd": 0.0,
+    "cumulative_api_requests": 235,
+    "cumulative_known_api_cost_usd": 0.5764443,
+    "cumulative_gross_reservations_usd": 35.738,
+    "known_plus_unknown_reserved_usd": 0.5764443,
+    "subscription_cost_usd": null,
+    "invoice_guarantee": false
+  },
+  "analysis": {
+    "schema_version": 1,
+    "bootstrap_samples": 10000,
+    "bootstrap_seed": 20261011,
+    "protocol_sha256": "10b54fe6ed59e40d12e796517c79fbcc25d701fcff893a9efa2e115568bbe888",
+    "split": "pilot",
+    "mode": "real-model",
+    "observations": [
+      {
+        "observation_id": "3b56c02386175497da3691b9",
+        "pair_id": "766218abc4840c4fc56a72fe",
+        "instance_id": "sympy__sympy-22914",
+        "repeat": 0,
+        "split": "pilot",
+        "branch": "B-workspace",
+        "order": 0,
+        "protocol_sha256": "10b54fe6ed59e40d12e796517c79fbcc25d701fcff893a9efa2e115568bbe888",
+        "checkpoint_id": "af19666a-9fec-58a5-94a2-11cfbdfb91d6",
+        "elapsed_seconds": 114.918234,
+        "incremental_api_cost_usd": 0.0197442,
+        "known_incremental_api_cost_usd": 0.0197442,
+        "mode": "real-model",
+        "prefix_api_cost_usd": null,
+        "prefix_boundary": {
+          "admitted_tools": 2,
+          "boundary": "cooperative completed turn; sandbox quiescence still required",
+          "completed_tools": 2,
+          "denied_tools": 0,
+          "policy": {
+            "max_tools": 2,
+            "version": "codex-tools-v1"
+          },
+          "receipt_sha256": "c067c753684db20123eab86a7ccba848a4e7341768721558bc8599953cab67ed",
+          "trigger": "tool_budget"
+        },
+        "queue_seconds": 18.183634,
+        "run_sha256": "30479aa88879b61063c9922333ba9eed266f33d60644c8bff61bc02e71bb21b4",
+        "runtime_reason": "agent_limit_or_error",
+        "source_trial_id": "45eda117-909f-5bca-b9b5-20f714eb5f27",
+        "status": "solved",
+        "trial_id": "6f5067ff-33c5-570d-bccf-8934a366739d",
+        "unknown_operations": 0,
+        "verifier_reward": 1,
+        "verifier_status": "completed"
+      },
+      {
+        "observation_id": "bbe03877627d9acc57512c47",
+        "pair_id": "766218abc4840c4fc56a72fe",
+        "instance_id": "sympy__sympy-22914",
+        "repeat": 0,
+        "split": "pilot",
+        "branch": "B-fresh",
+        "order": 1,
+        "protocol_sha256": "10b54fe6ed59e40d12e796517c79fbcc25d701fcff893a9efa2e115568bbe888",
+        "checkpoint_id": null,
+        "elapsed_seconds": 112.747887,
+        "incremental_api_cost_usd": 0.0339735,
+        "known_incremental_api_cost_usd": 0.0339735,
+        "mode": "real-model",
+        "prefix_api_cost_usd": 0,
+        "queue_seconds": 13.835413,
+        "run_sha256": "30479aa88879b61063c9922333ba9eed266f33d60644c8bff61bc02e71bb21b4",
+        "runtime_reason": "agent_limit_or_error",
+        "source_trial_id": null,
+        "status": "unsolved",
+        "trial_id": "7cfa631a-5f25-5cce-a07b-02c6255a1326",
+        "unknown_operations": 0,
+        "verifier_reward": 0,
+        "verifier_status": "completed"
+      },
+      {
+        "observation_id": "e0fb045a4e08192a70a06d68",
+        "pair_id": "766218abc4840c4fc56a72fe",
+        "instance_id": "sympy__sympy-22914",
+        "repeat": 0,
+        "split": "pilot",
+        "branch": "B-summary",
+        "order": 2,
+        "protocol_sha256": "10b54fe6ed59e40d12e796517c79fbcc25d701fcff893a9efa2e115568bbe888",
+        "checkpoint_id": "af19666a-9fec-58a5-94a2-11cfbdfb91d6",
+        "elapsed_seconds": 98.264973,
+        "incremental_api_cost_usd": 0.0103932,
+        "known_incremental_api_cost_usd": 0.0103932,
+        "mode": "real-model",
+        "prefix_api_cost_usd": null,
+        "prefix_boundary": {
+          "admitted_tools": 2,
+          "boundary": "cooperative completed turn; sandbox quiescence still required",
+          "completed_tools": 2,
+          "denied_tools": 0,
+          "policy": {
+            "max_tools": 2,
+            "version": "codex-tools-v1"
+          },
+          "receipt_sha256": "c067c753684db20123eab86a7ccba848a4e7341768721558bc8599953cab67ed",
+          "trigger": "tool_budget"
+        },
+        "queue_seconds": 15.550991,
+        "run_sha256": "30479aa88879b61063c9922333ba9eed266f33d60644c8bff61bc02e71bb21b4",
+        "runtime_reason": "verified",
+        "source_trial_id": "45eda117-909f-5bca-b9b5-20f714eb5f27",
+        "status": "solved",
+        "trial_id": "06b39395-2574-591b-9614-04acf8c43fcf",
+        "unknown_operations": 0,
+        "verifier_reward": 1,
+        "verifier_status": "completed"
+      },
+      {
+        "observation_id": "fbd2a2e2e5ad27b4adf082b5",
+        "pair_id": "766218abc4840c4fc56a72fe",
+        "instance_id": "sympy__sympy-22914",
+        "repeat": 0,
+        "split": "pilot",
+        "branch": "A-continue",
+        "order": 3,
+        "protocol_sha256": "10b54fe6ed59e40d12e796517c79fbcc25d701fcff893a9efa2e115568bbe888",
+        "checkpoint_id": "af19666a-9fec-58a5-94a2-11cfbdfb91d6",
+        "elapsed_seconds": 117.258674,
+        "incremental_api_cost_usd": null,
+        "known_incremental_api_cost_usd": 0,
+        "mode": "real-model",
+        "prefix_api_cost_usd": null,
+        "prefix_boundary": {
+          "admitted_tools": 2,
+          "boundary": "cooperative completed turn; sandbox quiescence still required",
+          "completed_tools": 2,
+          "denied_tools": 0,
+          "policy": {
+            "max_tools": 2,
+            "version": "codex-tools-v1"
+          },
+          "receipt_sha256": "c067c753684db20123eab86a7ccba848a4e7341768721558bc8599953cab67ed",
+          "trigger": "tool_budget"
+        },
+        "queue_seconds": 15.161308,
+        "run_sha256": "30479aa88879b61063c9922333ba9eed266f33d60644c8bff61bc02e71bb21b4",
+        "runtime_reason": "verified",
+        "source_trial_id": "45eda117-909f-5bca-b9b5-20f714eb5f27",
+        "status": "solved",
+        "trial_id": "7a1bc230-fbf9-5047-93c6-002af1b736cc",
+        "unknown_operations": 0,
+        "verifier_reward": 1,
+        "verifier_status": "completed"
+      },
+      {
+        "observation_id": "2154b176e8f6467f914fb5b9",
+        "pair_id": "98e14af679c1fdc26a369563",
+        "instance_id": "sympy__sympy-15599",
+        "repeat": 0,
+        "split": "pilot",
+        "branch": "B-workspace",
+        "order": 0,
+        "protocol_sha256": "10b54fe6ed59e40d12e796517c79fbcc25d701fcff893a9efa2e115568bbe888",
+        "checkpoint_id": "d05c8b62-7e3d-55e6-b670-bf4713aacfe5",
+        "elapsed_seconds": 114.586115,
+        "incremental_api_cost_usd": 0.01061805,
+        "known_incremental_api_cost_usd": 0.01061805,
+        "mode": "real-model",
+        "prefix_api_cost_usd": null,
+        "prefix_boundary": {
+          "admitted_tools": 2,
+          "boundary": "cooperative completed turn; sandbox quiescence still required",
+          "completed_tools": 2,
+          "denied_tools": 0,
+          "policy": {
+            "max_tools": 2,
+            "version": "codex-tools-v1"
+          },
+          "receipt_sha256": "7e76f9a609356e89a34e4231679bcabc79c74a59f72164d6bd54936d65455fe8",
+          "trigger": "tool_budget"
+        },
+        "queue_seconds": 13.044458,
+        "run_sha256": "969d197ed841b755ed31978616f75d45636384fe8ee01d2b7a33b927ad204553",
+        "runtime_reason": "verified",
+        "source_trial_id": "7b9cc2d9-f12f-5b96-ae07-e7d3f5356bd9",
+        "status": "solved",
+        "trial_id": "a73b7e68-60f7-5cd7-9b5b-5b9c9d6aada5",
+        "unknown_operations": 0,
+        "verifier_reward": 1,
+        "verifier_status": "completed"
+      },
+      {
+        "observation_id": "420389a27baffc668f3c8142",
+        "pair_id": "98e14af679c1fdc26a369563",
+        "instance_id": "sympy__sympy-15599",
+        "repeat": 0,
+        "split": "pilot",
+        "branch": "B-summary",
+        "order": 1,
+        "protocol_sha256": "10b54fe6ed59e40d12e796517c79fbcc25d701fcff893a9efa2e115568bbe888",
+        "checkpoint_id": "d05c8b62-7e3d-55e6-b670-bf4713aacfe5",
+        "elapsed_seconds": 106.59014,
+        "incremental_api_cost_usd": 0.0108252,
+        "known_incremental_api_cost_usd": 0.0108252,
+        "mode": "real-model",
+        "prefix_api_cost_usd": null,
+        "prefix_boundary": {
+          "admitted_tools": 2,
+          "boundary": "cooperative completed turn; sandbox quiescence still required",
+          "completed_tools": 2,
+          "denied_tools": 0,
+          "policy": {
+            "max_tools": 2,
+            "version": "codex-tools-v1"
+          },
+          "receipt_sha256": "7e76f9a609356e89a34e4231679bcabc79c74a59f72164d6bd54936d65455fe8",
+          "trigger": "tool_budget"
+        },
+        "queue_seconds": 14.601878,
+        "run_sha256": "969d197ed841b755ed31978616f75d45636384fe8ee01d2b7a33b927ad204553",
+        "runtime_reason": "verified",
+        "source_trial_id": "7b9cc2d9-f12f-5b96-ae07-e7d3f5356bd9",
+        "status": "solved",
+        "trial_id": "917efb01-2abd-5a30-981b-0353480f98c1",
+        "unknown_operations": 0,
+        "verifier_reward": 1,
+        "verifier_status": "completed"
+      },
+      {
+        "observation_id": "cfbb75c4ac023224172161c0",
+        "pair_id": "98e14af679c1fdc26a369563",
+        "instance_id": "sympy__sympy-15599",
+        "repeat": 0,
+        "split": "pilot",
+        "branch": "B-fresh",
+        "order": 2,
+        "protocol_sha256": "10b54fe6ed59e40d12e796517c79fbcc25d701fcff893a9efa2e115568bbe888",
+        "checkpoint_id": null,
+        "elapsed_seconds": 119.928231,
+        "incremental_api_cost_usd": 0.04740105,
+        "known_incremental_api_cost_usd": 0.04740105,
+        "mode": "real-model",
+        "prefix_api_cost_usd": 0,
+        "queue_seconds": 12.399165,
+        "run_sha256": "969d197ed841b755ed31978616f75d45636384fe8ee01d2b7a33b927ad204553",
+        "runtime_reason": "verification_failed",
+        "source_trial_id": null,
+        "status": "unsolved",
+        "trial_id": "3166b853-1902-5aec-bd5a-c0eaeb23e923",
+        "unknown_operations": 0,
+        "verifier_reward": 0,
+        "verifier_status": "completed"
+      },
+      {
+        "observation_id": "ffbefe87f546035aa319f69c",
+        "pair_id": "98e14af679c1fdc26a369563",
+        "instance_id": "sympy__sympy-15599",
+        "repeat": 0,
+        "split": "pilot",
+        "branch": "A-continue",
+        "order": 3,
+        "protocol_sha256": "10b54fe6ed59e40d12e796517c79fbcc25d701fcff893a9efa2e115568bbe888",
+        "checkpoint_id": "d05c8b62-7e3d-55e6-b670-bf4713aacfe5",
+        "elapsed_seconds": 130.66165,
+        "incremental_api_cost_usd": null,
+        "known_incremental_api_cost_usd": 0,
+        "mode": "real-model",
+        "prefix_api_cost_usd": null,
+        "prefix_boundary": {
+          "admitted_tools": 2,
+          "boundary": "cooperative completed turn; sandbox quiescence still required",
+          "completed_tools": 2,
+          "denied_tools": 0,
+          "policy": {
+            "max_tools": 2,
+            "version": "codex-tools-v1"
+          },
+          "receipt_sha256": "7e76f9a609356e89a34e4231679bcabc79c74a59f72164d6bd54936d65455fe8",
+          "trigger": "tool_budget"
+        },
+        "queue_seconds": 14.981957,
+        "run_sha256": "969d197ed841b755ed31978616f75d45636384fe8ee01d2b7a33b927ad204553",
+        "runtime_reason": "verified",
+        "source_trial_id": "7b9cc2d9-f12f-5b96-ae07-e7d3f5356bd9",
+        "status": "solved",
+        "trial_id": "fcbb09db-d03e-5421-838e-276c02085c85",
+        "unknown_operations": 0,
+        "verifier_reward": 1,
+        "verifier_status": "completed"
+      },
+      {
+        "observation_id": "3d6e28efd181699d45d37750",
+        "pair_id": "5ac35d0a51b7f87cd4d5bf56",
+        "instance_id": "sympy__sympy-13091",
+        "repeat": 0,
+        "split": "pilot",
+        "branch": "B-summary",
+        "order": 0,
+        "protocol_sha256": "10b54fe6ed59e40d12e796517c79fbcc25d701fcff893a9efa2e115568bbe888",
+        "checkpoint_id": "c2f5fdcc-2425-5e6d-b00d-2d0747169167",
+        "elapsed_seconds": 95.450047,
+        "incremental_api_cost_usd": 0.01608555,
+        "known_incremental_api_cost_usd": 0.01608555,
+        "mode": "real-model",
+        "prefix_api_cost_usd": null,
+        "prefix_boundary": {
+          "admitted_tools": 2,
+          "boundary": "cooperative completed turn; sandbox quiescence still required",
+          "completed_tools": 2,
+          "denied_tools": 0,
+          "policy": {
+            "max_tools": 2,
+            "version": "codex-tools-v1"
+          },
+          "receipt_sha256": "8b3e2061aa3a0841ee1c6e6b46c8c3517aad30d9ac08b2561146f7af300b96f1",
+          "trigger": "tool_budget"
+        },
+        "queue_seconds": 12.579465,
+        "run_sha256": "debdea58b2a98a05487ca08fc81dc538fbc6b4edbb470c598de87754ad5cfb7d",
+        "runtime_reason": "verification_failed",
+        "source_trial_id": "dc0553ac-0ad1-5ae3-8230-ffe997ffacaa",
+        "status": "unsolved",
+        "trial_id": "471984ca-ee68-51f3-8c4d-6c1260614291",
+        "unknown_operations": 0,
+        "verifier_reward": 0,
+        "verifier_status": "completed"
+      },
+      {
+        "observation_id": "798959eeee919b6bf76bbace",
+        "pair_id": "5ac35d0a51b7f87cd4d5bf56",
+        "instance_id": "sympy__sympy-13091",
+        "repeat": 0,
+        "split": "pilot",
+        "branch": "A-continue",
+        "order": 1,
+        "protocol_sha256": "10b54fe6ed59e40d12e796517c79fbcc25d701fcff893a9efa2e115568bbe888",
+        "checkpoint_id": "c2f5fdcc-2425-5e6d-b00d-2d0747169167",
+        "elapsed_seconds": 170.084729,
+        "incremental_api_cost_usd": null,
+        "known_incremental_api_cost_usd": 0,
+        "mode": "real-model",
+        "prefix_api_cost_usd": null,
+        "prefix_boundary": {
+          "admitted_tools": 2,
+          "boundary": "cooperative completed turn; sandbox quiescence still required",
+          "completed_tools": 2,
+          "denied_tools": 0,
+          "policy": {
+            "max_tools": 2,
+            "version": "codex-tools-v1"
+          },
+          "receipt_sha256": "8b3e2061aa3a0841ee1c6e6b46c8c3517aad30d9ac08b2561146f7af300b96f1",
+          "trigger": "tool_budget"
+        },
+        "queue_seconds": 13.142513,
+        "run_sha256": "debdea58b2a98a05487ca08fc81dc538fbc6b4edbb470c598de87754ad5cfb7d",
+        "runtime_reason": "verified",
+        "source_trial_id": "dc0553ac-0ad1-5ae3-8230-ffe997ffacaa",
+        "status": "solved",
+        "trial_id": "07ddf13f-e619-54c1-a733-7c9044ebedb4",
+        "unknown_operations": 0,
+        "verifier_reward": 1,
+        "verifier_status": "completed"
+      },
+      {
+        "observation_id": "e45029187fa0b01b6ddb6420",
+        "pair_id": "5ac35d0a51b7f87cd4d5bf56",
+        "instance_id": "sympy__sympy-13091",
+        "repeat": 0,
+        "split": "pilot",
+        "branch": "B-workspace",
+        "order": 2,
+        "protocol_sha256": "10b54fe6ed59e40d12e796517c79fbcc25d701fcff893a9efa2e115568bbe888",
+        "checkpoint_id": "c2f5fdcc-2425-5e6d-b00d-2d0747169167",
+        "elapsed_seconds": 99.530254,
+        "incremental_api_cost_usd": 0.0169869,
+        "known_incremental_api_cost_usd": 0.0169869,
+        "mode": "real-model",
+        "prefix_api_cost_usd": null,
+        "prefix_boundary": {
+          "admitted_tools": 2,
+          "boundary": "cooperative completed turn; sandbox quiescence still required",
+          "completed_tools": 2,
+          "denied_tools": 0,
+          "policy": {
+            "max_tools": 2,
+            "version": "codex-tools-v1"
+          },
+          "receipt_sha256": "8b3e2061aa3a0841ee1c6e6b46c8c3517aad30d9ac08b2561146f7af300b96f1",
+          "trigger": "tool_budget"
+        },
+        "queue_seconds": 12.763515,
+        "run_sha256": "debdea58b2a98a05487ca08fc81dc538fbc6b4edbb470c598de87754ad5cfb7d",
+        "runtime_reason": "agent_limit_or_error",
+        "source_trial_id": "dc0553ac-0ad1-5ae3-8230-ffe997ffacaa",
+        "status": "unsolved",
+        "trial_id": "428eed24-941f-5836-847b-1ae5d93eb72f",
+        "unknown_operations": 0,
+        "verifier_reward": 0,
+        "verifier_status": "completed"
+      },
+      {
+        "observation_id": "f89527c6bb8c887f14dda036",
+        "pair_id": "5ac35d0a51b7f87cd4d5bf56",
+        "instance_id": "sympy__sympy-13091",
+        "repeat": 0,
+        "split": "pilot",
+        "branch": "B-fresh",
+        "order": 3,
+        "protocol_sha256": "10b54fe6ed59e40d12e796517c79fbcc25d701fcff893a9efa2e115568bbe888",
+        "checkpoint_id": null,
+        "elapsed_seconds": 95.293957,
+        "incremental_api_cost_usd": 0.02246505,
+        "known_incremental_api_cost_usd": 0.02246505,
+        "mode": "real-model",
+        "prefix_api_cost_usd": 0,
+        "queue_seconds": 11.599402,
+        "run_sha256": "debdea58b2a98a05487ca08fc81dc538fbc6b4edbb470c598de87754ad5cfb7d",
+        "runtime_reason": "verification_failed",
+        "source_trial_id": null,
+        "status": "unsolved",
+        "trial_id": "956da78b-e7bc-5e2b-9c62-280d925dbdc2",
+        "unknown_operations": 0,
+        "verifier_reward": 0,
+        "verifier_status": "completed"
+      },
+      {
+        "observation_id": "1f978db09cedfe37ea08e835",
+        "pair_id": "17f63536eb0c29b7ce82b3a7",
+        "instance_id": "scikit-learn__scikit-learn-9288",
+        "repeat": 0,
+        "split": "pilot",
+        "branch": "B-summary",
+        "order": 0,
+        "protocol_sha256": "10b54fe6ed59e40d12e796517c79fbcc25d701fcff893a9efa2e115568bbe888",
+        "checkpoint_id": "7e789db7-8ba8-50ed-ab31-cfd24bebdac0",
+        "elapsed_seconds": 140.309099,
+        "incremental_api_cost_usd": null,
+        "known_incremental_api_cost_usd": 0.0081534,
+        "mode": "real-model",
+        "prefix_api_cost_usd": null,
+        "prefix_boundary": {
+          "admitted_tools": 2,
+          "boundary": "cooperative completed turn; sandbox quiescence still required",
+          "completed_tools": 2,
+          "denied_tools": 0,
+          "policy": {
+            "max_tools": 2,
+            "version": "codex-tools-v1"
+          },
+          "receipt_sha256": "df21ce9faefbc2075a4efa7b08c4b7f1e42e10e290e4958bb6e93fc8e814c7e4",
+          "trigger": "tool_budget"
+        },
+        "queue_seconds": 23.690295,
+        "run_sha256": "bd67a4eae903874ae611dde8e7aa1c513a2013da7b4dd76a91f24fd83c002cd5",
+        "runtime_reason": "RuntimeError",
+        "source_trial_id": "5bb61262-d790-5326-b8a0-e7cc1614388f",
+        "status": "infra_error",
+        "trial_id": "2381f90a-3f31-5935-8d15-c3b242d990f7",
+        "unknown_operations": 1,
+        "verifier_reward": null,
+        "verifier_status": null
+      },
+      {
+        "observation_id": "64cec1b23ba50130f04898f5",
+        "pair_id": "17f63536eb0c29b7ce82b3a7",
+        "instance_id": "scikit-learn__scikit-learn-9288",
+        "repeat": 0,
+        "split": "pilot",
+        "branch": "A-continue",
+        "order": 1,
+        "protocol_sha256": "10b54fe6ed59e40d12e796517c79fbcc25d701fcff893a9efa2e115568bbe888",
+        "checkpoint_id": "7e789db7-8ba8-50ed-ab31-cfd24bebdac0",
+        "elapsed_seconds": 192.853339,
+        "incremental_api_cost_usd": null,
+        "known_incremental_api_cost_usd": 0,
+        "mode": "real-model",
+        "prefix_api_cost_usd": null,
+        "prefix_boundary": {
+          "admitted_tools": 2,
+          "boundary": "cooperative completed turn; sandbox quiescence still required",
+          "completed_tools": 2,
+          "denied_tools": 0,
+          "policy": {
+            "max_tools": 2,
+            "version": "codex-tools-v1"
+          },
+          "receipt_sha256": "df21ce9faefbc2075a4efa7b08c4b7f1e42e10e290e4958bb6e93fc8e814c7e4",
+          "trigger": "tool_budget"
+        },
+        "queue_seconds": 16.287924,
+        "run_sha256": "bd67a4eae903874ae611dde8e7aa1c513a2013da7b4dd76a91f24fd83c002cd5",
+        "runtime_reason": "verified",
+        "source_trial_id": "5bb61262-d790-5326-b8a0-e7cc1614388f",
+        "status": "solved",
+        "trial_id": "33760b4a-5285-551a-853e-7cd1c8c1105f",
+        "unknown_operations": 0,
+        "verifier_reward": 1,
+        "verifier_status": "completed"
+      },
+      {
+        "observation_id": "8bbaeddd49f1050f58c35bea",
+        "pair_id": "17f63536eb0c29b7ce82b3a7",
+        "instance_id": "scikit-learn__scikit-learn-9288",
+        "repeat": 0,
+        "split": "pilot",
+        "branch": "B-fresh",
+        "order": 2,
+        "protocol_sha256": "10b54fe6ed59e40d12e796517c79fbcc25d701fcff893a9efa2e115568bbe888",
+        "checkpoint_id": null,
+        "elapsed_seconds": 121.970281,
+        "incremental_api_cost_usd": null,
+        "known_incremental_api_cost_usd": 0.02041005,
+        "mode": "real-model",
+        "prefix_api_cost_usd": 0,
+        "queue_seconds": 15.260969,
+        "run_sha256": "bd67a4eae903874ae611dde8e7aa1c513a2013da7b4dd76a91f24fd83c002cd5",
+        "runtime_reason": "RuntimeError",
+        "source_trial_id": null,
+        "status": "infra_error",
+        "trial_id": "86f852ed-245c-5f1c-adaa-06e54e52a249",
+        "unknown_operations": 1,
+        "verifier_reward": null,
+        "verifier_status": null
+      },
+      {
+        "observation_id": "ec749ff4a08c97169fec0738",
+        "pair_id": "17f63536eb0c29b7ce82b3a7",
+        "instance_id": "scikit-learn__scikit-learn-9288",
+        "repeat": 0,
+        "split": "pilot",
+        "branch": "B-workspace",
+        "order": 3,
+        "protocol_sha256": "10b54fe6ed59e40d12e796517c79fbcc25d701fcff893a9efa2e115568bbe888",
+        "checkpoint_id": "7e789db7-8ba8-50ed-ab31-cfd24bebdac0",
+        "elapsed_seconds": 184.813756,
+        "incremental_api_cost_usd": 0.01991745,
+        "known_incremental_api_cost_usd": 0.01991745,
+        "mode": "real-model",
+        "prefix_api_cost_usd": null,
+        "prefix_boundary": {
+          "admitted_tools": 2,
+          "boundary": "cooperative completed turn; sandbox quiescence still required",
+          "completed_tools": 2,
+          "denied_tools": 0,
+          "policy": {
+            "max_tools": 2,
+            "version": "codex-tools-v1"
+          },
+          "receipt_sha256": "df21ce9faefbc2075a4efa7b08c4b7f1e42e10e290e4958bb6e93fc8e814c7e4",
+          "trigger": "tool_budget"
+        },
+        "queue_seconds": 17.563464,
+        "run_sha256": "bd67a4eae903874ae611dde8e7aa1c513a2013da7b4dd76a91f24fd83c002cd5",
+        "runtime_reason": "verified",
+        "source_trial_id": "5bb61262-d790-5326-b8a0-e7cc1614388f",
+        "status": "solved",
+        "trial_id": "8986afac-6e6d-5018-9824-ad9ad3f8e0ca",
+        "unknown_operations": 0,
+        "verifier_reward": 1,
+        "verifier_status": "completed"
+      }
+    ],
+    "arms": {
+      "A-continue": {
+        "planned": 4,
+        "outcomes": {
+          "solved": 4
+        },
+        "graded": 4,
+        "resolved_itt": 1.0,
+        "resolved_among_graded": 1.0,
+        "known_incremental_api_cost_usd": 0,
+        "known_end_to_end_api_cost_usd": 0,
+        "unknown_end_to_end_cost_rows": 4,
+        "unknown_cost_rows": 4,
+        "unknown_operations": 0
+      },
+      "B-workspace": {
+        "planned": 4,
+        "outcomes": {
+          "solved": 3,
+          "unsolved": 1
+        },
+        "graded": 4,
+        "resolved_itt": 0.75,
+        "resolved_among_graded": 0.75,
+        "known_incremental_api_cost_usd": 0.0672666,
+        "known_end_to_end_api_cost_usd": 0.0672666,
+        "unknown_end_to_end_cost_rows": 4,
+        "unknown_cost_rows": 0,
+        "unknown_operations": 0
+      },
+      "B-summary": {
+        "planned": 4,
+        "outcomes": {
+          "solved": 2,
+          "unsolved": 1,
+          "infra_error": 1
+        },
+        "graded": 3,
+        "resolved_itt": 0.5,
+        "resolved_among_graded": 0.6666666666666666,
+        "known_incremental_api_cost_usd": 0.04545735,
+        "known_end_to_end_api_cost_usd": 0.04545735,
+        "unknown_end_to_end_cost_rows": 4,
+        "unknown_cost_rows": 1,
+        "unknown_operations": 1
+      },
+      "B-fresh": {
+        "planned": 4,
+        "outcomes": {
+          "unsolved": 3,
+          "infra_error": 1
+        },
+        "graded": 3,
+        "resolved_itt": 0.0,
+        "resolved_among_graded": 0.0,
+        "known_incremental_api_cost_usd": 0.12424964999999999,
+        "known_end_to_end_api_cost_usd": 0.12424964999999999,
+        "unknown_end_to_end_cost_rows": 1,
+        "unknown_cost_rows": 1,
+        "unknown_operations": 1
+      }
+    },
+    "comparisons": {
+      "B-summary minus A-continue": {
+        "tasks": 4,
+        "difference": -0.5,
+        "ci95": [
+          -1.0,
+          0.0
+        ],
+        "complete_graded_pairs": 3,
+        "planned_pairs": 4,
+        "primary": true,
+        "scope": "checkpoint continuation",
+        "provisional": false
+      },
+      "B-workspace minus A-continue": {
+        "tasks": 4,
+        "difference": -0.25,
+        "ci95": [
+          -0.75,
+          0.0
+        ],
+        "complete_graded_pairs": 4,
+        "planned_pairs": 4,
+        "primary": false,
+        "scope": "checkpoint continuation",
+        "provisional": false
+      },
+      "B-summary minus B-workspace": {
+        "tasks": 4,
+        "difference": -0.25,
+        "ci95": [
+          -0.75,
+          0.0
+        ],
+        "complete_graded_pairs": 3,
+        "planned_pairs": 4,
+        "primary": false,
+        "scope": "checkpoint continuation",
+        "provisional": false
+      },
+      "B-fresh minus A-continue": {
+        "tasks": 4,
+        "difference": -1.0,
+        "ci95": [
+          -1.0,
+          -1.0
+        ],
+        "complete_graded_pairs": 3,
+        "planned_pairs": 4,
+        "primary": false,
+        "scope": "end-to-end baseline",
+        "provisional": false
+      }
+    },
+    "received": 16,
+    "planned": 16,
+    "missing": 0,
+    "inference": "Exploratory fixed subset; task-cluster CI, no population superiority claim",
+    "cost_note": "Known API spend is a lower bound when any cost is UNKNOWN. Subscription stages are not priced as free inference. Prefix cost is included per continuation strategy, not summed over physical forks."
+  },
+  "analysis_implementation_sha256": "20ad914a53e48c94fdf9fe9a411e1cd2863299507254b34e95c120bb3a7f669c",
+  "analysis_note": "Recomputed from unchanged observation records with the partial-known-cost aggregation fix; original per-task artifacts preserved.",
+  "posthoc_prefix_diagnostics": [
+    {
+      "task": "sympy__sympy-22914",
+      "run_sha256": "30479aa88879b61063c9922333ba9eed266f33d60644c8bff61bc02e71bb21b4",
+      "model_calls": 0,
+      "timing": "after collection and cleanup of every supplied run; no agent feedback",
+      "status": "completed",
+      "reward": 1.0,
+      "checkpoint_id": "af19666a-9fec-58a5-94a2-11cfbdfb91d6",
+      "checkpoint_manifest_sha256": "51a10d36a5b8f0dde48e5cb52092e422e572817409ffcf3c54bb7708bce766e5",
+      "verification": {
+        "status": "completed",
+        "isolated": true,
+        "workspace_digest": "bbabf5820bad2dcc8ad311276d483eb07afa196ccff9e20719351d0ecc284f66",
+        "container": "e6fe02254004",
+        "verifier_digest": "29c8d8e160363de8c0f6684db3f8835b3a8c33f1e71cb3c09c4c5e5a0adf6c7c",
+        "workspace_scope": "/testbed",
+        "image_id": "sha256:89e5927c59eff33b56af59ead33d53ea9b6751ff7a6700f1ff80b1312945bb55"
+      },
+      "source_unchanged": true,
+      "elapsed_seconds": 24.59
+    },
+    {
+      "task": "sympy__sympy-15599",
+      "run_sha256": "969d197ed841b755ed31978616f75d45636384fe8ee01d2b7a33b927ad204553",
+      "model_calls": 0,
+      "timing": "after collection and cleanup of every supplied run; no agent feedback",
+      "status": "completed",
+      "reward": 1.0,
+      "checkpoint_id": "d05c8b62-7e3d-55e6-b670-bf4713aacfe5",
+      "checkpoint_manifest_sha256": "fc4c5397e07d6e07fd39609ff568c5aa13e5977dc8aea1633ceb91591a11b52a",
+      "verification": {
+        "status": "completed",
+        "isolated": true,
+        "workspace_digest": "202f8f538b849e1c1cce6f2c201df7aa5d12531656b5f1661afb7572cf63fede",
+        "container": "35ea1533bc87",
+        "verifier_digest": "f4e43e686f4024cd9f66d16f9a07acac222712d606a0d0c5a0255e918cb58a41",
+        "workspace_scope": "/testbed",
+        "image_id": "sha256:1bf8080262866e2068abacf0cf68ad33e1511654b74539a62984c40563e50119"
+      },
+      "source_unchanged": true,
+      "elapsed_seconds": 49.83
+    },
+    {
+      "task": "sympy__sympy-13091",
+      "run_sha256": "debdea58b2a98a05487ca08fc81dc538fbc6b4edbb470c598de87754ad5cfb7d",
+      "model_calls": 0,
+      "timing": "after collection and cleanup of every supplied run; no agent feedback",
+      "status": "completed",
+      "reward": 0.0,
+      "checkpoint_id": "c2f5fdcc-2425-5e6d-b00d-2d0747169167",
+      "checkpoint_manifest_sha256": "4152f12cb28421b5d1a45b32e8fea1092a9ddc3de2e8ce1c619deb35687b49fd",
+      "verification": {
+        "status": "completed",
+        "isolated": true,
+        "workspace_digest": "b74ff592d9a14b65ba2b64710eb97595e5b23b33ceb4521cc57d48857fbebea8",
+        "container": "ef0dd513a751",
+        "verifier_digest": "22b10bddddf454004100ac49e92e2eee2aa5ff1fe8e67195ae733d83249c84a1",
+        "workspace_scope": "/testbed",
+        "image_id": "sha256:abd584927d0e1d80a0e6577ccd0bad4a5b854ffd44df77852fb0251c179c2dcb"
+      },
+      "source_unchanged": true,
+      "elapsed_seconds": 66.66
+    },
+    {
+      "task": "scikit-learn__scikit-learn-9288",
+      "run_sha256": "bd67a4eae903874ae611dde8e7aa1c513a2013da7b4dd76a91f24fd83c002cd5",
+      "model_calls": 0,
+      "timing": "after collection and cleanup of every supplied run; no agent feedback",
+      "status": "completed",
+      "reward": 0.0,
+      "checkpoint_id": "7e789db7-8ba8-50ed-ab31-cfd24bebdac0",
+      "checkpoint_manifest_sha256": "47d9020047c8b12fec84630c38ca2267a84739548cf40b97881c7c6ef65ca4ea",
+      "verification": {
+        "status": "completed",
+        "isolated": true,
+        "workspace_digest": "0f781f13059e57b2c478525be5f81e2e1aa34bf085f1b249ef020e84925b7c56",
+        "container": "79806aab5e12",
+        "verifier_digest": "dd722954acc018eb4506953b421ee2f78a59ebdb24351a2f776368fee7e13f2c",
+        "workspace_scope": "/testbed",
+        "image_id": "sha256:987295c270924a554b840429b76538e0ace7e9732a9719841fb1f1955cddcc2f"
+      },
+      "source_unchanged": true,
+      "elapsed_seconds": 80.24
+    }
+  ],
+  "bridge_timeouts": [
+    {
+      "task": "scikit-learn__scikit-learn-9288",
+      "branch": "B-summary",
+      "error": "Harbor exec raised RuntimeError: Command timed out after 30 seconds",
+      "classification": "bridge tool-timeout handling failure; no final verifier",
+      "api_requests": 4,
+      "unknown_api_requests": 0,
+      "verifier_reward": null
+    },
+    {
+      "task": "scikit-learn__scikit-learn-9288",
+      "branch": "B-fresh",
+      "error": "Harbor exec raised RuntimeError: Command timed out after 30 seconds",
+      "classification": "bridge tool-timeout handling failure; no final verifier",
+      "api_requests": 6,
+      "unknown_api_requests": 0,
+      "verifier_reward": null
+    }
+  ],
+  "prior_failure_diagnostics": {
+    "method": "deterministic string markers in tool outputs plus manual patch inspection; not causal labels",
+    "failed_mini_branches": [
+      {
+        "task": "sympy__sympy-15599",
+        "branch": "B-workspace",
+        "reward": 0,
+        "exit_status": "Submitted",
+        "api_requests": 5,
+        "retained_model_responses": 5,
+        "tool_output_markers": [
+          {
+            "after_retained_response": 1,
+            "markers": [
+              "mpmath_missing"
+            ]
+          }
+        ],
+        "tracked_changed_files": [
+          "sympy/core/mod.py",
+          "sympy/core/tests/test_arit.py"
+        ],
+        "trajectory_sha256": "150f6a32b4cdcdc022dcc90ec4b921b5afbf6a2e33f45b45736c02731dd76db6",
+        "trajectory_path": "work/m4-data/tool-prefix-round-1/sympy__sympy-15599/8394f8d3-c2b7-5417-8851-b6f213e8b807/executions/d42b8302-32bf-5041-9f71-cec2a83acde2/mini-trajectory.json"
+      },
+      {
+        "task": "sympy__sympy-15599",
+        "branch": "B-fresh",
+        "reward": 0,
+        "exit_status": "Submitted",
+        "api_requests": 14,
+        "retained_model_responses": 13,
+        "tool_output_markers": [
+          {
+            "after_retained_response": 2,
+            "markers": [
+              "mpmath_missing"
+            ]
+          },
+          {
+            "after_retained_response": 3,
+            "markers": [
+              "pytest_missing"
+            ]
+          },
+          {
+            "after_retained_response": 7,
+            "markers": [
+              "mpmath_missing"
+            ]
+          },
+          {
+            "after_retained_response": 9,
+            "markers": [
+              "pytest_missing"
+            ]
+          },
+          {
+            "after_retained_response": 10,
+            "markers": [
+              "public_assertion"
+            ]
+          }
+        ],
+        "tracked_changed_files": [
+          "sympy/core/mod.py",
+          "sympy/core/tests/test_arit.py"
+        ],
+        "trajectory_sha256": "84919087c68abbac6e5614ef17afa70ce9ffc6478c69f00f6390d03729ddfc1a",
+        "trajectory_path": "work/m4-data/tool-prefix-round-1/sympy__sympy-15599/f5de86df-0c9f-515c-98fd-9b55fcb4a8ac/executions/d4bf97e9-cc2f-577c-9516-f151583b4db4/mini-trajectory.json"
+      },
+      {
+        "task": "sympy__sympy-13091",
+        "branch": "B-fresh",
+        "reward": 0,
+        "exit_status": "Submitted",
+        "api_requests": 6,
+        "retained_model_responses": 6,
+        "tool_output_markers": [
+          {
+            "after_retained_response": 4,
+            "markers": [
+              "mpmath_missing"
+            ]
+          }
+        ],
+        "tracked_changed_files": [
+          "sympy/core/basic.py"
+        ],
+        "trajectory_sha256": "b2f8b86efec493d343326ae6f47793c95a396f186193ec42187a369c99d3d1c6",
+        "trajectory_path": "work/m4-data/tool-prefix-round-1/sympy__sympy-13091/a31619fe-242a-5ef3-ac74-5ee54ad76167/executions/a7832f50-951b-5fe4-816f-f718f8d12984/mini-trajectory.json"
+      },
+      {
+        "task": "sympy__sympy-13091",
+        "branch": "B-workspace",
+        "reward": 0,
+        "exit_status": "LimitsExceeded",
+        "api_requests": 8,
+        "retained_model_responses": 8,
+        "tool_output_markers": [
+          {
+            "after_retained_response": 7,
+            "markers": [
+              "mpmath_missing",
+              "pytest_missing"
+            ]
+          },
+          {
+            "after_retained_response": 8,
+            "markers": [
+              "collections_mapping"
+            ]
+          }
+        ],
+        "tracked_changed_files": [
+          "sympy/core/basic.py",
+          "sympy/core/expr.py",
+          "sympy/core/tests/test_basic.py",
+          "sympy/core/tests/test_expr.py"
+        ],
+        "trajectory_sha256": "f1b6a1cee8b352d9378b801f842071fd5aef40e7007a11391aef8d970572d3d3",
+        "trajectory_path": "work/m4-data/tool-prefix-round-1/sympy__sympy-13091/4f2841f1-e8c2-59dc-a73e-b1269670e076/executions/32f24c7b-e502-5709-bb54-de2837288d13/mini-trajectory.json"
+      },
+      {
+        "task": "sympy__sympy-13091",
+        "branch": "B-summary",
+        "reward": 0,
+        "exit_status": "LimitsExceeded",
+        "api_requests": 8,
+        "retained_model_responses": 8,
+        "tool_output_markers": [
+          {
+            "after_retained_response": 4,
+            "markers": [
+              "pytest_missing"
+            ]
+          },
+          {
+            "after_retained_response": 5,
+            "markers": [
+              "mpmath_missing"
+            ]
+          },
+          {
+            "after_retained_response": 7,
+            "markers": [
+              "mpmath_missing"
+            ]
+          }
+        ],
+        "tracked_changed_files": [
+          "sympy/core/basic.py",
+          "sympy/core/expr.py",
+          "sympy/core/tests/test_basic.py",
+          "sympy/core/tests/test_expr.py"
+        ],
+        "trajectory_sha256": "72287b1f3010031e2a7b3bbda28443776b43902939ba92b78f63c500bb0044c5",
+        "trajectory_path": "work/m4-data/tool-prefix-round-1/sympy__sympy-13091/4b299b97-a905-5ea2-a001-1bbe7a9a330e/executions/1cd5ad75-4a08-579b-80d3-64fdf6400c5c/mini-trajectory.json"
+      }
+    ]
+  },
+  "mini_shell_observations": [
+    {
+      "task": "sympy__sympy-22914",
+      "branch": "B-workspace",
+      "environment": {
+        "type": "HarborDockerBridge",
+        "cwd": "/testbed",
+        "shell": "bash-login-v1"
+      },
+      "mpmath_import_error_outputs": 0,
+      "mapping_import_error_outputs": 0,
+      "pytest_missing_outputs": 1,
+      "trajectory_sha256": "1891ab680c24c8daf94fffa153941210cfc504bf66bb078207be2fe9e3fae0a8"
+    },
+    {
+      "task": "sympy__sympy-22914",
+      "branch": "B-fresh",
+      "environment": {
+        "type": "HarborDockerBridge",
+        "cwd": "/testbed",
+        "shell": "bash-login-v1"
+      },
+      "mpmath_import_error_outputs": 0,
+      "mapping_import_error_outputs": 0,
+      "pytest_missing_outputs": 0,
+      "trajectory_sha256": "81225e91e505170a89f1d00a3d3c56af24d3a0f516702dc7389e37636c9d1abb"
+    },
+    {
+      "task": "sympy__sympy-22914",
+      "branch": "B-summary",
+      "environment": {
+        "type": "HarborDockerBridge",
+        "cwd": "/testbed",
+        "shell": "bash-login-v1"
+      },
+      "mpmath_import_error_outputs": 0,
+      "mapping_import_error_outputs": 0,
+      "pytest_missing_outputs": 1,
+      "trajectory_sha256": "b7a1a7dec70d7dbaa682e8cae2d03afba4635aefb6aec3eee25efee429bdeddc"
+    },
+    {
+      "task": "sympy__sympy-15599",
+      "branch": "B-workspace",
+      "environment": {
+        "type": "HarborDockerBridge",
+        "cwd": "/testbed",
+        "shell": "bash-login-v1"
+      },
+      "mpmath_import_error_outputs": 0,
+      "mapping_import_error_outputs": 0,
+      "pytest_missing_outputs": 1,
+      "trajectory_sha256": "fe01f4314bc86d6a7d53a90b6f5a8bd0ad8f80b2141a0a7585a39eaf0afe20f7"
+    },
+    {
+      "task": "sympy__sympy-15599",
+      "branch": "B-summary",
+      "environment": {
+        "type": "HarborDockerBridge",
+        "cwd": "/testbed",
+        "shell": "bash-login-v1"
+      },
+      "mpmath_import_error_outputs": 0,
+      "mapping_import_error_outputs": 0,
+      "pytest_missing_outputs": 1,
+      "trajectory_sha256": "6c9afd300cf2de9f3ef9270e73ccc5c0a1850465e0cf5efb6f8fc2dfea450629"
+    },
+    {
+      "task": "sympy__sympy-15599",
+      "branch": "B-fresh",
+      "environment": {
+        "type": "HarborDockerBridge",
+        "cwd": "/testbed",
+        "shell": "bash-login-v1"
+      },
+      "mpmath_import_error_outputs": 0,
+      "mapping_import_error_outputs": 0,
+      "pytest_missing_outputs": 1,
+      "trajectory_sha256": "f40307e0c0734de021bd09ba65af1199507fca888eb01ea54e598391b5de62bf"
+    },
+    {
+      "task": "sympy__sympy-13091",
+      "branch": "B-summary",
+      "environment": {
+        "type": "HarborDockerBridge",
+        "cwd": "/testbed",
+        "shell": "bash-login-v1"
+      },
+      "mpmath_import_error_outputs": 0,
+      "mapping_import_error_outputs": 0,
+      "pytest_missing_outputs": 1,
+      "trajectory_sha256": "5d406dfb26c6bb73e6923c065ef9a3129d238867997d8961d522c45bfbbfcf3a"
+    },
+    {
+      "task": "sympy__sympy-13091",
+      "branch": "B-workspace",
+      "environment": {
+        "type": "HarborDockerBridge",
+        "cwd": "/testbed",
+        "shell": "bash-login-v1"
+      },
+      "mpmath_import_error_outputs": 0,
+      "mapping_import_error_outputs": 0,
+      "pytest_missing_outputs": 1,
+      "trajectory_sha256": "6d92add1be94daa81339ae1add7d9b1244ed13168c173b413a455ea9ff23dc45"
+    },
+    {
+      "task": "sympy__sympy-13091",
+      "branch": "B-fresh",
+      "environment": {
+        "type": "HarborDockerBridge",
+        "cwd": "/testbed",
+        "shell": "bash-login-v1"
+      },
+      "mpmath_import_error_outputs": 0,
+      "mapping_import_error_outputs": 0,
+      "pytest_missing_outputs": 1,
+      "trajectory_sha256": "a69670a22ab96409938e1cef6a54122f297c7ff4ee078d29a901536bfce1b238"
+    },
+    {
+      "task": "scikit-learn__scikit-learn-9288",
+      "branch": "B-summary",
+      "environment": {
+        "type": "HarborDockerBridge",
+        "cwd": "/testbed",
+        "shell": "bash-login-v1"
+      },
+      "mpmath_import_error_outputs": 0,
+      "mapping_import_error_outputs": 0,
+      "pytest_missing_outputs": 0,
+      "trajectory_sha256": "0b217b7641ece060ae1edad6480df103b6d063971cd5e6d38a778930b5ddf534"
+    },
+    {
+      "task": "scikit-learn__scikit-learn-9288",
+      "branch": "B-fresh",
+      "environment": {
+        "type": "HarborDockerBridge",
+        "cwd": "/testbed",
+        "shell": "bash-login-v1"
+      },
+      "mpmath_import_error_outputs": 0,
+      "mapping_import_error_outputs": 0,
+      "pytest_missing_outputs": 0,
+      "trajectory_sha256": "0213e8fa9e21d1f733405887aec50e8693bd02e83eb9924ed790cf3438ceee81"
+    },
+    {
+      "task": "scikit-learn__scikit-learn-9288",
+      "branch": "B-workspace",
+      "environment": {
+        "type": "HarborDockerBridge",
+        "cwd": "/testbed",
+        "shell": "bash-login-v1"
+      },
+      "mpmath_import_error_outputs": 0,
+      "mapping_import_error_outputs": 0,
+      "pytest_missing_outputs": 0,
+      "trajectory_sha256": "276bd8ba3c2e6ec63e0cf8a3b6651b735f9986d63faaf89878dd042f23b1b8c4"
+    }
+  ],
+  "interpretation": {
+    "independent_tasks": 4,
+    "graded_observations": 14,
+    "prefix_already_solved": 2,
+    "unfinished_prefix_tasks": [
+      "sympy__sympy-13091",
+      "scikit-learn__scikit-learn-9288"
+    ],
+    "unfinished_prefix_final_success": {
+      "A-continue": 2,
+      "B-workspace": 1,
+      "B-summary": 0,
+      "B-fresh": 0
+    },
+    "source_workspace_changes": [
+      {
+        "task": "sympy__sympy-22914",
+        "git_status": [
+          " M sympy/printing/pycode.py",
+          " M sympy/printing/tests/test_pycode.py"
+        ]
+      },
+      {
+        "task": "sympy__sympy-15599",
+        "git_status": [
+          " M sympy/core/mod.py",
+          " M sympy/core/tests/test_arit.py"
+        ]
+      },
+      {
+        "task": "sympy__sympy-13091",
+        "git_status": [
+          " M sympy/core/basic.py",
+          " M sympy/core/tests/test_basic.py"
+        ]
+      },
+      {
+        "task": "scikit-learn__scikit-learn-9288",
+        "git_status": [
+          " M sklearn/cluster/k_means_.py",
+          " M sklearn/cluster/tests/test_k_means.py"
+        ]
+      }
+    ],
+    "regressions": [],
+    "limits": [
+      "Joint shell correction and prefix reduction; effects not isolated.",
+      "Development tasks reused after inspecting failures, not held-out confirmation.",
+      "Four independent tasks, not sixteen independent samples.",
+      "Model and scaffold change together; subscription dollar cost unknown.",
+      "Hidden source grades run only after all branches and cleanup; no selection or feedback.",
+      "All tasks retained; no automatic paid retries.",
+      "All Kubernetes nodes share one physical ARM64 host; task images are AMD64."
+    ]
+  },
+  "zero_model_checks": {
+    "unit_mocked_tests": {
+      "passed": 218,
+      "skipped": 1,
+      "skip_reason": "legacy Docker test requires opt-in"
+    },
+    "runner_source_files_matched": 53,
+    "node_runner_digests": [
+      "docker.io/library/rtv-m4-runner@sha256:98dcc042f0dd271f1613ac9fda8b4ba3d079d8e9aa63a1a19bf4b0b442586b6f",
+      "docker.io/library/rtv-m4-runner@sha256:98dcc042f0dd271f1613ac9fda8b4ba3d079d8e9aa63a1a19bf4b0b442586b6f",
+      "docker.io/library/rtv-m4-runner@sha256:98dcc042f0dd271f1613ac9fda8b4ba3d079d8e9aa63a1a19bf4b0b442586b6f"
+    ],
+    "credential_projection_checks": {
+      "codex_pod_succeeded": true,
+      "codex_projection": true,
+      "codex_mode_0400": true,
+      "codex_adapter_only": true,
+      "codex_no_serviceaccount": true,
+      "codex_no_model_client": true,
+      "codex_assigned_node": true,
+      "mini_pod_succeeded": true,
+      "mini_projection": true,
+      "mini_mode_0400": true,
+      "mini_adapter_only": true,
+      "mini_no_serviceaccount": true,
+      "mini_no_model_client": true,
+      "mini_assigned_node": true,
+      "jobs_and_pods_removed": true,
+      "sentinel_secrets_removed": true,
+      "no_sentinel_in_artifacts": true
+    },
+    "task_shell_probes": [
+      {
+        "task": "sympy__sympy-22914",
+        "image": "sha256:617df833249959a54991bca0a5128bceb3fa84fb12884361eeaa1e3d6d3a595f",
+        "model_calls": 0,
+        "probes": {
+          "before": {
+            "return_code": 1,
+            "stdout": "",
+            "stderr": "Traceback (most recent call last):\n  File \"/testbed/sympy/__init__.py\", line 22, in <module>\n    import mpmath\nModuleNotFoundError: No module named 'mpmath'\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"/testbed/sympy/__init__.py\", line 24, in <module>\n    raise ImportError(\"SymPy now depends on mpmath as an external library. \"\nImportError: SymPy now depends on mpmath as an external library. See https://docs.sympy.org/latest/install.html#mpmath for more information.\n"
+          },
+          "login": {
+            "return_code": 0,
+            "stdout": "/opt/miniconda3/envs/testbed/bin/python\n1.10.dev\n",
+            "stderr": ""
+          },
+          "quoting": {
+            "return_code": 7,
+            "stdout": "single \" double $ literal\n",
+            "stderr": ""
+          }
+        }
+      },
+      {
+        "task": "sympy__sympy-15599",
+        "image": "sha256:f0a871eaf55e213d1efa0136afc04df03ad665b2dc88b552981fa8e8fd62da5a",
+        "model_calls": 0,
+        "probes": {
+          "before": {
+            "return_code": 1,
+            "stdout": "",
+            "stderr": "Traceback (most recent call last):\n  File \"/testbed/sympy/__init__.py\", line 19, in <module>\n    import mpmath\nModuleNotFoundError: No module named 'mpmath'\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"/testbed/sympy/__init__.py\", line 21, in <module>\n    raise ImportError(\"SymPy now depends on mpmath as an external library. \"\nImportError: SymPy now depends on mpmath as an external library. See https://docs.sympy.org/latest/install.html#mpmath for more information.\n"
+          },
+          "login": {
+            "return_code": 0,
+            "stdout": "/opt/miniconda3/envs/testbed/bin/python\n1.4.dev\n",
+            "stderr": "/testbed/sympy/solvers/diophantine.py:3188: SyntaxWarning: \"is\" with a literal. Did you mean \"==\"?\n  if feasible is 1:  # it's prime and k == 2\n"
+          },
+          "quoting": {
+            "return_code": 7,
+            "stdout": "single \" double $ literal\n",
+            "stderr": ""
+          }
+        }
+      },
+      {
+        "task": "sympy__sympy-13091",
+        "image": "sha256:a63e1a19cd3c96e9d9b1b34c5735f9823f6a3ae394c67c9bd3d20dcba7bd8a19",
+        "model_calls": 0,
+        "probes": {
+          "before": {
+            "return_code": 1,
+            "stdout": "",
+            "stderr": "Traceback (most recent call last):\n  File \"/testbed/sympy/__init__.py\", line 19, in <module>\n    import mpmath\nModuleNotFoundError: No module named 'mpmath'\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"/testbed/sympy/__init__.py\", line 21, in <module>\n    raise ImportError(\"SymPy now depends on mpmath as an external library. \"\nImportError: SymPy now depends on mpmath as an external library. See http://docs.sympy.org/latest/install.html#mpmath for more information.\n"
+          },
+          "login": {
+            "return_code": 0,
+            "stdout": "/opt/miniconda3/envs/testbed/bin/python\n1.1.2.dev\n",
+            "stderr": "/testbed/sympy/core/basic.py:3: DeprecationWarning: Using or importing the ABCs from 'collections' instead of from 'collections.abc' is deprecated since Python 3.3, and in 3.10 it will stop working\n  from collections import Mapping, defaultdict\n/testbed/sympy/solvers/diophantine.py:3188: SyntaxWarning: \"is\" with a literal. Did you mean \"==\"?\n  if feasible is 1:  # it's prime and k == 2\n/testbed/sympy/plotting/plot.py:28: DeprecationWarning: Using or importing the ABCs from 'collections' instead of from 'collections.abc' is deprecated since Python 3.3, and in 3.10 it will stop working\n  from collections import Callable\n"
+          },
+          "quoting": {
+            "return_code": 7,
+            "stdout": "single \" double $ literal\n",
+            "stderr": ""
+          }
+        }
+      },
+      {
+        "task": "scikit-learn__scikit-learn-9288",
+        "image": "sha256:71090a47b582d6dac83e95961842eeee8f854de29d02856beb3fc618622f4236",
+        "model_calls": 0,
+        "probes": {
+          "before": {
+            "return_code": 1,
+            "stdout": "",
+            "stderr": "Traceback (most recent call last):\n  File \"/testbed/sklearn/__check_build/__init__.py\", line 44, in <module>\n    from ._check_build import check_build  # noqa\n    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nModuleNotFoundError: No module named 'sklearn.__check_build._check_build'\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"/testbed/sklearn/__init__.py\", line 75, in <module>\n    from . import __check_build\n  File \"/testbed/sklearn/__check_build/__init__.py\", line 46, in <module>\n    raise_build_error(e)\n  File \"/testbed/sklearn/__check_build/__init__.py\", line 31, in raise_build_error\n    raise ImportError(\"\"\"%s\nImportError: No module named 'sklearn.__check_build._check_build'\n___________________________________________________________________________\nContents of /testbed/sklearn/__check_build:\nsetup.py                  _check_build.c            _check_build.pyx\n__pycache__               _check_build.cpython-36m-x86_64-linux-gnu.so__init__.py\n___________________________________________________________________________\nIt seems that scikit-learn has not been built correctly.\n\nIf you have installed scikit-learn from source, please do not forget\nto build the package before using it: run `python setup.py install` or\n`make` in the source directory.\n\nIf you have used an installer, please check that it is suited for your\nPython version, your operating system and your platform.\n"
+          },
+          "login": {
+            "return_code": 0,
+            "stdout": "/opt/miniconda3/envs/testbed/bin/python\n0.22.dev0\n",
+            "stderr": ""
+          },
+          "quoting": {
+            "return_code": 7,
+            "stdout": "single \" double $ literal\n",
+            "stderr": ""
+          }
+        }
+      }
+    ]
+  },
+  "secret_scan": {
+    "scope": "original API key and original Codex access/refresh/ID token values in regular round artifact files; account metadata excluded",
+    "regular_files": 157495,
+    "bytes_scanned": 10524505264,
+    "matching_files": 0,
+    "elapsed_seconds": 30.75,
+    "not_claimed": "Absence of all possible refreshed tokens or identifying account metadata"
+  },
+  "cleanup": {
+    "jobs_remaining": [],
+    "experiment_pods_remaining": [],
+    "model_secrets_remaining": [],
+    "diagnostic_containers_remaining": [],
+    "nodes_ready": {
+      "k3d-rtv-m4-agent-0": true,
+      "k3d-rtv-m4-agent-1": true,
+      "k3d-rtv-m4-server-0": true
+    },
+    "database_pod_retained": true
+  },
+  "source_artifacts": [
+    {
+      "path": "docs/evidence/m4-tool-prefix-development-arm64-20261012.json",
+      "sha256": "97886fa28274ce194fb55259e93e282aba993a918b453ba8c5bb711912155312"
+    },
+    {
+      "path": "work/m4-control/tool-prefix-round-2/analysis.json",
+      "sha256": "b3c0d7e488a45e50d4b97a1d52251ab38dca9ca2dd3be60afdf48cff1d8b5af8"
+    },
+    {
+      "path": "work/m4-control/tool-prefix-round-2/bridge-timeouts.json",
+      "sha256": "145d45b026f6eecfb597739246477370e57196dfe4912778d1800382d0dbed01"
+    },
+    {
+      "path": "work/m4-control/tool-prefix-round-2/budget-approval.json",
+      "sha256": "56dc1ab7990a1672088b84acef72857db91b1d42ed2c9f0dfe6adaa701aadf45"
+    },
+    {
+      "path": "work/m4-control/tool-prefix-round-2/cleanup.json",
+      "sha256": "c873c69ee76b4cfbdc80533de2b5bb8c7f0215919418b14edf68769eacf4279f"
+    },
+    {
+      "path": "work/m4-control/tool-prefix-round-2/diagnose-old.py",
+      "sha256": "363089edab796b03d74c5708682757ed40d60e8e510bd919759faca033e3fd06"
+    },
+    {
+      "path": "work/m4-control/tool-prefix-round-2/frozen-manifest.json",
+      "sha256": "4e011ba882f16ba213705453753ce283e94e2baa98eeb64033a74c908c4f3ec5"
+    },
+    {
+      "path": "work/m4-control/tool-prefix-round-2/prior-failure-diagnostics.json",
+      "sha256": "bc3f9727aeea10a6a846be17b9d6f918cdd5796599f299df1159d8cc82b7e470"
+    },
+    {
+      "path": "work/m4-control/tool-prefix-round-2/records.jsonl",
+      "sha256": "4e94f90980de4decd7622a37b92c65ebf85367d39d0306ade9ec6117b0392cb0"
+    },
+    {
+      "path": "work/m4-control/tool-prefix-round-2/regression.log",
+      "sha256": "b7dea8eead33b9a2059919052e186e11cc86788d1448b0b8bd8bd7b596be6e42"
+    },
+    {
+      "path": "work/m4-control/tool-prefix-round-2/round-audit.json",
+      "sha256": "5e980618f45555962445a035e00927b5c72fc32e80e3498bccd4224053439de1"
+    },
+    {
+      "path": "work/m4-control/tool-prefix-round-2/runner-audit.json",
+      "sha256": "33402c85b9c3eadb01f2b040cb68e46f2cc71feac9ad57b490a6e245e5f03a38"
+    },
+    {
+      "path": "work/m4-control/tool-prefix-round-2/scikit-learn__scikit-learn-9288-plan.json",
+      "sha256": "f7699733af942f807ffed33e68bd2029ff8636b25f0f2c5841724e34482eccca"
+    },
+    {
+      "path": "work/m4-control/tool-prefix-round-2/secret-scan.json",
+      "sha256": "e86669e771d760148426045b22172686103a1b4e29af025a47b912f6d2254441"
+    },
+    {
+      "path": "work/m4-control/tool-prefix-round-2/shell-probe.json",
+      "sha256": "affb27d66ede8f602e47f6cb755e1a44b282eee9a8cbade6f462bc04f489ff6e"
+    },
+    {
+      "path": "work/m4-control/tool-prefix-round-2/sympy__sympy-13091-plan.json",
+      "sha256": "3866316c1722d7e223311f86c1ca59970a08a26a726329af3757931fc4de4077"
+    },
+    {
+      "path": "work/m4-control/tool-prefix-round-2/sympy__sympy-15599-plan.json",
+      "sha256": "5ed0d66fcead1a54d8a11e5de09fb28d29cd60170c7209dfad59e3aa51751751"
+    },
+    {
+      "path": "work/m4-control/tool-prefix-round-2/sympy__sympy-22914-plan.json",
+      "sha256": "c9d79740c4f49d28a10f8ee040b9a3373fc11b2d34b0f28d0f86224d7fc8ab9b"
+    },
+    {
+      "path": "work/m4-data/credentials-probe-tool-prefix-v2/report.json",
+      "sha256": "dbea4f76dd6fd78db9356c1b303ecb5e9611c00229a0dbdc4222eb123cd1fccd"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-2/posthoc-prefix-diagnostics/report.json",
+      "sha256": "02bd779381ad010ad4de737d892fa42b847cb0f92a7ee7d614bc1611287219dc"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-2/scikit-learn__scikit-learn-9288/observations/2381f90a-3f31-5935-8d15-c3b242d990f7.json",
+      "sha256": "39c118782870f5fa6e82c4e5ae5ebd81857534d39021b4fcacbd6148267ed87e"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-2/scikit-learn__scikit-learn-9288/observations/33760b4a-5285-551a-853e-7cd1c8c1105f.json",
+      "sha256": "0219755eec00ef6d23f9839bd534e30689a16c22bf1a791d208324f124b31d78"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-2/scikit-learn__scikit-learn-9288/observations/5bb61262-d790-5326-b8a0-e7cc1614388f.json",
+      "sha256": "cfc1e4da542f4299b99c0d336edc09d38fe9b1f0a98c97c0c5a6e03cab52d360"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-2/scikit-learn__scikit-learn-9288/observations/86f852ed-245c-5f1c-adaa-06e54e52a249.json",
+      "sha256": "273e3fccac20ee73975d4dd766f1335b1d540b9727c2f67896447dc221a4eee9"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-2/scikit-learn__scikit-learn-9288/observations/8986afac-6e6d-5018-9824-ad9ad3f8e0ca.json",
+      "sha256": "d429428d243b8245ba94382d0037a7c8471c0f14e216e554825941594268c5d0"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-2/scikit-learn__scikit-learn-9288/observations/provenance.json",
+      "sha256": "a4c047e2c1c087c5a3beaba2c7fa4629f9ee9113fd43a019f4f56fe7b7605222"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-2/scikit-learn__scikit-learn-9288/observations/records.jsonl",
+      "sha256": "a896982d2d60529b39f28757acacf2c2e68ed862df0841bf46bac70f6c0e575e"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-2/scikit-learn__scikit-learn-9288/observations/run.json",
+      "sha256": "a6f2afa0524fac0cb5e0ad81ee0ce99844dc99d20302d2045848703ddc66911b"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-2/scikit-learn__scikit-learn-9288/observations/source-checkpoint.json",
+      "sha256": "1631e98f36e474bb642f37353ce9ed56b1e24cd0b447f32b90d82b6ceb7375d0"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-2/scikit-learn__scikit-learn-9288/report.json",
+      "sha256": "44e263e7ce164469c3f6d4f75eb15da341c0a17b1a3c04ef6fa55dfd1de525c3"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-2/sympy__sympy-13091/observations/07ddf13f-e619-54c1-a733-7c9044ebedb4.json",
+      "sha256": "b88fa6a3395082d095b4d625166a39bdbd8ed252e4072178a803ff13f6fcb99a"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-2/sympy__sympy-13091/observations/428eed24-941f-5836-847b-1ae5d93eb72f.json",
+      "sha256": "1c9a8ef8aea075b58c8115da97c41fbaa90520581bc4b99eb253b3a4b94dbe5d"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-2/sympy__sympy-13091/observations/471984ca-ee68-51f3-8c4d-6c1260614291.json",
+      "sha256": "40a414cba5073e044cd6731c31f6cfa9c1ad6209a8f326892fd655aeda00de69"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-2/sympy__sympy-13091/observations/956da78b-e7bc-5e2b-9c62-280d925dbdc2.json",
+      "sha256": "082c9eca3ed066bd53a91e141fc31afbad85ad6f0ba7533cc8b7d40bf62b2807"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-2/sympy__sympy-13091/observations/dc0553ac-0ad1-5ae3-8230-ffe997ffacaa.json",
+      "sha256": "ea437c09ba54138d112d91d47c02831e9649f798609fe7bac8c4d3c963edb2fe"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-2/sympy__sympy-13091/observations/provenance.json",
+      "sha256": "05f1e2197ba4dc376701fcdceec8a2abb8696e5a9a2c4ef6a8d4e77283c94dac"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-2/sympy__sympy-13091/observations/records.jsonl",
+      "sha256": "b0df8af2b8bd12d2812c7df9342e564df240bebdfe7c30a1f278e3d81cc582ea"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-2/sympy__sympy-13091/observations/run.json",
+      "sha256": "bb78b423ba35ccc417b9301baf2f45f9659f345254dbbbebc3049ec50992df11"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-2/sympy__sympy-13091/observations/source-checkpoint.json",
+      "sha256": "1535c2fb1323edce73c209a2e01980d28ec03df22d6f5b93f04108a80b36211e"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-2/sympy__sympy-13091/report.json",
+      "sha256": "017a05b93069963dc83ed90a7513eca1504462b0efd37990c9ddcf7ebf1f5a3a"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-2/sympy__sympy-15599/observations/3166b853-1902-5aec-bd5a-c0eaeb23e923.json",
+      "sha256": "9225d3cbb86b1ef9c5a06495860cebacf87fb56ac951fc37c1da355fcfe97af5"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-2/sympy__sympy-15599/observations/7b9cc2d9-f12f-5b96-ae07-e7d3f5356bd9.json",
+      "sha256": "925e2e7d9988751549a5f4afb3e3265776c9375cea9817fc34e2bf6c87028a2e"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-2/sympy__sympy-15599/observations/917efb01-2abd-5a30-981b-0353480f98c1.json",
+      "sha256": "521c401910ce14a9cba95b01597418d3e93342e7b3a93a7bd63efb33165f2ac0"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-2/sympy__sympy-15599/observations/a73b7e68-60f7-5cd7-9b5b-5b9c9d6aada5.json",
+      "sha256": "0fc3fd7a47083b9dbccb56b91e323e9502a315968c7c4e55f52f3b777a4312d4"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-2/sympy__sympy-15599/observations/fcbb09db-d03e-5421-838e-276c02085c85.json",
+      "sha256": "e6f92f450b3f2ba0ed26e40766ee5f91bf61272467b24ddb66c3ae58f14bccb7"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-2/sympy__sympy-15599/observations/provenance.json",
+      "sha256": "4328d946c29b9c2db45f41134a857a00cd5c54e8028ba72427831432ed9cdb47"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-2/sympy__sympy-15599/observations/records.jsonl",
+      "sha256": "c322974c74485787d57ff384ad3f9c2158eab7dbd0c233719c85c50c8e1043b4"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-2/sympy__sympy-15599/observations/run.json",
+      "sha256": "94c1179b7cf56ba69e1d4c07d86937cf77a9663551417aadd7b636eec8f385a3"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-2/sympy__sympy-15599/observations/source-checkpoint.json",
+      "sha256": "c816f6572ef98eb1646f1d3bb940b4cc7d0b2c0d768de82f46a6c462f42e0955"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-2/sympy__sympy-15599/report.json",
+      "sha256": "0a95e396aadee4594e589d3ba949c25b556205b4c3928225525deaca28dd4913"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-2/sympy__sympy-22914/observations/06b39395-2574-591b-9614-04acf8c43fcf.json",
+      "sha256": "e1643916a506f9ec3486fd42010255a545b45260d1112eca74661cd72b0d5213"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-2/sympy__sympy-22914/observations/45eda117-909f-5bca-b9b5-20f714eb5f27.json",
+      "sha256": "fb3b58a4b01c8f3429b2c8494ecb98c4b7144602788a04c154517c3a77824a8f"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-2/sympy__sympy-22914/observations/6f5067ff-33c5-570d-bccf-8934a366739d.json",
+      "sha256": "ffbc899e809b63238ec29a715e7c622eddfbcc34c50cc709ac189ead5f4cd824"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-2/sympy__sympy-22914/observations/7a1bc230-fbf9-5047-93c6-002af1b736cc.json",
+      "sha256": "66cce667686718b60b0cd3230fcb041910edfcda07e06f754dd7b4600e7c137e"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-2/sympy__sympy-22914/observations/7cfa631a-5f25-5cce-a07b-02c6255a1326.json",
+      "sha256": "205360074c7965fb3518d4071764ffa0ca4647cb3ef1f35a01a50e0cf79a5589"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-2/sympy__sympy-22914/observations/provenance.json",
+      "sha256": "4eeabc0b2c53836d4d0c5b796b8dff0aebd1d028cd141fe63d316edb09cca44a"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-2/sympy__sympy-22914/observations/records.jsonl",
+      "sha256": "4c67e1aee5a0c0186f120a05f288519f12831170b730bca6a614a5ea614af5d9"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-2/sympy__sympy-22914/observations/run.json",
+      "sha256": "96268184ffbaa2998fda47308e6aa545c4a318386bebb65e234c37d03dd55903"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-2/sympy__sympy-22914/observations/source-checkpoint.json",
+      "sha256": "e79b05242ed79ca2d8606154b5f8664d977a3d74bf87508d1ef51bbac037486c"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-2/sympy__sympy-22914/report.json",
+      "sha256": "c625d5da464db082c48bf6fbf0ffe9049e4721eb396cde133c9f41b06758f7bf"
+    }
+  ],
+  "raw_artifacts_policy": "Full trajectories, workspaces and account metadata stay in ignored work/; no credentials or full trajectories in published evidence."
+}

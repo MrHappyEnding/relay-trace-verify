@@ -117,6 +117,26 @@ def test_unknown_cost_is_not_zero_filled_and_prefix_is_included_per_strategy():
     assert report["arms"]["B-fresh"]["known_end_to_end_api_cost_usd"] == pytest.approx(0.8)
 
 
+def test_failed_agent_retains_settled_api_cost_without_removing_uncertainty():
+    plan = load()
+    rows = observations(plan)
+    row = next(r for r in rows if r["branch"] == "B-workspace")
+    row.update(
+        status="infra_error",
+        verifier_status=None,
+        verifier_reward=None,
+        incremental_api_cost_usd=None,
+        known_incremental_api_cost_usd=0.07,
+        unknown_operations=1,
+    )
+    report = analyze(plan, rows, "pilot", mode="scripted", bootstrap_samples=100)
+    arm = report["arms"]["B-workspace"]
+    assert arm["known_incremental_api_cost_usd"] == pytest.approx(0.67)
+    assert arm["known_end_to_end_api_cost_usd"] == pytest.approx(1.07)
+    assert arm["unknown_cost_rows"] == 1 and arm["unknown_operations"] == 1
+    assert row["incremental_api_cost_usd"] is None
+
+
 @pytest.mark.parametrize(
     "mutation,error",
     [
@@ -124,6 +144,9 @@ def test_unknown_cost_is_not_zero_filled_and_prefix_is_included_per_strategy():
         ({"checkpoint_id": "different"}, "Paired branches disagree"),
         ({"pair_id": "forged"}, "override planned"),
         ({"incremental_api_cost_usd": float("nan")}, "finite"),
+        ({"known_incremental_api_cost_usd": -0.1}, "lower bound"),
+        ({"known_incremental_api_cost_usd": float("nan")}, "lower bound"),
+        ({"known_incremental_api_cost_usd": 0.3}, "lower bound"),
         ({"unknown_operations": 1}, "uncertain operation"),
         ({"verifier_status": "crashed"}, "completed verifier"),
         ({"verifier_reward": 0}, "binary verifier reward"),

@@ -184,13 +184,7 @@ class HarborCodexAdapter:
             config["hooks"] = codex_gate.hook_config()
             # Only our vetted, uploaded hook in this disposable sandbox. Host trust is untouched.
             hook_options["dangerously_bypass_hook_trust"] = True
-            instruction += (
-                f"\nRTV prefix allowance: at most {tool_prefix['max_tools']} Bash/apply_patch "
-                "tool admissions. Use only shell and apply_patch tools (write_stdin may finish "
-                "an existing shell). Do not background/detach commands or change RTV hooks. "
-                "When the allowance is reached, finish this turn with changes, public test "
-                "results and remaining work. You may finish earlier; do not introduce a defect."
-            )
+            instruction += codex_gate.prefix_instruction(tool_prefix)
         expected_atif_id = None
         if atif is not None:
             if self.workspace != "/workspace":

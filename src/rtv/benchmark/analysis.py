@@ -68,6 +68,16 @@ def analyze(plan, supplied, split, *, mode, bootstrap_samples=None):
             v = row.get(name)
             if v is not None and (type(v) not in (int, float) or not math.isfinite(v) or v < 0):
                 raise ValueError("Cost must be finite, nonnegative, or null for UNKNOWN")
+        if "known_incremental_api_cost_usd" in row:
+            lower = row["known_incremental_api_cost_usd"]
+            total = row["incremental_api_cost_usd"]
+            if (
+                type(lower) not in (int, float)
+                or not math.isfinite(lower)
+                or lower < 0
+                or (total is not None and lower > total + 1e-9)
+            ):
+                raise ValueError("Invalid known cost lower bound")
         if type(row.get("unknown_operations")) is not int or row["unknown_operations"] < 0:
             raise ValueError("UNKNOWN operation count required")
         if row["unknown_operations"] and row.get("incremental_api_cost_usd") is not None:
@@ -130,9 +140,10 @@ def analyze(plan, supplied, split, *, mode, bootstrap_samples=None):
         counts = Counter(r["status"] for r in arm)
         valid = counts["solved"] + counts["unsolved"]
         known_cost = [
-            r["incremental_api_cost_usd"]
+            value
             for r in arm
-            if r.get("incremental_api_cost_usd") is not None
+            if (value := r.get("known_incremental_api_cost_usd", r.get("incremental_api_cost_usd")))
+            is not None
         ]
         known_prefix_cost = [
             r["prefix_api_cost_usd"] for r in arm if r.get("prefix_api_cost_usd") is not None
@@ -149,7 +160,7 @@ def analyze(plan, supplied, split, *, mode, bootstrap_samples=None):
                 r.get("incremental_api_cost_usd") is None or r.get("prefix_api_cost_usd") is None
                 for r in arm
             ),
-            "unknown_cost_rows": len(arm) - len(known_cost),
+            "unknown_cost_rows": sum(r.get("incremental_api_cost_usd") is None for r in arm),
             "unknown_operations": sum(r["unknown_operations"] for r in arm),
         }
     by_pair = defaultdict(dict)

@@ -6,7 +6,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from rtv.codex_gate import audit, handle, initial, policy, transition
+from rtv.codex_gate import NOTICE, audit, handle, initial, policy, transition
 
 POLICY = {"version": "codex-tools-v1", "max_tools": 2}
 
@@ -63,6 +63,24 @@ def test_budget_denies_new_tools_but_allows_existing_completion():
         )
     transition(state, payload("Stop"))
     assert not state["errors"]
+
+
+def test_runtime_notice_is_emitted_at_the_boundary_without_changing_admission():
+    state = initial({**POLICY, "version": "codex-tools-v2"})
+    assert transition(state, payload("SessionStart")) == {}
+    assert transition(state, payload("PreToolUse", "one")) == {}
+    assert transition(state, payload("PostToolUse", "one")) == {}
+    assert transition(state, payload("PreToolUse", "two")) == {}
+    assert (
+        transition(state, payload("PostToolUse", "two"))["hookSpecificOutput"]["additionalContext"]
+        == NOTICE
+    )
+    assert (
+        transition(state, payload("PreToolUse", "three"))["hookSpecificOutput"][
+            "permissionDecision"
+        ]
+        == "deny"
+    )
 
 
 def test_concurrent_hook_processes_cannot_over_admit(tmp_path):

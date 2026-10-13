@@ -58,5 +58,48 @@ separately. Unknown responses never release reservations, and within-run limits 
 Subscription usage is separate with unknown dollar cost; recorded API pricing is not an
 invoice guarantee.
 
-Results and filtered evidence will be appended after completion. Full trajectories and
-credentials remain in ignored `work/`.
+## Round-two results (2026-10-12)
+
+The filtered [evidence](evidence/m4-early-prefix-development-arm64-20261012.json) binds runtime
+commit `3de0652e1245c6a950d73d124798973f6febfc71`. Four tasks ran once: fourteen of sixteen branches
+received independent grades; two remained ungraded infrastructure errors. Execution checks passed
+54/56. Failed records remain intact, with no automatic retry. All four prefixes admitted and
+completed two tools and contained code changes. Prefixes were graded only after every branch ended.
+
+| Task | Source prefix | A native continuation | B workspace | B workspace + summary | B fresh |
+| --- | --- | --- | --- | --- | --- |
+| sympy-22914 | Pass | Pass | Pass | Pass | Fail |
+| sympy-15599 | Pass | Pass | Pass | Pass | Fail |
+| sympy-13091 | Fail | Pass | Fail | Fail | Fail |
+| scikit-learn-9288 | Fail | Pass | Pass | Ungraded: infrastructure | Ungraded: infrastructure |
+
+Unfinished-prefix coverage is **2/4**, versus 1/4 previously. Within those two tasks, native
+continuation rescues 2/2, workspace relay 1/2, and workspace-plus-summary 0/2 including one ungraded
+branch. The KMeans parallel random-seed task supplies one real heterogeneous rescue, not evidence
+of overall superiority over native continuation. Repeated development on four tasks is exploratory;
+sixteen branches are not sixteen independent tasks. The twenty-task evaluation split remains unrun.
+
+The corrected shell removes the observed SymPy mpmath/Mapping errors, but incomplete repairs
+persist: mini's 13091 changes still focus on Basic; the fresh 15599 branch submits despite a public
+floating-point assertion failure; fresh 22914 exhausts sixteen requests without solving the issue.
+Environment and input allowance therefore do not explain all failures.
+
+The scikit-learn summary and fresh arms abort when a public command exceeds Harbor's 30-second
+transport timeout, leaving no gradable artifact. All four and six respective API requests have
+known usage; an unknown parent operation is not an unknown API invoice. The next version will
+enforce command timeouts inside the container process group and return ordinary exit feedback,
+while retaining genuine transport failures. A separate analysis fix includes known cost lower
+bounds from infrastructure-error rows without zero-filling unknown totals. This evidence recomputes
+the aggregate with that fix, preserves raw observations and the earlier aggregate copy, and records
+the analysis implementation hash separately from the executed runtime.
+
+The round made 99 API requests costing **$0.23697360**, with no unknown API requests. Cumulative
+M4 totals are 235 requests and **$0.57644430** known cost. Historical gross reservations of $35.738
+sum admission bounds, not actual spending. Eight subscription stages remain separately accounted
+with unknown dollar cost. Task execution took about 43.5 minutes in total. A scan found no original
+credential-value matches; this does not assert that full trajectories contain no account metadata.
+Task Jobs, model Secrets, and diagnostic containers were removed; Postgres remains. The pre-run
+unit/mocked suite passed 218 tests with one optional skip. Subsequent corrections pass 225 with
+one optional skip; those later checks are not attributed to the already executed runtime.
+
+The next development protocol is [runtime notification and command timeout](m4-runtime-notice.en.md).
