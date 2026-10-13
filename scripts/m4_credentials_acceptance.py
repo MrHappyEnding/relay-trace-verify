@@ -13,8 +13,9 @@ from rtv.benchmark.execution import prepare_pair
 from rtv.benchmark.protocol import load
 from rtv.cluster.cli import fixture_spec
 from rtv.cluster.config import ClusterConfig, pool_label
-from rtv.cluster.credentials import authorize, install_secret, remove_secret
+from rtv.cluster.credentials import authorize, authorize_recovery, install_secret, remove_secret
 from rtv.cluster.kubernetes import Kubernetes, job_manifest
+from rtv.cluster.recovery import prepare_run
 from rtv.mini_agent import API_ENVELOPES, api_envelope
 from rtv.runtime.config import Settings
 from rtv.runtime.store import spec_hash
@@ -38,7 +39,11 @@ def main(args):
         pause_after_checkpoint=True,
     )
     spec["api_envelope"] = args.api_envelope
-    run = prepare_pair(load(), spec, output, mode="real-model")
+    run = (
+        prepare_run(spec, output)
+        if args.recovery
+        else prepare_pair(load(), spec, output, mode="real-model")
+    )
     kube = Kubernetes(config)
     refs, allocations, checks = {}, [], {}
     access = None
@@ -50,18 +55,32 @@ def main(args):
             "codex": json.dumps({"tokens": {"access_token": "rtv-fake-codex-do-not-use"}}),
             "mini": "rtv-fake-api-key-do-not-use",
         }
+        if args.recovery:
+            values.pop("mini")
         try:
             for adapter, value in values.items():
                 path = private / adapter
                 path.write_text(value)
                 path.chmod(0o600)
                 refs[adapter] = install_secret(kube, run["run_sha256"], adapter, path)
-            access = authorize(run, round(32 * api_envelope(spec).reservation_usd, 9), refs)
+            access = (
+                authorize_recovery(run, refs)
+                if args.recovery
+                else authorize(run, round(32 * api_envelope(spec).reservation_usd, 9), refs)
+            )
             config = replace(config, model_access=access)
             kube.config = config
-            for number, adapter in enumerate(("codex", "mini")):
-                entry = next(
-                    e for e in [run["source"], *run["entries"]] if e["spec"]["adapter"] == adapter
+            for number, adapter in enumerate(
+                ("codex", "codex") if args.recovery else ("codex", "mini")
+            ):
+                entry = (
+                    run["entries"][0]
+                    if args.recovery
+                    else next(
+                        e
+                        for e in [run["source"], *run["entries"]]
+                        if e["spec"]["adapter"] == adapter
+                    )
                 )
                 row = {
                     **entry,
@@ -70,6 +89,16 @@ def main(args):
                     "execution_id": f"probe-{adapter}-{run['run_sha256'][:12]}",
                     "deadline": datetime.now(UTC) + timedelta(seconds=180),
                 }
+                probe_label = adapter
+                if args.recovery:
+                    row.update(
+                        epoch=number + 1,
+                        recoveries=number,
+                        parent_checkpoint="probe-checkpoint",
+                        resume_from="probe-checkpoint",
+                    )
+                    probe_label += f"-epoch-{number + 1}"
+                    row["execution_id"] += f"-epoch-{number + 1}"
                 allocation = {
                     "job_name": row["execution_id"],
                     "job_uid": None,
@@ -80,7 +109,20 @@ def main(args):
                 pod = manifest["spec"]["template"]["spec"]
                 pod["nodeSelector"]["kubernetes.io/hostname"] = f"k3d-rtv-m4-agent-{number}"
                 # Replace the production entrypoint: no supervisor, agent or client is run.
-                probe_row = json.dumps({k: row[k] for k in ("spec", "trial_id", "epoch")})
+                probe_row = json.dumps(
+                    {
+                        k: row[k]
+                        for k in (
+                            "spec",
+                            "trial_id",
+                            "epoch",
+                            "recoveries",
+                            "parent_checkpoint",
+                            "resume_from",
+                        )
+                        if k in row
+                    }
+                )
                 checksum = hashlib.sha256(values[adapter].encode()).hexdigest()
                 expected_env = (
                     ["RTV_ALLOW_MODEL_CALLS", "RTV_CODEX_AUTH_FILE"]
@@ -134,12 +176,12 @@ def main(args):
                 log = response.data.decode()
                 if any(value in log for value in values.values()):
                     raise AssertionError("Probe log contains a sentinel credential")
-                (output / f"{adapter}-pod.log").write_text(log)
-                checks[adapter + "_pod_succeeded"] = pods[0]["status"]["phase"] == "Succeeded"
-                if not checks[adapter + "_pod_succeeded"]:
+                (output / f"{probe_label}-pod.log").write_text(log)
+                checks[probe_label + "_pod_succeeded"] = pods[0]["status"]["phase"] == "Succeeded"
+                if not checks[probe_label + "_pod_succeeded"]:
                     raise AssertionError("Projection probe failed")
-                checks.update({adapter + "_" + k: v for k, v in json.loads(log).items()})
-                checks[adapter + "_assigned_node"] = (
+                checks.update({probe_label + "_" + k: v for k, v in json.loads(log).items()})
+                checks[probe_label + "_assigned_node"] = (
                     pods[0]["spec"]["nodeName"] == f"k3d-rtv-m4-agent-{number}"
                 )
                 end = time.monotonic() + 60
@@ -176,6 +218,9 @@ def main(args):
             evidence = {
                 "status": "passed" if not error and all(checks.values()) else "failed",
                 "mode": "real-local-kubernetes-fake-credentials",
+                "admission_purpose": access.get("purpose", "paired-benchmark-v1")
+                if access
+                else None,
                 "checks": checks,
                 "error_type": error,
                 "model_calls": 0,
@@ -203,4 +248,5 @@ if __name__ == "__main__":
     for name in ("config", "contract", "output"):
         parser.add_argument("--" + name, type=Path, required=True)
     parser.add_argument("--api-envelope", choices=API_ENVELOPES, default="mini-40kb-v1")
+    parser.add_argument("--recovery", action="store_true")
     raise SystemExit(main(parser.parse_args()))

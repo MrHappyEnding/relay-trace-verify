@@ -4,126 +4,90 @@
 
 *A platform for reliable agent execution and evaluation.*
 
-面向长程 Coding Agent 的可恢复执行与分支实验系统。
+RTV 为长程 Coding Agent 提供检查点、跨 agent 交接、故障恢复和独立评测。
+任务的代码、上下文和执行记录由平台管理，让后续执行可以接着已有工作继续。
 
-**状态：F0–M3 已在本机可信开发任务范围内验收。** M3 完成幂等交接、共同检查点的四路分支、独立验证、前缀成本归因和中英文只读页面。48 项零费用协议检查及 14 项真实模型检查通过：原 Codex 会话继续，以及 mini-swe-agent 的工作区、摘要、文本轨迹三种交接均完成任务。当前是功能验收，不代表接力的成功率或成本优势。见 [M3 指南与证据](docs/m3.md)。
+## 核心能力
 
-**M4 进行中：本机 Kubernetes 底座与真实任务实验协议已加入。** 两个控制 worker、两个执行节点、资源预约、节点恢复与原始报告使用零模型调用验收。SWE-bench Verified 已固定 4 个开发任务、20 个评测任务，配对统计工具与全部 4 个开发任务的断网验证器检查通过；已完成三轮四题开发对照，最新一轮 16 个分支全部判分、56 项流程检查通过，正式评测尚未完成。见 [M4 指南](docs/m4.md)与[任务及统计协议](docs/m4-benchmark.md)。
+- **Relay**：保存一致的工作区与会话；支持 Codex 原生继续，以及向 mini-swe-agent 交接工作区、摘要或文本轨迹。
+- **Trace**：关联任务、尝试、执行、工具事件和检查点，追踪交接过程与调用成本。
+- **Verify**：隔离运行任务验证器，导出可追溯的结果；从同一检查点创建独立实验分支。
+- **Reliable execution**：用 Temporal 与 PostgreSQL 管理持久状态，通过执行所有权、资源预约和清理协议协调本机 Kubernetes 任务。
 
-首个真实仓库的本机 checkpoint、脚本接力、fresh 基线与故障恢复已通过 26 项检查，
-见[真实仓库接入](docs/m4-repositories.md)。修复使用参考补丁，不能作为模型效果证据。
+功能验收检查状态是否正确传递、任务能否继续执行、故障能否按约定恢复。
+配对实验用于观察不同执行策略的结果，不要求接力取得更高解题率。
 
-后续 [Kubernetes 仓库验收](docs/m4-repository-cluster.md)通过 28 项检查，覆盖任务交付、
-四分支统计关联和 Job 丢失后的换节点恢复。当前只有 1 个开发仓库的脚本控制结果。
+## 当前进展
 
-[模型凭据与 pilot 启动器](docs/m4-model-pilot.md)已加入：17 项双节点假凭据检查通过，
-以下为历史自然结束结果；第三轮将输入上限提高到 160 KB，通过 13 项真实模型流程检查，四个分支均 solved。
-B-workspace 用完 8 次请求仍通过独立测试；没有输入超限停止。三轮累计 45 次 API 请求、
-$0.11725620，计入已提高的 $20 总预算；订阅成本未知。前缀已有核心修复，尚未证明救回
-未完成任务或接力效果优势。结果与边界见该指南。
+**F0–M3 已完成本机范围验收；M4 已验证真实 agent 的跨节点恢复，正式评测待完成。**
 
-[首轮四题中途交接试验](docs/m4-tool-prefix-results.md)已完成：原生继续 4/4、摘要接力 3/4、工作区接力与 fresh 各 2/4，四题各 14 项流程检查通过。事后断网诊断发现三题前缀已通过，唯一未完成前缀仅被原生继续修好；当时尚未证明异构接力救回效果。该轮 91 次 API 请求花费 $0.22221450，当时 M4 累计 $0.33947070，未超出批准的约 $25.82 预约上限。
+| 能力 | 已有验证 |
+| --- | --- |
+| 原生恢复与跨 agent 交接 | M3 的 14 项真实模型检查通过，覆盖 Codex 继续和 mini-swe-agent 三种交接策略 |
+| 检查点与执行所有权 | 内容校验、条件提交、旧执行隔离、分支保护及成本归因 |
+| 本机 Kubernetes | 两个控制 worker、两个执行节点；脚本任务的节点故障与跨节点恢复通过验收 |
+| 真实 agent 故障恢复 | Codex 执行 Job 丢失后在另一节点恢复原生会话与代码，独立测试通过；见[恢复证据](docs/m4-model-recovery.md) |
+| 真实仓库执行 | 四个 SWE-bench Verified 开发任务；最近一轮 56 项流程检查通过，16 个分支均完成独立判分 |
+| 轨迹与展示 | 中英文只读实验页面，JSON/CSV 报告、事件及产物关联 |
 
-后续[提前交接试验](docs/m4-early-prefix.md)把“已有改动且未完成”的前缀覆盖从 1/4 提高到 2/4，并得到一次真实异构接力修复；两个工具超时导致的未评分记录保留。[运行时通知与超时修正版](docs/m4-runtime-notice.md)完成 56/56 项流程检查，原生继续 4/4、三种 mini 路径各 2/4。源前缀均未完成，但四题都尚未改码，不能视作部分补丁覆盖继续提升。真实命令超时后继续并通过验证的路径已观察到；没有总体接力优势结论。M4 累计已知 API 费用 $0.85497195，处于 $30 授权内，订阅成本另计且未知。
-
-RTV 同时用于学习复现、系统实现和自主探索。已有方案会保留为学习材料与对照基线，参考来源和复现范围见[学习与资源计划](docs/learning-plan.md)。目前没有模型效果优势或多物理宿主可靠性结论。
+测试类型、适用范围和原始证据入口见[验收与开发记录](docs/index.md)。
+20 题正式评测仍待完成；本机 k3d 节点共享一台物理宿主。
 
 ## 快速开始
 
-需要 Python 3.11+ 和 uv。在仓库根目录执行：
+核心演示需要 Python 3.11+ 和 uv，无需 Docker 或模型凭据：
 
 ```bash
 uv sync --locked --dev
 uv run rtv demo --output work/demo
 ```
 
-演示使用两个确定性 fixture，不调用模型、不需要 API key。A 写入文件并提交检查点，B 从检查点恢复到独立目录、修改结果，最后由 verifier 检查。输出包含 `events.jsonl`、`report.json`、工作区和检查点。
+两个确定性 fixture 依次修改文件、提交检查点、在独立目录恢复，并运行 verifier。
+输出包括 `events.jsonl`、`report.json`、工作区和检查点。重复演示时使用新的输出目录。
 
-输出目录必须尚不存在；重复运行时换一个目录，例如 `work/demo-2`。本地后端是普通目录，不提供容器或进程隔离。
+使用真实容器与 agent 的运行步骤见[演示与部署](docs/demo.md)。
+可选 runtime 依赖需要 Python 3.12+；真实模型运行需显式开启并准备凭据。
 
 开发检查：
 
 ```bash
 uv run pytest
-uv run ruff check src tests
-uv run ruff format --check src tests
+uv run ruff check src tests scripts
+uv run ruff format --check src tests scripts
 ```
 
-模块说明、当前保证和扩展入口见[框架开发指南](docs/framework.md)。
-
-Harbor 原型使用可选依赖组和 Python 3.12+，安装、预检查及容器测试命令见 [M0 指南](docs/m0.md)。普通测试会跳过实际容器测试；单独执行的真实测试及其证据见该指南。
-
-## 核心问题
-
-当 agent 卡住、worker 失联或沙箱销毁时，如何让后续执行获得一致的工作区与会话状态，并从同一个检查点公平比较不同继续策略？
-
-RTV 围绕三个能力展开：
-
-1. **Relay**：通过一致性检查点恢复执行、交给另一个 agent，或创建隔离分支。
-2. **Trace**：关联工具事件、工作区、检查点、交接和成本，定位失败发生在哪一层。
-3. **Verify**：用独立验证和配对实验衡量系统可靠性与 agent 解题效果。
-
-## 设计入口
-
-| 文档 | 内容 |
-| --- | --- |
-| [框架开发指南](docs/framework.md) | 当前代码、运行方法、验证范围和集成边界 |
-| [M0 接入指南](docs/m0.md) | Harbor 预检查、容器恢复原型、能力矩阵与当前缺口 |
-| [Codex 恢复实验](docs/codex-m0.md) | 首个真实 agent、原生会话 / 语义交接、恢复边界与用量证据 |
-| [M0 验收与恢复边界](docs/m0-boundaries.md) | ATIF 信息损失、真实取消与回滚、镜像生命周期和能力声明 |
-| [M1 持久执行](docs/m1.md) | 本机部署、任务提交 / 取消、故障注入、真实 Codex 与边界 |
-| [M2 检查点与恢复](docs/m2.md) | 条件提交、epoch、原生会话恢复、UNKNOWN 用量、引用 GC 与验收 |
-| [M3 接力与分支](docs/m3.md) | 第二种 agent、上下文策略、独立验证、只读页面与 API 预算 |
-| [M4 Kubernetes 执行](docs/m4.md) | 本机多 worker / 节点故障、资源配额、恢复与原始报告 |
-| [M4 真实任务与统计](docs/m4-benchmark.md) | 固定 SWE-bench 子集、配对协议、离线验证、缺失及 UNKNOWN 费用 |
-| [M4 真实仓库接入](docs/m4-repositories.md) | 任务契约、目录权限快照、隐藏测试隔离与脚本恢复验收 |
-| [M4 仓库集群执行与统计](docs/m4-repository-cluster.md) | 任务交付、资源配额、换节点恢复和实际运行记录关联 |
-| [M4 模型凭据与 pilot](docs/m4-model-pilot.md) | 单次运行授权、Secret 投递、真实试验启动器和费用边界 |
-| [M4 提前交接开发结果](docs/m4-early-prefix.md) | 失败轨迹、登录环境修正、未完成前缀覆盖与接力修复 |
-| [M4 运行时通知与超时](docs/m4-runtime-notice.md) | 第三轮冻结协议、工具进程组超时与真实结果 |
-| [学习与资源计划](docs/learning-plan.md) | 开源参考、复现目标、lab GPU 与费用约定 |
-| [系统设计](docs/design.md) | 对象关系、不变量、检查点协议、故障处理、预算与能力矩阵 |
-| [实验协议](docs/experiments.md) | 配对分支、预算口径、基线、统计及结果产物 |
-| [里程碑](docs/roadmap.md) | 实现顺序、验收证据与待决策项 |
-| [ADR 0001](docs/adr/0001-runtime-boundary.md) | Harbor / Temporal / 自研 runtime 的职责边界 |
-| [ADR 0003](docs/adr/0003-fenced-checkpoints.md) | M2 所有权、检查点提交与回收决策 |
-
-## 预期架构
+## 架构与实现
 
 ```mermaid
-flowchart TD
-    API[CLI / Control API] --> WF[Temporal Workflow]
-    WF --> RUN[Execution Runner]
-    RUN --> HB[Harbor task / agent / verifier integration]
-    HB --> BOX[Isolated sandbox per execution]
-    RUN --> CP[Checkpoint and ownership protocol]
-    CP --> DB[(PostgreSQL metadata)]
-    CP --> OBJ[(Immutable artifact store)]
-    DB --> EXP[Experiment and diagnosis views]
-    OBJ --> EXP
+flowchart LR
+    CLI[CLI / 只读页面] --> Control[Temporal 控制流程]
+    Control --> Runner[执行与资源协调]
+    Runner --> Sandbox[Harbor / 隔离沙箱]
+    Runner --> Checkpoint[检查点与交接协议]
+    Checkpoint --> State[(PostgreSQL)]
+    Checkpoint --> Files[(本机不可变产物)]
+    Sandbox --> Verifier[独立验证器]
+    State --> Report[轨迹与结果报告]
+    Verifier --> Report
 ```
 
-图中表示完整目标架构。M3 已实现本机交接与实验分支，复用 M2 的 epoch、检查点与账本；mini API 请求单独记账。产物仍存于本地。对象存储、多主机资源 fencing、通用严格预算准入尚未实现。真实双 agent 已在单个固定开发任务上通过功能验收。
+RTV 实现检查点提交、执行所有权、恢复与交接协议、分支隔离和预算归因；
+复用 Harbor 的任务与沙箱集成，以及 Temporal 的持久编排。
+当前恢复范围为声明的文件系统工作区和受支持的会话格式；外部服务副作用与进程内存不在检查点范围内。
 
-## 技术边界
+## 文档
 
-- Harbor：复用任务、agent / sandbox 适配、验证器及 ATIF 轨迹能力。
-- Temporal：复用持久化编排、定时器与 Activity 重试机制。
-- 本项目：实现检查点提交、执行所有权、恢复 / 交接语义、分支隔离与预算归因。
-- 初期限定可重建的本地文件系统任务；外部数据库、任意进程内存和外部服务副作用不包含在检查点保证内。
-- 客观事件从第一阶段采集；LLM judge 与训练数据筛选属于后续扩展。
+| 入口 | 内容 |
+| --- | --- |
+| [演示与部署](docs/demo.md) | 从零费用演示到容器、集群和真实 agent |
+| [文档与验收索引](docs/index.md) | 分阶段实现、验收证据和开发记录 |
+| [系统设计](docs/design.md) | 状态模型、检查点、不变量与故障处理 |
+| [实验协议](docs/experiments.md) | 功能验收、配对观察、成本与复现口径 |
+| [路线图](docs/roadmap.md) | 已完成项目与剩余工作 |
+| [学习与参考](docs/learning-plan.md) | 上游来源、复现范围和资源计划 |
 
-## 首个可演示目标
-
-Agent A 修改代码 → 提交检查点 → 注入 worker 故障 → 在另一 worker 恢复 → 从检查点分别交给 A / B → 独立验证并展示完整成本。
-
-实现与实验结论将分别记录；没有测量的数字不作为项目效果。
-
-## 参考
-
-- [Ember](https://github.com/RuokeZhang/ember)：工程范围参照。
-- [Harbor trajectory loading](https://docs.harborframework.com/jobs/loading-trajectories)：会话 / 轨迹加载不等同于沙箱文件恢复。
-- [Harbor ATIF](https://docs.harborframework.com/agents/atif)：轨迹格式与验证。
-- [Temporal Activities](https://docs.temporal.io/activity-definition)：重试与幂等性边界。
-
-文档调研日期：2026-10-07。实现阶段应固定依赖版本，并用契约测试验证能力。
+RTV 同时用于学习复现、系统实现和自主探索。主要基础包括
+[Harbor](https://github.com/harbor-framework/harbor)、
+[Temporal](https://github.com/temporalio/temporal) 和
+[mini-swe-agent](https://github.com/SWE-agent/mini-swe-agent)；
+[Ember](https://github.com/RuokeZhang/ember) 是工程范围参考。

@@ -79,8 +79,9 @@ Accepted within the local scope: [M2 guide](m2.en.md), 40 runtime/protocol check
 - [x] Four real-model branches on one development repository: the third run passes 13 checks with 160 KB inputs and four solved branches, covering native continuation, handoff and isolated grading.
 - [x] Offline controls for all four development environments; tool-prefix and fresh-container native recovery tests without model calls.
 - [x] Four development tasks under tool-prefix policy: sixteen observations, post hoc prefix grading and cost audit.
-- [ ] Formal real-model evaluation and real-model system fault experiments; complete the report.
-- [ ] Document deployment steps, operating costs, known limitations, and the full demonstration.
+- [x] Real Codex cross-node recovery after executor loss, preserving the native session, code, and execution state and passing independent tests; see [recovery acceptance](m4-model-recovery.en.md).
+- [x] Publish [demo and deployment](demo.en.md), bilingual capability-focused READMEs, and the [acceptance index](index.en.md), retaining historical records.
+- [ ] Run the fixed 20-task formal real-model evaluation and complete its report.
 
 **Acceptance evidence**: experiments can be repeated from their configuration; reliability and strategy effectiveness each have measured evidence; and every published result can be traced to raw records.
 
@@ -110,4 +111,7 @@ Local repository controls, Kubernetes execution and the credential path remain d
 
 The [runtime-notification and timeout revision](m4-runtime-notice.en.md) passes 56/56 workflow checks and four post hoc prefix diagnostics: native continuation solves 4/4 and all three mini strategies solve 2/4, with sixteen graded branches. All four prefixes are unfinished but unchanged; there are no partial-patch samples. Unfinished percentage alone therefore does not establish policy improvement. Real command-timeout continuation followed by a passing grade is verified.
 
-M4 known API charges total $0.85497195, with zero unknown API requests, within the $30 authorization; subscription cost is unknown. Next, freeze sampling across progress levels and report strata separately before the twenty-task evaluation and formal model fault experiments.
+M4 known API charges total $0.85497195, with zero unknown API requests, within the $30 authorization;
+subscription cost is unknown. Real recovery acceptance adds $0 in API charges. Next, complete runtime
+integration, environment preparation, and reporting for the fixed 20-task evaluation. Milestones are
+accepted on functionality and reliability; paired outcomes do not prescribe a winner.

@@ -18,7 +18,9 @@ def validate_spec(pool, spec):
 
         if not pool.get("model_access"):
             raise ValueError("Cluster model credential delivery is not enabled")
-        validate_model_spec(spec)
+        validate_model_spec(
+            spec, allow_recovery=pool["model_access"].get("purpose") == "codex-recovery-v1"
+        )
     declared = contract(spec)
     if declared is None:
         if pool.get("repository_contract_sha256"):

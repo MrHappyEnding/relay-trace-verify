@@ -59,7 +59,34 @@ def authorize(run, approved_budget_usd, references):
     return access
 
 
-def validate_model_spec(spec):
+def authorize_recovery(run, references):
+    """Two Codex trials, one explicitly bounded recovery, and no metered API access."""
+    from rtv.cluster.recovery import validate_run
+    from rtv.runtime.store import spec_hash
+
+    validate_run(run)
+    access = {
+        "schema_version": 1,
+        "purpose": "codex-recovery-v1",
+        "run_sha256": run["run_sha256"],
+        "root": run["root"],
+        "approved_budget_usd": 0,
+        "grants": {
+            entry["trial_id"]: {
+                "spec_hash": spec_hash(entry["spec"]),
+                "adapter": "codex",
+                "requests": 0,
+                "max_recoveries": entry["spec"]["max_recoveries"],
+            }
+            for entry in [run["source"], *run["entries"]]
+        },
+        "secrets": references,
+    }
+    validate_access(access)
+    return access
+
+
+def validate_model_spec(spec, *, allow_recovery=False):
     envelope = api_envelope(spec)
     adapter = spec["adapter"]
     if "prefix_policy" in spec:
@@ -75,7 +102,8 @@ def validate_model_spec(spec):
         raise ValueError("Cluster model run requires the pinned adapters and models")
     if (
         not spec.get("task_contract")
-        or spec.get("max_recoveries") != 0
+        or type(spec.get("max_recoveries")) is not int
+        or spec["max_recoveries"] not in ((0, 1) if allow_recovery and adapter == "codex" else (0,))
         or not spec.get("isolated_verifier")
         or any(k.startswith("scripted_") for k in spec)
         or spec.get("ttl_seconds") != 1800
@@ -100,20 +128,31 @@ def validate_access(access):
         or not Path(access.get("root", "")).is_absolute()
     ):
         raise ValueError("Invalid run-scoped model admission")
+    purpose = access.get("purpose", "paired-benchmark-v1")
+    if purpose not in {"paired-benchmark-v1", "codex-recovery-v1"}:
+        raise ValueError("Unknown model admission purpose")
+    recovery = purpose == "codex-recovery-v1"
     budget = access.get("approved_budget_usd")
-    if type(budget) not in (int, float) or not math.isfinite(budget) or not 0 < budget <= 8:
+    if (
+        type(budget) not in (int, float)
+        or not math.isfinite(budget)
+        or (budget != 0 if recovery else not 0 < budget <= 8)
+    ):
         raise ValueError("One pilot approval must be finite and at most $8")
     grants = access.get("grants", {})
-    if len(grants) != 5 or sorted(g.get("adapter", "") for g in grants.values()) != [
-        "codex",
-        "codex",
-        "mini",
-        "mini",
-        "mini",
-    ]:
+    adapters = ["codex", "codex"] if recovery else ["codex", "codex", "mini", "mini", "mini"]
+    if (
+        len(grants) != len(adapters)
+        or sorted(g.get("adapter", "") for g in grants.values()) != adapters
+    ):
         raise ValueError("Admission must cover exactly the prefix and four pilot branches")
+    if recovery and sorted(g.get("max_recoveries", -1) for g in grants.values()) != [0, 1]:
+        raise ValueError("Recovery admission permits one source and one single-recovery trial")
     for trial, grant in grants.items():
         api_envelope(grant)
+        recoveries = grant.get("max_recoveries", 0)
+        if type(recoveries) is not int or recoveries not in ((0, 1) if recovery else (0,)):
+            raise ValueError("Unapproved recovery allowance")
         if not re.fullmatch(r"[0-9a-f-]{36}", trial) or not re.fullmatch(
             r"[0-9a-f]{64}", grant.get("spec_hash", "")
         ):
@@ -123,9 +162,9 @@ def validate_access(access):
             raise ValueError("Invalid pilot request allowance")
     total = sum(g["requests"] for g in grants.values())
     reserved = sum(g["requests"] * api_envelope(g).reservation_usd for g in grants.values())
-    if total != 32 or round(reserved, 9) > budget:
+    if total != (0 if recovery else 32) or round(reserved, 9) > budget:
         raise ValueError("Pilot reservations exceed approval or differ from the frozen protocol")
-    if set(access.get("secrets", {})) != {"codex", "mini"}:
+    if set(access.get("secrets", {})) != ({"codex"} if recovery else {"codex", "mini"}):
         raise ValueError("Separate Codex and mini Secret references required")
     for ref in access["secrets"].values():
         if (
@@ -146,14 +185,32 @@ def admitted_reference(pool, root, row):
     if not access:
         raise ValueError("Cluster model credential delivery is not enabled")
     validate_access(access)
-    validate_model_spec(spec)
+    recovery = access.get("purpose") == "codex-recovery-v1"
+    validate_model_spec(spec, allow_recovery=recovery)
     grant = access["grants"].get(row["trial_id"])
+    epoch, recoveries = row.get("epoch"), row.get("recoveries", 0)
+    allowed = grant.get("max_recoveries", 0) if grant else 0
+    valid_epoch = (
+        type(epoch) is int
+        and type(recoveries) is int
+        and 0 <= recoveries <= allowed
+        and epoch == 1 + recoveries
+        and (
+            epoch == 1
+            or (
+                recovery
+                and bool(row.get("parent_checkpoint"))
+                and row.get("resume_from") == row["parent_checkpoint"]
+            )
+        )
+    )
     if (
         str(root) != access["root"]
-        or row["epoch"] != 1
+        or not valid_epoch
         or not grant
         or grant["spec_hash"] != spec_hash(spec)
         or grant["adapter"] != spec["adapter"]
+        or allowed != spec["max_recoveries"]
         or grant["requests"] != (spec["api_call_limit"] if spec["adapter"] == "mini" else 0)
         or api_envelope(grant) != api_envelope(spec)
     ):

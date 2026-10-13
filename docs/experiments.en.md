@@ -2,7 +2,7 @@
 
 [![中文](assets/lang-zh.svg)](experiments.md) [![English](assets/lang-en.svg)](experiments.en.md)
 
-Status: Draft · 2026-10-07
+Status: acceptance and observation criteria · 2026-10-13
 
 ## 1. Answer two separate questions
 
@@ -10,6 +10,11 @@ Status: Draft · 2026-10-07
 2. **Strategy effectiveness**: under a predefined budget, does handoff improve task success rate, cost, or completion time?
 
 A reliable system does not automatically make handoff effective. Individual successful handoffs do not establish the reliability of the recovery protocol.
+
+**Milestones are accepted on functionality and reliability.** Paired observations do not prescribe
+a winning strategy, and relay outperforming native continuation is not a completion criterion.
+Unsolved tasks, verifier errors, and state-transfer errors are recorded separately. Fault-injection
+workloads have independent identities and never replace or enter ordinary paired observations.
 
 ## 2. Paired checkpoint experiments
 

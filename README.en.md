@@ -4,129 +4,95 @@
 
 *A platform for reliable agent execution and evaluation.*
 
-A recoverable execution and branching experiment system for long-running coding agents.
+RTV provides checkpoints, cross-agent handoff, fault recovery, and independent evaluation for
+long-running coding agents. The platform manages code, context, and execution records so later
+executions can continue existing work.
 
-**Status: F0–M3 accepted within the local trusted-development-task scope.** M3 adds idempotent handoff, four branches from one checkpoint, isolated verification, prefix attribution and a bilingual read-only viewer. It passes 48 zero-cost protocol checks and 14 real-model checks: native Codex continuation and mini-swe-agent workspace, summary and text-trajectory handoffs all complete the task. This validates functionality, not relay success-rate or cost advantages. See the [M3 guide and evidence](docs/m3.en.md).
+## Capabilities
 
-**M4 in progress: local Kubernetes execution and a real-task experiment protocol are available.** Two control workers, two execution nodes, resource reservations, node recovery and raw reports are tested without model calls. SWE-bench Verified selection is frozen at four development and twenty evaluation tasks; paired analysis and offline verifier controls for all four development tasks pass. Three four-task development rounds are complete; the latest grades all sixteen branches and passes 56 workflow checks. Formal evaluation is incomplete. See the [M4 guide](docs/m4.en.md) and [task/statistics protocol](docs/m4-benchmark.en.md).
+- **Relay**: preserve consistent workspaces and sessions; continue native Codex sessions or hand workspaces, summaries, and text trajectories to mini-swe-agent.
+- **Trace**: link tasks, attempts, executions, tool events, and checkpoints; follow handoffs and model costs.
+- **Verify**: run isolated task verifiers and export traceable results; create independent experiment branches from the same checkpoint.
+- **Reliable execution**: persist control state with Temporal and PostgreSQL, coordinating local Kubernetes jobs through execution ownership, resource reservations, and cleanup protocols.
 
-Local checkpoints, scripted relay, a fresh baseline and fault recovery for the first real repository
-pass 26 checks; see [repository integration](docs/m4-repositories.en.md). Reference-patch controls do
-not establish model effectiveness.
+Functional acceptance checks correct state transfer, continuation, and recovery within declared
+boundaries. Paired experiments describe strategy outcomes; higher relay solve rates are not an
+acceptance requirement.
 
-Subsequent [Kubernetes repository acceptance](docs/m4-repository-cluster.en.md) passes 28 checks for
-task delivery, four-branch observation linkage and recovery on another node after Job loss.
-This covers scripted controls on one development repository only.
+## Status
 
-[Model credentials and the pilot launcher](docs/m4-model-pilot.en.md) are implemented: 17 fake-credential
-checks pass across both nodes. Historical natural-turn results are retained; the third run raises input to 160 KB, passes
-13 real-model workflow checks and grades all four branches solved. B-workspace exhausted its eight
-requests but passed independent grading; there were no input-limit stops. Three attempts total 45 API
-requests and $0.11725620 under the increased $20 cumulative budget, with unknown subscription cost.
-The prefix already had the core repair; unfinished-work rescue or relay advantage is not established.
+**F0–M3 have passed local acceptance. M4 has verified real-agent cross-node recovery; formal evaluation remains pending.**
 
-The [first four-task mid-task handoff experiment](docs/m4-tool-prefix-results.en.md) is complete: native continuation solves 4/4, summary relay 3/4, and workspace relay and fresh execution 2/4 each, with fourteen workflow checks passing per task. Post hoc offline grading finds three prefixes already passing; only native continuation repairs the unfinished prefix. Heterogeneous rescue was not established in that round. It costs $0.22221450 over 91 API requests; M4 then totals $0.33947070, within the approved approximately $25.82 reservation ceiling.
+| Capability | Existing validation |
+| --- | --- |
+| Native recovery and cross-agent handoff | 14 real-model M3 checks pass, covering Codex continuation and three mini-swe-agent handoff policies |
+| Checkpoints and execution ownership | Content validation, conditional publication, stale-execution fencing, branch protection, and cost attribution |
+| Local Kubernetes | Two control workers and two execution nodes; scripted node-loss and cross-node recovery acceptance |
+| Real-agent fault recovery | After executor Job loss, Codex restores its native session and code on another node and passes independent tests; see [recovery evidence](docs/m4-model-recovery.en.md) |
+| Real repository execution | Four SWE-bench Verified development tasks; the latest round passes 56 workflow checks and independently grades all 16 branches |
+| Traces and presentation | Bilingual read-only experiment viewer, JSON/CSV reports, linked events and artifacts |
 
-The subsequent [earlier-handoff round](docs/m4-early-prefix.en.md) increases modified, unfinished prefixes from 1/4 to 2/4 and records one heterogeneous rescue, retaining two ungraded tool-timeout failures. The [runtime-notification and timeout revision](docs/m4-runtime-notice.en.md) passes 56/56 workflow checks: native continuation solves 4/4 and all three mini strategies solve 2/4. All prefixes are unfinished but contain no code changes, so partial-patch coverage has not improved further. Real command-timeout continuation followed by a passing grade is observed; overall relay superiority is not established. M4 known API charges total $0.85497195 within the $30 authorization; subscription cost remains separate and unknown.
-
-RTV supports learning through reproduction, system implementation, and original exploration. Existing approaches remain learning material and comparison baselines; see the [learning and resource plan](docs/learning-plan.en.md) for sources and scope. No model-performance advantage or multi-physical-host reliability claim has been established.
+See the [acceptance and development records](docs/index.en.md) for test types, scopes, and evidence.
+The 20-task formal evaluation remains pending. Local k3d nodes share one physical host.
 
 ## Quick start
 
-Requires Python 3.11+ and uv. Run from the repository root:
+The core demo requires Python 3.11+ and uv, with no Docker or model credentials:
 
 ```bash
 uv sync --locked --dev
 uv run rtv demo --output work/demo
 ```
 
-The demo uses two deterministic fixtures, with no model calls or API keys. A writes a file and commits a checkpoint. B restores it into an independent directory, modifies the result, and passes it to a verifier. Outputs include `events.jsonl`, `report.json`, workspaces, and checkpoints.
+Two deterministic fixtures modify a file, commit a checkpoint, restore into an independent directory,
+and run a verifier. Outputs include `events.jsonl`, `report.json`, workspaces, and checkpoints.
+Choose a new output directory for each run.
 
-The output directory must not already exist. Choose a new path, such as `work/demo-2`, for another run. The local backend uses ordinary directories and does not provide container or process isolation.
+See [demo and deployment](docs/demo.en.md) for real containers and agents.
+Optional runtime dependencies require Python 3.12+. Real model execution requires explicit opt-in
+and credentials.
 
 Development checks:
 
 ```bash
 uv run pytest
-uv run ruff check src tests
-uv run ruff format --check src tests
+uv run ruff check src tests scripts
+uv run ruff format --check src tests scripts
 ```
 
-See the [framework development guide](docs/framework.en.md) for modules, current guarantees, and extension points.
-
-The Harbor prototype uses an optional dependency group and Python 3.12+. See the [M0 guide](docs/m0.en.md) for installation, preflight, and container test commands. Normal tests skip real-container execution; the guide records the separately executed real smoke test and its evidence.
-
-## Core problem
-
-When an agent gets stuck, a worker disconnects, or a sandbox is destroyed, how can the next execution recover a consistent workspace and session, and fairly compare different continuation strategies from the same checkpoint?
-
-RTV focuses on three capabilities:
-
-1. **Relay**: recover execution, hand work to another agent, or create isolated branches through consistent checkpoints.
-2. **Trace**: connect tool events, workspaces, checkpoints, handoffs, and costs to identify the layer where a failure occurred.
-3. **Verify**: measure system reliability and agent task performance through independent verification and paired experiments.
-
-## Design documents
-
-| Document | Contents |
-| --- | --- |
-| [Framework development guide](docs/framework.en.md) | Current code, run instructions, validation scope, and integration boundaries |
-| [M0 integration guide](docs/m0.en.md) | Harbor preflight, container recovery prototype, capability matrix, and current gaps |
-| [Codex recovery experiment](docs/codex-m0.en.md) | First real agent, native/semantic handoff, recovery boundaries and usage evidence |
-| [M0 acceptance and recovery boundaries](docs/m0-boundaries.en.md) | ATIF information loss, real cancellation/rollback, image lifecycle and capabilities |
-| [M1 durable execution](docs/m1.en.md) | Local services, submit/cancel, fault injection, real Codex and boundaries |
-| [M2 checkpoints and recovery](docs/m2.en.md) | Conditional commits, epochs, native resume, UNKNOWN usage, reference GC and acceptance |
-| [M3 handoff and branches](docs/m3.en.md) | Second agent, context policies, isolated verification, viewer and API budget |
-| [M4 Kubernetes execution](docs/m4.en.md) | Local multi-worker/node faults, resource quotas, recovery and raw reports |
-| [M4 real tasks and statistics](docs/m4-benchmark.en.md) | Frozen SWE-bench subset, paired protocol, offline controls, missing data and UNKNOWN costs |
-| [M4 repository integration](docs/m4-repositories.en.md) | Task contracts, directory-mode snapshots, hidden-test separation and scripted recovery |
-| [M4 repository Jobs and observations](docs/m4-repository-cluster.en.md) | Task delivery, resources, cross-node recovery and runtime-derived paired records |
-| [M4 model credentials and pilot](docs/m4-model-pilot.en.md) | Per-run admission, Secret projection, real-model launcher and cost boundaries |
-| [M4 earlier-handoff development results](docs/m4-early-prefix.en.md) | Failure traces, login environment, unfinished-prefix coverage and rescue |
-| [M4 runtime notification and timeout](docs/m4-runtime-notice.en.md) | Third-round frozen protocol, command process-group timeout and real results |
-| [Learning and resource plan](docs/learning-plan.en.md) | Open-source references, reproduction goals, lab GPUs, and spending agreement |
-| [System design](docs/design.en.md) | Object relationships, invariants, checkpoint protocol, failure handling, budgets, and adapter capabilities |
-| [Experiment protocol](docs/experiments.en.md) | Paired branches, budget accounting, baselines, statistics, and result artifacts |
-| [Roadmap](docs/roadmap.en.md) | Implementation order, acceptance evidence, and open decisions |
-| [ADR 0001](docs/adr/0001-runtime-boundary.en.md) | Responsibility boundaries between Harbor, Temporal, and the RTV runtime |
-| [ADR 0003](docs/adr/0003-fenced-checkpoints.en.md) | M2 ownership, checkpoint publication and collection decisions |
-
-## Proposed architecture
+## Architecture and implementation
 
 ```mermaid
-flowchart TD
-    API[CLI / Control API] --> WF[Temporal Workflow]
-    WF --> RUN[Execution Runner]
-    RUN --> HB[Harbor task / agent / verifier integration]
-    HB --> BOX[Isolated sandbox per execution]
-    RUN --> CP[Checkpoint and ownership protocol]
-    CP --> DB[(PostgreSQL metadata)]
-    CP --> OBJ[(Immutable artifact store)]
-    DB --> EXP[Experiment and diagnosis views]
-    OBJ --> EXP
+flowchart LR
+    CLI[CLI / Read-only viewer] --> Control[Temporal control workflow]
+    Control --> Runner[Execution and resource coordination]
+    Runner --> Sandbox[Harbor / Isolated sandbox]
+    Runner --> Checkpoint[Checkpoint and handoff protocol]
+    Checkpoint --> State[(PostgreSQL)]
+    Checkpoint --> Files[(Local immutable artifacts)]
+    Sandbox --> Verifier[Independent verifier]
+    State --> Report[Traces and results]
+    Verifier --> Report
 ```
 
-This diagram shows the target architecture. M3 implements local handoff and experiment branches on M2 epochs, checkpoints and accounting, with separate mini API request entries. Artifacts remain local. Object storage, multi-host resource fencing and general strict budget admission remain unimplemented. Real two-agent functionality is validated on one fixed development task.
+RTV implements checkpoint publication, execution ownership, recovery and handoff protocols, branch
+isolation, and budget attribution. It reuses Harbor task and sandbox integration and Temporal durable
+orchestration. Recovery covers declared filesystem workspaces and supported session formats;
+external service effects and process memory are outside the checkpoint contract.
 
-## Technical boundaries
+## Documentation
 
-- Harbor: reuse task formats, agent and sandbox adapters, verifiers, and ATIF trajectories.
-- Temporal: reuse durable orchestration, timers, and Activity retry mechanisms.
-- RTV: implement checkpoint commits, execution ownership, recovery and handoff semantics, branch isolation, and budget attribution.
-- Initially support reconstructible local filesystem tasks. External databases, arbitrary process memory, and external service side effects are outside the checkpoint guarantee.
-- Collect objective events from the first phase. LLM judges and training-data selection are later extensions.
+| Entry | Contents |
+| --- | --- |
+| [Demo and deployment](docs/demo.en.md) | From the model-free demo to containers, clusters, and real agents |
+| [Documentation and acceptance index](docs/index.en.md) | Implementations, acceptance evidence, and development records |
+| [System design](docs/design.en.md) | State model, checkpoints, invariants, and fault handling |
+| [Experiment protocol](docs/experiments.en.md) | Functional acceptance, paired observations, costs, and reproducibility |
+| [Roadmap](docs/roadmap.en.md) | Completed milestones and remaining work |
+| [Learning and references](docs/learning-plan.en.md) | Upstream sources, reproduction scope, and resource planning |
 
-## First demonstration target
-
-Agent A modifies code → commit a checkpoint → inject a worker failure → recover on another worker → fork from the checkpoint to A and B → verify independently and show complete costs.
-
-Implementation status and experimental conclusions will be recorded separately. Unmeasured numbers will not be presented as project results.
-
-## References
-
-- [Ember](https://github.com/RuokeZhang/ember): a reference for engineering scope.
-- [Harbor trajectory loading](https://docs.harborframework.com/jobs/loading-trajectories): loading a session or trajectory does not restore sandbox files.
-- [Harbor ATIF](https://docs.harborframework.com/agents/atif): trajectory format and validation.
-- [Temporal Activities](https://docs.temporal.io/activity-definition): retry and idempotency boundaries.
-
-Research date: 2026-10-07. Pin dependency versions during implementation and verify capabilities with contract tests.
+RTV supports learning through reproduction, system implementation, and original exploration.
+Its foundations include [Harbor](https://github.com/harbor-framework/harbor),
+[Temporal](https://github.com/temporalio/temporal), and
+[mini-swe-agent](https://github.com/SWE-agent/mini-swe-agent).
+[Ember](https://github.com/RuokeZhang/ember) is a reference for engineering scope.

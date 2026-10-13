@@ -97,7 +97,7 @@ def export_report(settings, config, output):
     result = {
         "schema_version": 1,
         "created_at": datetime.now(UTC).isoformat(),
-        "scope": "model-free local Kubernetes reliability; not agent effectiveness",
+        "scope": "local Kubernetes execution and reliability; per-trial adapters are recorded",
         "trials": rows,
         "pool": store.pool_status(),
         "config": config.frozen(),
