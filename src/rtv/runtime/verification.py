@@ -1,6 +1,7 @@
 """Final verification consumes only declared workspace bytes in a fresh sandbox."""
 
 import json
+import shlex
 
 from rtv.codex_probe import main_container, make_environment, verify
 from rtv.harbor_probe import _docker, tree_digest
@@ -35,6 +36,14 @@ async def isolated_verify(task, row, workspace, output):
             raise RuntimeError("Cannot prepare isolated verifier workspace")
         await env.upload_dir(workspace, scope)
         if declared:
+            # Uploads may retain the host UID. Trust only this declared task
+            # repository inside the disposable verifier, never the host Git config.
+            reply = await env.exec(
+                command=f"git config --global --add safe.directory {shlex.quote(scope)}",
+                timeout_sec=15,
+            )
+            if reply.return_code:
+                raise RuntimeError("Cannot configure isolated verifier repository ownership")
             reply = await env.exec(
                 command="find /testbed -name .DS_Store -type f -delete", timeout_sec=30
             )

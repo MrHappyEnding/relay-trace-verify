@@ -2,7 +2,7 @@
 
 [![中文](assets/lang-zh.svg)](roadmap.md) [![English](assets/lang-en.svg)](roadmap.en.md)
 
-Status: F0-M3 accepted locally; M4 local foundation and task/statistics protocol implemented, milestone still in progress (2026-10-12)
+Status: F0-M3 accepted locally; M4 local foundation and task/statistics protocol implemented, milestone still in progress (2026-10-13)
 
 The initial framework completes F0 below. M0 is accepted within the first Codex adapter’s stated scope; M1/M2 are implemented on one host; M3 protocol, scripted-model and real two-agent development-task acceptance are complete; M4 has a local model-free Kubernetes foundation; formal experiments remain outstanding. Local fixtures and mocked protocol tests do not replace real-container or real-agent compatibility tests. Reproduction and original implementation both remain in scope; see the [learning plan](learning-plan.en.md).
 
@@ -106,9 +106,8 @@ Broader tool coverage and time-triggered checkpoints, more agents, trajectory ju
 
 Local repository controls, Kubernetes execution and the credential path remain documented in the
 [repository guide](m4-repositories.en.md), [cluster guide](m4-repository-cluster.en.md), and
-[historical pilots](m4-model-pilot.en.md). The [four-task tool-prefix round](m4-tool-prefix-results.en.md)
-now provides sixteen real-model grades and four offline prefix diagnoses. Native continuation solves
-4/4, summary relay 3/4, and workspace relay and fresh execution 2/4 each. Three prefixes already pass;
-only native continuation repairs the unfinished one. M4 known API charges total $0.33947070 under the
-approved approximately $25.82 reservation ceiling. Next: analyze regressions and unfinished-prefix
-coverage, preregister any development-policy change, then freeze formal evaluation and fault tests.
+[historical pilots](m4-model-pilot.en.md). The subsequent [earlier-handoff round](m4-early-prefix.en.md) diagnoses failed traces and fixes the login shell: modified, unfinished prefixes increase from 1/4 to 2/4, with one workspace-relay rescue. Two ungraded timeout failures remain preserved.
+
+The [runtime-notification and timeout revision](m4-runtime-notice.en.md) passes 56/56 workflow checks and four post hoc prefix diagnostics: native continuation solves 4/4 and all three mini strategies solve 2/4, with sixteen graded branches. All four prefixes are unfinished but unchanged; there are no partial-patch samples. Unfinished percentage alone therefore does not establish policy improvement. Real command-timeout continuation followed by a passing grade is verified.
+
+M4 known API charges total $0.85497195, with zero unknown API requests, within the $30 authorization; subscription cost is unknown. Next, freeze sampling across progress levels and report strata separately before the twenty-task evaluation and formal model fault experiments.

@@ -139,12 +139,13 @@ def analyze(plan, supplied, split, *, mode, bootstrap_samples=None):
         arm = [r for r in rows if r["branch"] == branch]
         counts = Counter(r["status"] for r in arm)
         valid = counts["solved"] + counts["unsolved"]
-        known_cost = [
-            value
-            for r in arm
-            if (value := r.get("known_incremental_api_cost_usd", r.get("incremental_api_cost_usd")))
-            is not None
-        ]
+        known_cost = []
+        for r in arm:
+            value = r.get("incremental_api_cost_usd")
+            if value is None:
+                value = r.get("known_incremental_api_cost_usd")
+            if value is not None:
+                known_cost.append(value)
         known_prefix_cost = [
             r["prefix_api_cost_usd"] for r in arm if r.get("prefix_api_cost_usd") is not None
         ]

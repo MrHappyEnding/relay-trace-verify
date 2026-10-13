@@ -1,0 +1,2630 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-13",
+  "status": "workflow_passed",
+  "mode": "real-local-kubernetes-four-task-development",
+  "scope": "Third development round; runtime-notified 2-tool prefix plus in-sandbox command timeout. No isolated causal claim, official score, or held-out evaluation.",
+  "executed_commit": "0a707c7db53d96ba26cf3828aeb8f54637de244d",
+  "runner_image": "docker.io/library/rtv-m4-runner@sha256:ddb0551c72b03d71ed2b43a3f14b7399156938230b995c90217c8215f5dc6cf1",
+  "protocol_sha256": "461eed77395789d561bc483453352bea9faaa5d26377c239d1e05967e6cb73f6",
+  "frozen_runs": [
+    {
+      "task": "sympy__sympy-22914",
+      "prepared_sha256": "f1abf178248b1331c083aa828d1e2506bf3da6c0fc49b01d88f63275d73c8c7b",
+      "run_sha256": "520bdca0c4e35b766e14c2747c5397d11723874ad6788906a595018353b22d4f",
+      "protocol_sha256": "461eed77395789d561bc483453352bea9faaa5d26377c239d1e05967e6cb73f6",
+      "runner_image": "docker.io/library/rtv-m4-runner@sha256:ddb0551c72b03d71ed2b43a3f14b7399156938230b995c90217c8215f5dc6cf1",
+      "source_policy": {
+        "version": "codex-tools-v2",
+        "max_tools": 2
+      },
+      "branches": [
+        "B-workspace",
+        "B-fresh",
+        "A-continue",
+        "B-summary"
+      ],
+      "maximum_requests": 32,
+      "allowance_usd": 5.12
+    },
+    {
+      "task": "sympy__sympy-15599",
+      "prepared_sha256": "4358ffdcc9da3a0a32b7ce5d71e90a6c0090105ee169a700cfc66e1fcd3d3811",
+      "run_sha256": "e53fa9985048e555acbbb30b34af1bab2825bbcb1804069ab9bad4c1fb99b5bc",
+      "protocol_sha256": "461eed77395789d561bc483453352bea9faaa5d26377c239d1e05967e6cb73f6",
+      "runner_image": "docker.io/library/rtv-m4-runner@sha256:ddb0551c72b03d71ed2b43a3f14b7399156938230b995c90217c8215f5dc6cf1",
+      "source_policy": {
+        "version": "codex-tools-v2",
+        "max_tools": 2
+      },
+      "branches": [
+        "A-continue",
+        "B-summary",
+        "B-workspace",
+        "B-fresh"
+      ],
+      "maximum_requests": 32,
+      "allowance_usd": 5.12
+    },
+    {
+      "task": "sympy__sympy-13091",
+      "prepared_sha256": "60b4f3f8ca222bcff6810790ea282dbe8e1010528381ba9a4281fa2f3adfeebc",
+      "run_sha256": "7d9616ac5b5e6af14c46126ba84b75adc18605390e65838e4f86c9325d2d3841",
+      "protocol_sha256": "461eed77395789d561bc483453352bea9faaa5d26377c239d1e05967e6cb73f6",
+      "runner_image": "docker.io/library/rtv-m4-runner@sha256:ddb0551c72b03d71ed2b43a3f14b7399156938230b995c90217c8215f5dc6cf1",
+      "source_policy": {
+        "version": "codex-tools-v2",
+        "max_tools": 2
+      },
+      "branches": [
+        "B-fresh",
+        "B-workspace",
+        "A-continue",
+        "B-summary"
+      ],
+      "maximum_requests": 32,
+      "allowance_usd": 5.12
+    },
+    {
+      "task": "scikit-learn__scikit-learn-9288",
+      "prepared_sha256": "447b6970b0314acd2a241b268c438880e2433eab738f3c4e7831cb1f179f8f14",
+      "run_sha256": "8bbee893261888c68db7c86ae25a3859eb5f2b161b9745ddbe31e20820f6e5e3",
+      "protocol_sha256": "461eed77395789d561bc483453352bea9faaa5d26377c239d1e05967e6cb73f6",
+      "runner_image": "docker.io/library/rtv-m4-runner@sha256:ddb0551c72b03d71ed2b43a3f14b7399156938230b995c90217c8215f5dc6cf1",
+      "source_policy": {
+        "version": "codex-tools-v2",
+        "max_tools": 2
+      },
+      "branches": [
+        "B-summary",
+        "B-workspace",
+        "B-fresh",
+        "A-continue"
+      ],
+      "maximum_requests": 32,
+      "allowance_usd": 5.12
+    }
+  ],
+  "approval": {
+    "authorization": "Owner explicitly authorizes direct execution within USD 30; no further confirmation required.",
+    "accounting": "settled known API cost + full unknown/pending reservations + planned maximum; historical gross reservations remain unchanged",
+    "approved_ceiling_usd": 30,
+    "prior_known_api_cost_usd": 0.5764443,
+    "prior_unknown_api_requests": 0,
+    "prior_gross_reservations_usd": 35.738,
+    "round_maximum_api_reservation_usd": 20.48,
+    "maximum_known_plus_reserved_usd": 21.0564443,
+    "maximum_api_requests": 128,
+    "maximum_subscription_stages": 8,
+    "automatic_paid_retries": 0,
+    "source_commit": "0a707c7db53d96ba26cf3828aeb8f54637de244d",
+    "invoice_guarantee": false
+  },
+  "runs": [
+    {
+      "task": "sympy__sympy-22914",
+      "prepared_sha256": "f1abf178248b1331c083aa828d1e2506bf3da6c0fc49b01d88f63275d73c8c7b",
+      "run_sha256": "520bdca0c4e35b766e14c2747c5397d11723874ad6788906a595018353b22d4f",
+      "execution": {
+        "status": "passed",
+        "mode": "real-model-pilot",
+        "run_sha256": "520bdca0c4e35b766e14c2747c5397d11723874ad6788906a595018353b22d4f",
+        "checks": {
+          "source_sealed_without_hidden_verifier": true,
+          "source_tool_boundary_audited": true,
+          "B-workspace_verifier_completed": true,
+          "B-workspace_prefix_restored": true,
+          "B-fresh_verifier_completed": true,
+          "A-continue_verifier_completed": true,
+          "native_session_preserved": true,
+          "A-continue_prefix_restored": true,
+          "B-summary_verifier_completed": true,
+          "B-summary_prefix_restored": true,
+          "all_allocations_released": true,
+          "four_observations_linked": true,
+          "api_reservations_within_approval": true,
+          "no_api_request_replay": true
+        },
+        "errors": [],
+        "api_requests": 26,
+        "codex_stages": 2,
+        "subscription_cost_usd": null,
+        "unknown_api_requests": 0,
+        "api_reserved_usd": 4.16,
+        "known_api_cost_usd": 0.0768981,
+        "api_cost_usd": 0.0768981,
+        "approved_budget_usd": 5.12,
+        "elapsed_seconds": 680.34,
+        "limit": "One pilot; scaffold and model both change; no superiority conclusion."
+      },
+      "stages": [
+        {
+          "branch": "prefix",
+          "trial_id": "ee29cfe5-d6f4-5229-8add-e85ee7f6ed89",
+          "runtime_status": "cancelled",
+          "stage_result_status": "sealed",
+          "reason": "prefix_tool_budget",
+          "agent_exit_status": null,
+          "prefix_boundary": {
+            "policy": {
+              "version": "codex-tools-v2",
+              "max_tools": 2
+            },
+            "trigger": "tool_budget",
+            "boundary": "cooperative completed turn; sandbox quiescence still required",
+            "denied_tools": 0,
+            "admitted_tools": 2,
+            "receipt_sha256": "c0300ceca4695eb55a351b4e84159c160a4beda6a0230ecc9736290fbb0a8ae1",
+            "completed_tools": 2
+          },
+          "verification": "not_run",
+          "reward": null,
+          "benchmark_status": null,
+          "api_requests": 0,
+          "known_api_cost_usd": 0,
+          "api_reserved_usd": 0,
+          "unknown_operations": 0,
+          "execution_count": 1,
+          "agent_seconds": 40.875,
+          "tracked_patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "tracked_patch_bytes": 0,
+          "sent_input_bytes": []
+        },
+        {
+          "branch": "B-workspace",
+          "trial_id": "b8bd9bd9-6747-5f12-adbf-d7d4a47d5861",
+          "runtime_status": "succeeded",
+          "stage_result_status": "succeeded",
+          "reason": "verified",
+          "agent_exit_status": "Submitted",
+          "prefix_boundary": null,
+          "verification": "completed",
+          "reward": 1.0,
+          "benchmark_status": "solved",
+          "api_requests": 8,
+          "known_api_cost_usd": 0.01799325,
+          "api_reserved_usd": 1.28,
+          "unknown_operations": 0,
+          "execution_count": 1,
+          "agent_seconds": 32.742,
+          "tracked_patch_sha256": "ecad8fe89779ae99f42f5ecc46a84ab0e8cceb05b9528b2e6f557fdad0eb49a9",
+          "tracked_patch_bytes": 1274,
+          "sent_input_bytes": [
+            4243,
+            7865,
+            22770,
+            27296,
+            32488,
+            35358,
+            40326,
+            43613
+          ]
+        },
+        {
+          "branch": "B-fresh",
+          "trial_id": "42b66d0c-b712-597e-ba35-d2bfa81c9f82",
+          "runtime_status": "succeeded",
+          "stage_result_status": "succeeded",
+          "reason": "verified",
+          "agent_exit_status": "Submitted",
+          "prefix_boundary": null,
+          "verification": "completed",
+          "reward": 1.0,
+          "benchmark_status": "solved",
+          "api_requests": 10,
+          "known_api_cost_usd": 0.0343542,
+          "api_reserved_usd": 1.6,
+          "unknown_operations": 0,
+          "execution_count": 1,
+          "agent_seconds": 29.477,
+          "tracked_patch_sha256": "ee8a0aa99e1c2631b6198604ed870f3a1827a82fa2e9fe599f2ebea13706c1c4",
+          "tracked_patch_bytes": 1625,
+          "sent_input_bytes": [
+            4243,
+            8940,
+            22131,
+            24517,
+            32552,
+            47449,
+            61857,
+            69812,
+            74824,
+            80185
+          ]
+        },
+        {
+          "branch": "A-continue",
+          "trial_id": "04dd8214-0f1f-5705-b148-da93c29d1ab0",
+          "runtime_status": "succeeded",
+          "stage_result_status": "succeeded",
+          "reason": "verified",
+          "agent_exit_status": null,
+          "prefix_boundary": null,
+          "verification": "completed",
+          "reward": 1.0,
+          "benchmark_status": "solved",
+          "api_requests": 0,
+          "known_api_cost_usd": 0,
+          "api_reserved_usd": 0,
+          "unknown_operations": 0,
+          "execution_count": 1,
+          "agent_seconds": 50.149,
+          "tracked_patch_sha256": "b04c33794c9aa12134bb2c487577c5b2546ae4dd8e03c811b3c1aab49c4bcbc2",
+          "tracked_patch_bytes": 2030,
+          "sent_input_bytes": []
+        },
+        {
+          "branch": "B-summary",
+          "trial_id": "29de3191-1716-5ce2-8ced-e812486c63e2",
+          "runtime_status": "succeeded",
+          "stage_result_status": "succeeded",
+          "reason": "verified",
+          "agent_exit_status": "Submitted",
+          "prefix_boundary": null,
+          "verification": "completed",
+          "reward": 1.0,
+          "benchmark_status": "solved",
+          "api_requests": 8,
+          "known_api_cost_usd": 0.02455065,
+          "api_reserved_usd": 1.28,
+          "unknown_operations": 0,
+          "execution_count": 1,
+          "agent_seconds": 22.009,
+          "tracked_patch_sha256": "ea13262aae73f9b1009295bbbe3d3acd3e374770e6b0ba4b5e2a30db1743cf65",
+          "tracked_patch_bytes": 1284,
+          "sent_input_bytes": [
+            4720,
+            14808,
+            30589,
+            41811,
+            45781,
+            51095,
+            55840,
+            60245
+          ]
+        }
+      ]
+    },
+    {
+      "task": "sympy__sympy-15599",
+      "prepared_sha256": "4358ffdcc9da3a0a32b7ce5d71e90a6c0090105ee169a700cfc66e1fcd3d3811",
+      "run_sha256": "e53fa9985048e555acbbb30b34af1bab2825bbcb1804069ab9bad4c1fb99b5bc",
+      "execution": {
+        "status": "passed",
+        "mode": "real-model-pilot",
+        "run_sha256": "e53fa9985048e555acbbb30b34af1bab2825bbcb1804069ab9bad4c1fb99b5bc",
+        "checks": {
+          "source_sealed_without_hidden_verifier": true,
+          "source_tool_boundary_audited": true,
+          "A-continue_verifier_completed": true,
+          "native_session_preserved": true,
+          "A-continue_prefix_restored": true,
+          "B-summary_verifier_completed": true,
+          "B-summary_prefix_restored": true,
+          "B-workspace_verifier_completed": true,
+          "B-workspace_prefix_restored": true,
+          "B-fresh_verifier_completed": true,
+          "all_allocations_released": true,
+          "four_observations_linked": true,
+          "api_reservations_within_approval": true,
+          "no_api_request_replay": true
+        },
+        "errors": [],
+        "api_requests": 22,
+        "codex_stages": 2,
+        "subscription_cost_usd": null,
+        "unknown_api_requests": 0,
+        "api_reserved_usd": 3.52,
+        "known_api_cost_usd": 0.0721467,
+        "api_cost_usd": 0.0721467,
+        "approved_budget_usd": 5.12,
+        "elapsed_seconds": 630.95,
+        "limit": "One pilot; scaffold and model both change; no superiority conclusion."
+      },
+      "stages": [
+        {
+          "branch": "prefix",
+          "trial_id": "ce3cc5f2-ecb6-5ca8-aa76-0f31c8c21ef7",
+          "runtime_status": "cancelled",
+          "stage_result_status": "sealed",
+          "reason": "prefix_tool_budget",
+          "agent_exit_status": null,
+          "prefix_boundary": {
+            "policy": {
+              "version": "codex-tools-v2",
+              "max_tools": 2
+            },
+            "trigger": "tool_budget",
+            "boundary": "cooperative completed turn; sandbox quiescence still required",
+            "denied_tools": 0,
+            "admitted_tools": 2,
+            "receipt_sha256": "49fb62ceda3dc9aa905bbcbbb1d23829b466fa1928253f3091752becfcb8f400",
+            "completed_tools": 2
+          },
+          "verification": "not_run",
+          "reward": null,
+          "benchmark_status": null,
+          "api_requests": 0,
+          "known_api_cost_usd": 0,
+          "api_reserved_usd": 0,
+          "unknown_operations": 0,
+          "execution_count": 1,
+          "agent_seconds": 35.659,
+          "tracked_patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "tracked_patch_bytes": 0,
+          "sent_input_bytes": []
+        },
+        {
+          "branch": "A-continue",
+          "trial_id": "25d6a1af-916f-5f69-9976-523067a69a0b",
+          "runtime_status": "succeeded",
+          "stage_result_status": "succeeded",
+          "reason": "verified",
+          "agent_exit_status": null,
+          "prefix_boundary": null,
+          "verification": "completed",
+          "reward": 1.0,
+          "benchmark_status": "solved",
+          "api_requests": 0,
+          "known_api_cost_usd": 0,
+          "api_reserved_usd": 0,
+          "unknown_operations": 0,
+          "execution_count": 1,
+          "agent_seconds": 60.65,
+          "tracked_patch_sha256": "b291edf6da31f7d147dc05b9cc0807ca736f5387e6fc8357921ac8c24e84225e",
+          "tracked_patch_bytes": 1559,
+          "sent_input_bytes": []
+        },
+        {
+          "branch": "B-summary",
+          "trial_id": "76d79308-d6b4-56bd-a7c7-c5343f5f76a6",
+          "runtime_status": "failed",
+          "stage_result_status": "failed",
+          "reason": "verification_failed",
+          "agent_exit_status": "Submitted",
+          "prefix_boundary": null,
+          "verification": "completed",
+          "reward": 0.0,
+          "benchmark_status": "unsolved",
+          "api_requests": 8,
+          "known_api_cost_usd": 0.0186426,
+          "api_reserved_usd": 1.28,
+          "unknown_operations": 0,
+          "execution_count": 1,
+          "agent_seconds": 23.158,
+          "tracked_patch_sha256": "8ef24566f16b2867376ad16ae29bf3a9e0763272599adbb6cde1e1be83ab8295",
+          "tracked_patch_bytes": 1186,
+          "sent_input_bytes": [
+            5965,
+            20023,
+            25763,
+            31061,
+            33715,
+            36412,
+            41004
+          ]
+        },
+        {
+          "branch": "B-workspace",
+          "trial_id": "526bbbfb-6714-5e34-b168-c0cb11090eef",
+          "runtime_status": "failed",
+          "stage_result_status": "failed",
+          "reason": "agent_limit_or_error",
+          "agent_exit_status": "LimitsExceeded",
+          "prefix_boundary": null,
+          "verification": "completed",
+          "reward": 0.0,
+          "benchmark_status": "unsolved",
+          "api_requests": 8,
+          "known_api_cost_usd": 0.03762495,
+          "api_reserved_usd": 1.28,
+          "unknown_operations": 0,
+          "execution_count": 1,
+          "agent_seconds": 44.87,
+          "tracked_patch_sha256": "64b649b86422f579f01e6f97d9f968925614091b8113d4213f6f8ea6049e7b1b",
+          "tracked_patch_bytes": 1518,
+          "sent_input_bytes": [
+            5436,
+            8247,
+            18939,
+            31897,
+            39689,
+            43717,
+            59483,
+            86783
+          ]
+        },
+        {
+          "branch": "B-fresh",
+          "trial_id": "56314da0-2362-5751-bd2d-8ad92ce60cfe",
+          "runtime_status": "failed",
+          "stage_result_status": "failed",
+          "reason": "verification_failed",
+          "agent_exit_status": "Submitted",
+          "prefix_boundary": null,
+          "verification": "completed",
+          "reward": 0.0,
+          "benchmark_status": "unsolved",
+          "api_requests": 6,
+          "known_api_cost_usd": 0.01587915,
+          "api_reserved_usd": 0.96,
+          "unknown_operations": 0,
+          "execution_count": 1,
+          "agent_seconds": 18.666,
+          "tracked_patch_sha256": "119fdf6f812c17479f82f782fb355be12d1e7bbc3be2c7cd6bb6b39226984813",
+          "tracked_patch_bytes": 1178,
+          "sent_input_bytes": [
+            5436,
+            8345,
+            22351,
+            26608,
+            32241,
+            36706
+          ]
+        }
+      ]
+    },
+    {
+      "task": "sympy__sympy-13091",
+      "prepared_sha256": "60b4f3f8ca222bcff6810790ea282dbe8e1010528381ba9a4281fa2f3adfeebc",
+      "run_sha256": "7d9616ac5b5e6af14c46126ba84b75adc18605390e65838e4f86c9325d2d3841",
+      "execution": {
+        "status": "passed",
+        "mode": "real-model-pilot",
+        "run_sha256": "7d9616ac5b5e6af14c46126ba84b75adc18605390e65838e4f86c9325d2d3841",
+        "checks": {
+          "source_sealed_without_hidden_verifier": true,
+          "source_tool_boundary_audited": true,
+          "B-fresh_verifier_completed": true,
+          "B-workspace_verifier_completed": true,
+          "B-workspace_prefix_restored": true,
+          "A-continue_verifier_completed": true,
+          "native_session_preserved": true,
+          "A-continue_prefix_restored": true,
+          "B-summary_verifier_completed": true,
+          "B-summary_prefix_restored": true,
+          "all_allocations_released": true,
+          "four_observations_linked": true,
+          "api_reservations_within_approval": true,
+          "no_api_request_replay": true
+        },
+        "errors": [],
+        "api_requests": 24,
+        "codex_stages": 2,
+        "subscription_cost_usd": null,
+        "unknown_api_requests": 0,
+        "api_reserved_usd": 3.84,
+        "known_api_cost_usd": 0.0532596,
+        "api_cost_usd": 0.0532596,
+        "approved_budget_usd": 5.12,
+        "elapsed_seconds": 658.68,
+        "limit": "One pilot; scaffold and model both change; no superiority conclusion."
+      },
+      "stages": [
+        {
+          "branch": "prefix",
+          "trial_id": "b4fb1127-83f4-5f4c-9b6f-84bbdfbdbc80",
+          "runtime_status": "cancelled",
+          "stage_result_status": "sealed",
+          "reason": "prefix_tool_budget",
+          "agent_exit_status": null,
+          "prefix_boundary": {
+            "policy": {
+              "version": "codex-tools-v2",
+              "max_tools": 2
+            },
+            "trigger": "tool_budget",
+            "boundary": "cooperative completed turn; sandbox quiescence still required",
+            "denied_tools": 0,
+            "admitted_tools": 2,
+            "receipt_sha256": "5a22af3499e96bc4b37d30fe9cd45d9f16ad9b55f7831ddf682bb2b260ec8864",
+            "completed_tools": 2
+          },
+          "verification": "not_run",
+          "reward": null,
+          "benchmark_status": null,
+          "api_requests": 0,
+          "known_api_cost_usd": 0,
+          "api_reserved_usd": 0,
+          "unknown_operations": 0,
+          "execution_count": 1,
+          "agent_seconds": 45.865,
+          "tracked_patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "tracked_patch_bytes": 0,
+          "sent_input_bytes": []
+        },
+        {
+          "branch": "B-fresh",
+          "trial_id": "eb75d3e8-9189-5c29-9361-8c3ceec31f23",
+          "runtime_status": "failed",
+          "stage_result_status": "failed",
+          "reason": "verification_failed",
+          "agent_exit_status": "Submitted",
+          "prefix_boundary": null,
+          "verification": "completed",
+          "reward": 0.0,
+          "benchmark_status": "unsolved",
+          "api_requests": 9,
+          "known_api_cost_usd": 0.01725945,
+          "api_reserved_usd": 1.44,
+          "unknown_operations": 0,
+          "execution_count": 1,
+          "agent_seconds": 22.431,
+          "tracked_patch_sha256": "fc68b56f51140ed5ae65508ec3987d551c3c8f2b83ec9adaac829f10e4dce165",
+          "tracked_patch_bytes": 878,
+          "sent_input_bytes": [
+            5429,
+            9429,
+            12706,
+            19733,
+            34405,
+            39877,
+            43922,
+            47288,
+            50998
+          ]
+        },
+        {
+          "branch": "B-workspace",
+          "trial_id": "f618f4cd-75ca-59ae-8aa3-2363f4f5f4b1",
+          "runtime_status": "failed",
+          "stage_result_status": "failed",
+          "reason": "agent_limit_or_error",
+          "agent_exit_status": "LimitsExceeded",
+          "prefix_boundary": null,
+          "verification": "completed",
+          "reward": 0.0,
+          "benchmark_status": "unsolved",
+          "api_requests": 8,
+          "known_api_cost_usd": 0.01726845,
+          "api_reserved_usd": 1.28,
+          "unknown_operations": 0,
+          "execution_count": 1,
+          "agent_seconds": 20.28,
+          "tracked_patch_sha256": "e3e73e04474e261bd8439a78e82777724d4e5aef4e9b496a2a1ccfce6e444f61",
+          "tracked_patch_bytes": 1761,
+          "sent_input_bytes": [
+            5429,
+            9912,
+            16851,
+            19621,
+            26942,
+            34829,
+            39525,
+            46498
+          ]
+        },
+        {
+          "branch": "A-continue",
+          "trial_id": "12bc80f9-fba4-5201-8b33-8e2b2db71695",
+          "runtime_status": "succeeded",
+          "stage_result_status": "succeeded",
+          "reason": "verified",
+          "agent_exit_status": null,
+          "prefix_boundary": null,
+          "verification": "completed",
+          "reward": 1.0,
+          "benchmark_status": "solved",
+          "api_requests": 0,
+          "known_api_cost_usd": 0,
+          "api_reserved_usd": 0,
+          "unknown_operations": 0,
+          "execution_count": 1,
+          "agent_seconds": 116.801,
+          "tracked_patch_sha256": "9778921f1e1b7f0394b05c5b5bd95854b24faa64b81519c86333b4ebfcf1cd25",
+          "tracked_patch_bytes": 18228,
+          "sent_input_bytes": []
+        },
+        {
+          "branch": "B-summary",
+          "trial_id": "d42e328a-b718-5a00-89f0-7cf5039e16de",
+          "runtime_status": "failed",
+          "stage_result_status": "failed",
+          "reason": "verification_failed",
+          "agent_exit_status": "Submitted",
+          "prefix_boundary": null,
+          "verification": "completed",
+          "reward": 0.0,
+          "benchmark_status": "unsolved",
+          "api_requests": 7,
+          "known_api_cost_usd": 0.0187317,
+          "api_reserved_usd": 1.12,
+          "unknown_operations": 0,
+          "execution_count": 1,
+          "agent_seconds": 25.536,
+          "tracked_patch_sha256": "6f9dfee914451be1bd2c1dba3fd33b53b3bf04a2fabb79f3a6ce117fe26690c5",
+          "tracked_patch_bytes": 1939,
+          "sent_input_bytes": [
+            6017,
+            12552,
+            16655,
+            25855,
+            35819,
+            43428,
+            49444
+          ]
+        }
+      ]
+    },
+    {
+      "task": "scikit-learn__scikit-learn-9288",
+      "prepared_sha256": "447b6970b0314acd2a241b268c438880e2433eab738f3c4e7831cb1f179f8f14",
+      "run_sha256": "8bbee893261888c68db7c86ae25a3859eb5f2b161b9745ddbe31e20820f6e5e3",
+      "execution": {
+        "status": "passed",
+        "mode": "real-model-pilot",
+        "run_sha256": "8bbee893261888c68db7c86ae25a3859eb5f2b161b9745ddbe31e20820f6e5e3",
+        "checks": {
+          "source_sealed_without_hidden_verifier": true,
+          "source_tool_boundary_audited": true,
+          "B-summary_verifier_completed": true,
+          "B-summary_prefix_restored": true,
+          "B-workspace_verifier_completed": true,
+          "B-workspace_prefix_restored": true,
+          "B-fresh_verifier_completed": true,
+          "A-continue_verifier_completed": true,
+          "native_session_preserved": true,
+          "A-continue_prefix_restored": true,
+          "all_allocations_released": true,
+          "four_observations_linked": true,
+          "api_reservations_within_approval": true,
+          "no_api_request_replay": true
+        },
+        "errors": [],
+        "api_requests": 26,
+        "codex_stages": 2,
+        "subscription_cost_usd": null,
+        "unknown_api_requests": 0,
+        "api_reserved_usd": 4.16,
+        "known_api_cost_usd": 0.07622324999999999,
+        "api_cost_usd": 0.07622324999999999,
+        "approved_budget_usd": 5.12,
+        "elapsed_seconds": 955.67,
+        "limit": "One pilot; scaffold and model both change; no superiority conclusion."
+      },
+      "stages": [
+        {
+          "branch": "prefix",
+          "trial_id": "461f3365-8985-5198-917f-57c090fd6f91",
+          "runtime_status": "cancelled",
+          "stage_result_status": "sealed",
+          "reason": "prefix_tool_budget",
+          "agent_exit_status": null,
+          "prefix_boundary": {
+            "policy": {
+              "version": "codex-tools-v2",
+              "max_tools": 2
+            },
+            "trigger": "tool_budget",
+            "boundary": "cooperative completed turn; sandbox quiescence still required",
+            "denied_tools": 0,
+            "admitted_tools": 2,
+            "receipt_sha256": "71ba0595cf91a114419047ba3880921552a5f4ff5623ca23844632da3076096d",
+            "completed_tools": 2
+          },
+          "verification": "not_run",
+          "reward": null,
+          "benchmark_status": null,
+          "api_requests": 0,
+          "known_api_cost_usd": 0,
+          "api_reserved_usd": 0,
+          "unknown_operations": 0,
+          "execution_count": 1,
+          "agent_seconds": 56.784,
+          "tracked_patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "tracked_patch_bytes": 0,
+          "sent_input_bytes": []
+        },
+        {
+          "branch": "B-summary",
+          "trial_id": "70d347c4-866a-5f2f-8934-5860f73d7663",
+          "runtime_status": "failed",
+          "stage_result_status": "failed",
+          "reason": "agent_limit_or_error",
+          "agent_exit_status": "LimitsExceeded",
+          "prefix_boundary": null,
+          "verification": "completed",
+          "reward": 1.0,
+          "benchmark_status": "solved",
+          "api_requests": 8,
+          "known_api_cost_usd": 0.0209964,
+          "api_reserved_usd": 1.28,
+          "unknown_operations": 0,
+          "execution_count": 1,
+          "agent_seconds": 55.542,
+          "tracked_patch_sha256": "3d75587f1c623c4fce23131349e846fbc9f9f3ba3a1d33fd6781b9ac2d9fddf1",
+          "tracked_patch_bytes": 2676,
+          "sent_input_bytes": [
+            7536,
+            20584,
+            32082,
+            41247,
+            47095,
+            50165,
+            52958,
+            55167
+          ]
+        },
+        {
+          "branch": "B-workspace",
+          "trial_id": "709934ab-18c1-5dea-b784-725972c94b31",
+          "runtime_status": "succeeded",
+          "stage_result_status": "succeeded",
+          "reason": "verified",
+          "agent_exit_status": "Submitted",
+          "prefix_boundary": null,
+          "verification": "completed",
+          "reward": 1.0,
+          "benchmark_status": "solved",
+          "api_requests": 7,
+          "known_api_cost_usd": 0.02012655,
+          "api_reserved_usd": 1.12,
+          "unknown_operations": 0,
+          "execution_count": 1,
+          "agent_seconds": 46.665,
+          "tracked_patch_sha256": "476d049ce6bafc6d14c8345154f0fb553f773eba24ccb94ced94eb8150b09623",
+          "tracked_patch_bytes": 2822,
+          "sent_input_bytes": [
+            6980,
+            20234,
+            34296,
+            43222,
+            46634,
+            49771,
+            52309
+          ]
+        },
+        {
+          "branch": "B-fresh",
+          "trial_id": "60f16dbb-ce8c-5210-ad77-fefb51316360",
+          "runtime_status": "succeeded",
+          "stage_result_status": "succeeded",
+          "reason": "verified",
+          "agent_exit_status": "Submitted",
+          "prefix_boundary": null,
+          "verification": "completed",
+          "reward": 1.0,
+          "benchmark_status": "solved",
+          "api_requests": 11,
+          "known_api_cost_usd": 0.0351003,
+          "api_reserved_usd": 1.76,
+          "unknown_operations": 0,
+          "execution_count": 1,
+          "agent_seconds": 76.967,
+          "tracked_patch_sha256": "f43b13efe3cdbda37fa6101d218c157d4dc80f64759ef704ae42860e12594198",
+          "tracked_patch_bytes": 2737,
+          "sent_input_bytes": [
+            6980,
+            13675,
+            27708,
+            41269,
+            49753,
+            61409,
+            75531,
+            80860,
+            83855,
+            89475,
+            92688
+          ]
+        },
+        {
+          "branch": "A-continue",
+          "trial_id": "414f9237-f331-55fe-b38e-e25496e2e2ed",
+          "runtime_status": "succeeded",
+          "stage_result_status": "succeeded",
+          "reason": "verified",
+          "agent_exit_status": null,
+          "prefix_boundary": null,
+          "verification": "completed",
+          "reward": 1.0,
+          "benchmark_status": "solved",
+          "api_requests": 0,
+          "known_api_cost_usd": 0,
+          "api_reserved_usd": 0,
+          "unknown_operations": 0,
+          "execution_count": 1,
+          "agent_seconds": 72.379,
+          "tracked_patch_sha256": "90fcd3e747600ece8d391c113763b2c6df0b6b7f907919499729fdbba6282630",
+          "tracked_patch_bytes": 3294,
+          "sent_input_bytes": []
+        }
+      ]
+    }
+  ],
+  "api_budget": {
+    "approved_ceiling_usd": 30,
+    "accounting": "settled known API cost + full unknown/pending reservations + planned maximum; historical gross reservations remain unchanged",
+    "round_maximum_api_allowance_usd": 20.48,
+    "round_api_requests": 98,
+    "round_known_api_cost_usd": 0.27852765,
+    "round_gross_reservations_usd": 15.68,
+    "unknown_api_requests": 0,
+    "unknown_api_reserved_usd": 0.0,
+    "cumulative_api_requests": 333,
+    "cumulative_known_api_cost_usd": 0.85497195,
+    "cumulative_gross_reservations_usd": 51.418,
+    "known_plus_unknown_reserved_usd": 0.85497195,
+    "subscription_cost_usd": null,
+    "invoice_guarantee": false
+  },
+  "analysis": {
+    "schema_version": 1,
+    "bootstrap_samples": 10000,
+    "bootstrap_seed": 20261011,
+    "protocol_sha256": "461eed77395789d561bc483453352bea9faaa5d26377c239d1e05967e6cb73f6",
+    "split": "pilot",
+    "mode": "real-model",
+    "observations": [
+      {
+        "observation_id": "1f527497c3ecc3a5c464847c",
+        "pair_id": "3f05f26b069a0e2aaa59b5b0",
+        "instance_id": "sympy__sympy-22914",
+        "repeat": 0,
+        "split": "pilot",
+        "branch": "B-workspace",
+        "order": 0,
+        "protocol_sha256": "461eed77395789d561bc483453352bea9faaa5d26377c239d1e05967e6cb73f6",
+        "checkpoint_id": "7464b7b7-022f-5c67-8d38-e1638ad2b8ff",
+        "elapsed_seconds": 158.237558,
+        "incremental_api_cost_usd": 0.01799325,
+        "known_incremental_api_cost_usd": 0.01799325,
+        "mode": "real-model",
+        "prefix_api_cost_usd": null,
+        "prefix_boundary": {
+          "admitted_tools": 2,
+          "boundary": "cooperative completed turn; sandbox quiescence still required",
+          "completed_tools": 2,
+          "denied_tools": 0,
+          "policy": {
+            "max_tools": 2,
+            "version": "codex-tools-v2"
+          },
+          "receipt_sha256": "c0300ceca4695eb55a351b4e84159c160a4beda6a0230ecc9736290fbb0a8ae1",
+          "trigger": "tool_budget"
+        },
+        "queue_seconds": 27.289958,
+        "run_sha256": "520bdca0c4e35b766e14c2747c5397d11723874ad6788906a595018353b22d4f",
+        "runtime_reason": "verified",
+        "source_trial_id": "ee29cfe5-d6f4-5229-8add-e85ee7f6ed89",
+        "status": "solved",
+        "trial_id": "b8bd9bd9-6747-5f12-adbf-d7d4a47d5861",
+        "unknown_operations": 0,
+        "verifier_reward": 1,
+        "verifier_status": "completed"
+      },
+      {
+        "observation_id": "782d6333da68cb7ac4e80c67",
+        "pair_id": "3f05f26b069a0e2aaa59b5b0",
+        "instance_id": "sympy__sympy-22914",
+        "repeat": 0,
+        "split": "pilot",
+        "branch": "B-fresh",
+        "order": 1,
+        "protocol_sha256": "461eed77395789d561bc483453352bea9faaa5d26377c239d1e05967e6cb73f6",
+        "checkpoint_id": null,
+        "elapsed_seconds": 112.228802,
+        "incremental_api_cost_usd": 0.0343542,
+        "known_incremental_api_cost_usd": 0.0343542,
+        "mode": "real-model",
+        "prefix_api_cost_usd": 0,
+        "queue_seconds": 14.335347,
+        "run_sha256": "520bdca0c4e35b766e14c2747c5397d11723874ad6788906a595018353b22d4f",
+        "runtime_reason": "verified",
+        "source_trial_id": null,
+        "status": "solved",
+        "trial_id": "42b66d0c-b712-597e-ba35-d2bfa81c9f82",
+        "unknown_operations": 0,
+        "verifier_reward": 1,
+        "verifier_status": "completed"
+      },
+      {
+        "observation_id": "8713146786f86d9c9890dddb",
+        "pair_id": "3f05f26b069a0e2aaa59b5b0",
+        "instance_id": "sympy__sympy-22914",
+        "repeat": 0,
+        "split": "pilot",
+        "branch": "A-continue",
+        "order": 2,
+        "protocol_sha256": "461eed77395789d561bc483453352bea9faaa5d26377c239d1e05967e6cb73f6",
+        "checkpoint_id": "7464b7b7-022f-5c67-8d38-e1638ad2b8ff",
+        "elapsed_seconds": 143.15339,
+        "incremental_api_cost_usd": null,
+        "known_incremental_api_cost_usd": 0,
+        "mode": "real-model",
+        "prefix_api_cost_usd": null,
+        "prefix_boundary": {
+          "admitted_tools": 2,
+          "boundary": "cooperative completed turn; sandbox quiescence still required",
+          "completed_tools": 2,
+          "denied_tools": 0,
+          "policy": {
+            "max_tools": 2,
+            "version": "codex-tools-v2"
+          },
+          "receipt_sha256": "c0300ceca4695eb55a351b4e84159c160a4beda6a0230ecc9736290fbb0a8ae1",
+          "trigger": "tool_budget"
+        },
+        "queue_seconds": 14.417707,
+        "run_sha256": "520bdca0c4e35b766e14c2747c5397d11723874ad6788906a595018353b22d4f",
+        "runtime_reason": "verified",
+        "source_trial_id": "ee29cfe5-d6f4-5229-8add-e85ee7f6ed89",
+        "status": "solved",
+        "trial_id": "04dd8214-0f1f-5705-b148-da93c29d1ab0",
+        "unknown_operations": 0,
+        "verifier_reward": 1,
+        "verifier_status": "completed"
+      },
+      {
+        "observation_id": "9972be586479e5ac3d94f538",
+        "pair_id": "3f05f26b069a0e2aaa59b5b0",
+        "instance_id": "sympy__sympy-22914",
+        "repeat": 0,
+        "split": "pilot",
+        "branch": "B-summary",
+        "order": 3,
+        "protocol_sha256": "461eed77395789d561bc483453352bea9faaa5d26377c239d1e05967e6cb73f6",
+        "checkpoint_id": "7464b7b7-022f-5c67-8d38-e1638ad2b8ff",
+        "elapsed_seconds": 124.321529,
+        "incremental_api_cost_usd": 0.02455065,
+        "known_incremental_api_cost_usd": 0.02455065,
+        "mode": "real-model",
+        "prefix_api_cost_usd": null,
+        "prefix_boundary": {
+          "admitted_tools": 2,
+          "boundary": "cooperative completed turn; sandbox quiescence still required",
+          "completed_tools": 2,
+          "denied_tools": 0,
+          "policy": {
+            "max_tools": 2,
+            "version": "codex-tools-v2"
+          },
+          "receipt_sha256": "c0300ceca4695eb55a351b4e84159c160a4beda6a0230ecc9736290fbb0a8ae1",
+          "trigger": "tool_budget"
+        },
+        "queue_seconds": 15.151091,
+        "run_sha256": "520bdca0c4e35b766e14c2747c5397d11723874ad6788906a595018353b22d4f",
+        "runtime_reason": "verified",
+        "source_trial_id": "ee29cfe5-d6f4-5229-8add-e85ee7f6ed89",
+        "status": "solved",
+        "trial_id": "29de3191-1716-5ce2-8ced-e812486c63e2",
+        "unknown_operations": 0,
+        "verifier_reward": 1,
+        "verifier_status": "completed"
+      },
+      {
+        "observation_id": "058c6193eb63ed8dc1d9c92f",
+        "pair_id": "7d30adc7b4c6260b8b55947d",
+        "instance_id": "sympy__sympy-15599",
+        "repeat": 0,
+        "split": "pilot",
+        "branch": "A-continue",
+        "order": 0,
+        "protocol_sha256": "461eed77395789d561bc483453352bea9faaa5d26377c239d1e05967e6cb73f6",
+        "checkpoint_id": "58f756c5-9f10-5017-a16f-019d50209439",
+        "elapsed_seconds": 150.930632,
+        "incremental_api_cost_usd": null,
+        "known_incremental_api_cost_usd": 0,
+        "mode": "real-model",
+        "prefix_api_cost_usd": null,
+        "prefix_boundary": {
+          "admitted_tools": 2,
+          "boundary": "cooperative completed turn; sandbox quiescence still required",
+          "completed_tools": 2,
+          "denied_tools": 0,
+          "policy": {
+            "max_tools": 2,
+            "version": "codex-tools-v2"
+          },
+          "receipt_sha256": "49fb62ceda3dc9aa905bbcbbb1d23829b466fa1928253f3091752becfcb8f400",
+          "trigger": "tool_budget"
+        },
+        "queue_seconds": 12.704967,
+        "run_sha256": "e53fa9985048e555acbbb30b34af1bab2825bbcb1804069ab9bad4c1fb99b5bc",
+        "runtime_reason": "verified",
+        "source_trial_id": "ce3cc5f2-ecb6-5ca8-aa76-0f31c8c21ef7",
+        "status": "solved",
+        "trial_id": "25d6a1af-916f-5f69-9976-523067a69a0b",
+        "unknown_operations": 0,
+        "verifier_reward": 1,
+        "verifier_status": "completed"
+      },
+      {
+        "observation_id": "26b2ba5bb953976d8f016a69",
+        "pair_id": "7d30adc7b4c6260b8b55947d",
+        "instance_id": "sympy__sympy-15599",
+        "repeat": 0,
+        "split": "pilot",
+        "branch": "B-summary",
+        "order": 1,
+        "protocol_sha256": "461eed77395789d561bc483453352bea9faaa5d26377c239d1e05967e6cb73f6",
+        "checkpoint_id": "58f756c5-9f10-5017-a16f-019d50209439",
+        "elapsed_seconds": 110.783899,
+        "incremental_api_cost_usd": 0.0186426,
+        "known_incremental_api_cost_usd": 0.0186426,
+        "mode": "real-model",
+        "prefix_api_cost_usd": null,
+        "prefix_boundary": {
+          "admitted_tools": 2,
+          "boundary": "cooperative completed turn; sandbox quiescence still required",
+          "completed_tools": 2,
+          "denied_tools": 0,
+          "policy": {
+            "max_tools": 2,
+            "version": "codex-tools-v2"
+          },
+          "receipt_sha256": "49fb62ceda3dc9aa905bbcbbb1d23829b466fa1928253f3091752becfcb8f400",
+          "trigger": "tool_budget"
+        },
+        "queue_seconds": 14.444243,
+        "run_sha256": "e53fa9985048e555acbbb30b34af1bab2825bbcb1804069ab9bad4c1fb99b5bc",
+        "runtime_reason": "verification_failed",
+        "source_trial_id": "ce3cc5f2-ecb6-5ca8-aa76-0f31c8c21ef7",
+        "status": "unsolved",
+        "trial_id": "76d79308-d6b4-56bd-a7c7-c5343f5f76a6",
+        "unknown_operations": 0,
+        "verifier_reward": 0,
+        "verifier_status": "completed"
+      },
+      {
+        "observation_id": "679f34c546e531b6a07ac77d",
+        "pair_id": "7d30adc7b4c6260b8b55947d",
+        "instance_id": "sympy__sympy-15599",
+        "repeat": 0,
+        "split": "pilot",
+        "branch": "B-workspace",
+        "order": 2,
+        "protocol_sha256": "461eed77395789d561bc483453352bea9faaa5d26377c239d1e05967e6cb73f6",
+        "checkpoint_id": "58f756c5-9f10-5017-a16f-019d50209439",
+        "elapsed_seconds": 134.402028,
+        "incremental_api_cost_usd": 0.037624950000000004,
+        "known_incremental_api_cost_usd": 0.037624950000000004,
+        "mode": "real-model",
+        "prefix_api_cost_usd": null,
+        "prefix_boundary": {
+          "admitted_tools": 2,
+          "boundary": "cooperative completed turn; sandbox quiescence still required",
+          "completed_tools": 2,
+          "denied_tools": 0,
+          "policy": {
+            "max_tools": 2,
+            "version": "codex-tools-v2"
+          },
+          "receipt_sha256": "49fb62ceda3dc9aa905bbcbbb1d23829b466fa1928253f3091752becfcb8f400",
+          "trigger": "tool_budget"
+        },
+        "queue_seconds": 14.666249,
+        "run_sha256": "e53fa9985048e555acbbb30b34af1bab2825bbcb1804069ab9bad4c1fb99b5bc",
+        "runtime_reason": "agent_limit_or_error",
+        "source_trial_id": "ce3cc5f2-ecb6-5ca8-aa76-0f31c8c21ef7",
+        "status": "unsolved",
+        "trial_id": "526bbbfb-6714-5e34-b168-c0cb11090eef",
+        "unknown_operations": 0,
+        "verifier_reward": 0,
+        "verifier_status": "completed"
+      },
+      {
+        "observation_id": "da82621c07ffd07a8a665b6c",
+        "pair_id": "7d30adc7b4c6260b8b55947d",
+        "instance_id": "sympy__sympy-15599",
+        "repeat": 0,
+        "split": "pilot",
+        "branch": "B-fresh",
+        "order": 3,
+        "protocol_sha256": "461eed77395789d561bc483453352bea9faaa5d26377c239d1e05967e6cb73f6",
+        "checkpoint_id": null,
+        "elapsed_seconds": 101.453144,
+        "incremental_api_cost_usd": 0.01587915,
+        "known_incremental_api_cost_usd": 0.01587915,
+        "mode": "real-model",
+        "prefix_api_cost_usd": 0,
+        "queue_seconds": 14.138566,
+        "run_sha256": "e53fa9985048e555acbbb30b34af1bab2825bbcb1804069ab9bad4c1fb99b5bc",
+        "runtime_reason": "verification_failed",
+        "source_trial_id": null,
+        "status": "unsolved",
+        "trial_id": "56314da0-2362-5751-bd2d-8ad92ce60cfe",
+        "unknown_operations": 0,
+        "verifier_reward": 0,
+        "verifier_status": "completed"
+      },
+      {
+        "observation_id": "0b2dfce9ed01962d07b590f4",
+        "pair_id": "82439479811a26ad4c9cf30e",
+        "instance_id": "sympy__sympy-13091",
+        "repeat": 0,
+        "split": "pilot",
+        "branch": "B-fresh",
+        "order": 0,
+        "protocol_sha256": "461eed77395789d561bc483453352bea9faaa5d26377c239d1e05967e6cb73f6",
+        "checkpoint_id": null,
+        "elapsed_seconds": 102.51463,
+        "incremental_api_cost_usd": 0.01725945,
+        "known_incremental_api_cost_usd": 0.01725945,
+        "mode": "real-model",
+        "prefix_api_cost_usd": 0,
+        "queue_seconds": 15.662613,
+        "run_sha256": "7d9616ac5b5e6af14c46126ba84b75adc18605390e65838e4f86c9325d2d3841",
+        "runtime_reason": "verification_failed",
+        "source_trial_id": null,
+        "status": "unsolved",
+        "trial_id": "eb75d3e8-9189-5c29-9361-8c3ceec31f23",
+        "unknown_operations": 0,
+        "verifier_reward": 0,
+        "verifier_status": "completed"
+      },
+      {
+        "observation_id": "228389891cfd86f12421dabb",
+        "pair_id": "82439479811a26ad4c9cf30e",
+        "instance_id": "sympy__sympy-13091",
+        "repeat": 0,
+        "split": "pilot",
+        "branch": "B-workspace",
+        "order": 1,
+        "protocol_sha256": "461eed77395789d561bc483453352bea9faaa5d26377c239d1e05967e6cb73f6",
+        "checkpoint_id": "e8eac1d5-3f6f-5f4d-a09b-ad702d1ac4f9",
+        "elapsed_seconds": 98.196789,
+        "incremental_api_cost_usd": 0.01726845,
+        "known_incremental_api_cost_usd": 0.01726845,
+        "mode": "real-model",
+        "prefix_api_cost_usd": null,
+        "prefix_boundary": {
+          "admitted_tools": 2,
+          "boundary": "cooperative completed turn; sandbox quiescence still required",
+          "completed_tools": 2,
+          "denied_tools": 0,
+          "policy": {
+            "max_tools": 2,
+            "version": "codex-tools-v2"
+          },
+          "receipt_sha256": "5a22af3499e96bc4b37d30fe9cd45d9f16ad9b55f7831ddf682bb2b260ec8864",
+          "trigger": "tool_budget"
+        },
+        "queue_seconds": 13.993201,
+        "run_sha256": "7d9616ac5b5e6af14c46126ba84b75adc18605390e65838e4f86c9325d2d3841",
+        "runtime_reason": "agent_limit_or_error",
+        "source_trial_id": "b4fb1127-83f4-5f4c-9b6f-84bbdfbdbc80",
+        "status": "unsolved",
+        "trial_id": "f618f4cd-75ca-59ae-8aa3-2363f4f5f4b1",
+        "unknown_operations": 0,
+        "verifier_reward": 0,
+        "verifier_status": "completed"
+      },
+      {
+        "observation_id": "780e573990b6079897a8a6a2",
+        "pair_id": "82439479811a26ad4c9cf30e",
+        "instance_id": "sympy__sympy-13091",
+        "repeat": 0,
+        "split": "pilot",
+        "branch": "A-continue",
+        "order": 2,
+        "protocol_sha256": "461eed77395789d561bc483453352bea9faaa5d26377c239d1e05967e6cb73f6",
+        "checkpoint_id": "e8eac1d5-3f6f-5f4d-a09b-ad702d1ac4f9",
+        "elapsed_seconds": 215.308004,
+        "incremental_api_cost_usd": null,
+        "known_incremental_api_cost_usd": 0,
+        "mode": "real-model",
+        "prefix_api_cost_usd": null,
+        "prefix_boundary": {
+          "admitted_tools": 2,
+          "boundary": "cooperative completed turn; sandbox quiescence still required",
+          "completed_tools": 2,
+          "denied_tools": 0,
+          "policy": {
+            "max_tools": 2,
+            "version": "codex-tools-v2"
+          },
+          "receipt_sha256": "5a22af3499e96bc4b37d30fe9cd45d9f16ad9b55f7831ddf682bb2b260ec8864",
+          "trigger": "tool_budget"
+        },
+        "queue_seconds": 15.060191,
+        "run_sha256": "7d9616ac5b5e6af14c46126ba84b75adc18605390e65838e4f86c9325d2d3841",
+        "runtime_reason": "verified",
+        "source_trial_id": "b4fb1127-83f4-5f4c-9b6f-84bbdfbdbc80",
+        "status": "solved",
+        "trial_id": "12bc80f9-fba4-5201-8b33-8e2b2db71695",
+        "unknown_operations": 0,
+        "verifier_reward": 1,
+        "verifier_status": "completed"
+      },
+      {
+        "observation_id": "f0dc451d26c2a025a917bcfa",
+        "pair_id": "82439479811a26ad4c9cf30e",
+        "instance_id": "sympy__sympy-13091",
+        "repeat": 0,
+        "split": "pilot",
+        "branch": "B-summary",
+        "order": 3,
+        "protocol_sha256": "461eed77395789d561bc483453352bea9faaa5d26377c239d1e05967e6cb73f6",
+        "checkpoint_id": "e8eac1d5-3f6f-5f4d-a09b-ad702d1ac4f9",
+        "elapsed_seconds": 113.027757,
+        "incremental_api_cost_usd": 0.0187317,
+        "known_incremental_api_cost_usd": 0.0187317,
+        "mode": "real-model",
+        "prefix_api_cost_usd": null,
+        "prefix_boundary": {
+          "admitted_tools": 2,
+          "boundary": "cooperative completed turn; sandbox quiescence still required",
+          "completed_tools": 2,
+          "denied_tools": 0,
+          "policy": {
+            "max_tools": 2,
+            "version": "codex-tools-v2"
+          },
+          "receipt_sha256": "5a22af3499e96bc4b37d30fe9cd45d9f16ad9b55f7831ddf682bb2b260ec8864",
+          "trigger": "tool_budget"
+        },
+        "queue_seconds": 15.408113,
+        "run_sha256": "7d9616ac5b5e6af14c46126ba84b75adc18605390e65838e4f86c9325d2d3841",
+        "runtime_reason": "verification_failed",
+        "source_trial_id": "b4fb1127-83f4-5f4c-9b6f-84bbdfbdbc80",
+        "status": "unsolved",
+        "trial_id": "d42e328a-b718-5a00-89f0-7cf5039e16de",
+        "unknown_operations": 0,
+        "verifier_reward": 0,
+        "verifier_status": "completed"
+      },
+      {
+        "observation_id": "677906d06b9beaa971362d9d",
+        "pair_id": "02b6765fdcc034850500dc67",
+        "instance_id": "scikit-learn__scikit-learn-9288",
+        "repeat": 0,
+        "split": "pilot",
+        "branch": "B-summary",
+        "order": 0,
+        "protocol_sha256": "461eed77395789d561bc483453352bea9faaa5d26377c239d1e05967e6cb73f6",
+        "checkpoint_id": "afb3aec0-8017-5bab-a960-0d2515345ca5",
+        "elapsed_seconds": 196.721403,
+        "incremental_api_cost_usd": 0.0209964,
+        "known_incremental_api_cost_usd": 0.0209964,
+        "mode": "real-model",
+        "prefix_api_cost_usd": null,
+        "prefix_boundary": {
+          "admitted_tools": 2,
+          "boundary": "cooperative completed turn; sandbox quiescence still required",
+          "completed_tools": 2,
+          "denied_tools": 0,
+          "policy": {
+            "max_tools": 2,
+            "version": "codex-tools-v2"
+          },
+          "receipt_sha256": "71ba0595cf91a114419047ba3880921552a5f4ff5623ca23844632da3076096d",
+          "trigger": "tool_budget"
+        },
+        "queue_seconds": 15.671503,
+        "run_sha256": "8bbee893261888c68db7c86ae25a3859eb5f2b161b9745ddbe31e20820f6e5e3",
+        "runtime_reason": "agent_limit_or_error",
+        "source_trial_id": "461f3365-8985-5198-917f-57c090fd6f91",
+        "status": "solved",
+        "trial_id": "70d347c4-866a-5f2f-8934-5860f73d7663",
+        "unknown_operations": 0,
+        "verifier_reward": 1,
+        "verifier_status": "completed"
+      },
+      {
+        "observation_id": "c942a28015c5396992407e5e",
+        "pair_id": "02b6765fdcc034850500dc67",
+        "instance_id": "scikit-learn__scikit-learn-9288",
+        "repeat": 0,
+        "split": "pilot",
+        "branch": "B-workspace",
+        "order": 1,
+        "protocol_sha256": "461eed77395789d561bc483453352bea9faaa5d26377c239d1e05967e6cb73f6",
+        "checkpoint_id": "afb3aec0-8017-5bab-a960-0d2515345ca5",
+        "elapsed_seconds": 173.765128,
+        "incremental_api_cost_usd": 0.02012655,
+        "known_incremental_api_cost_usd": 0.02012655,
+        "mode": "real-model",
+        "prefix_api_cost_usd": null,
+        "prefix_boundary": {
+          "admitted_tools": 2,
+          "boundary": "cooperative completed turn; sandbox quiescence still required",
+          "completed_tools": 2,
+          "denied_tools": 0,
+          "policy": {
+            "max_tools": 2,
+            "version": "codex-tools-v2"
+          },
+          "receipt_sha256": "71ba0595cf91a114419047ba3880921552a5f4ff5623ca23844632da3076096d",
+          "trigger": "tool_budget"
+        },
+        "queue_seconds": 14.701545,
+        "run_sha256": "8bbee893261888c68db7c86ae25a3859eb5f2b161b9745ddbe31e20820f6e5e3",
+        "runtime_reason": "verified",
+        "source_trial_id": "461f3365-8985-5198-917f-57c090fd6f91",
+        "status": "solved",
+        "trial_id": "709934ab-18c1-5dea-b784-725972c94b31",
+        "unknown_operations": 0,
+        "verifier_reward": 1,
+        "verifier_status": "completed"
+      },
+      {
+        "observation_id": "c9cdb969cb8fc2c76ed36a49",
+        "pair_id": "02b6765fdcc034850500dc67",
+        "instance_id": "scikit-learn__scikit-learn-9288",
+        "repeat": 0,
+        "split": "pilot",
+        "branch": "B-fresh",
+        "order": 2,
+        "protocol_sha256": "461eed77395789d561bc483453352bea9faaa5d26377c239d1e05967e6cb73f6",
+        "checkpoint_id": null,
+        "elapsed_seconds": 196.890552,
+        "incremental_api_cost_usd": 0.0351003,
+        "known_incremental_api_cost_usd": 0.0351003,
+        "mode": "real-model",
+        "prefix_api_cost_usd": 0,
+        "queue_seconds": 13.55881,
+        "run_sha256": "8bbee893261888c68db7c86ae25a3859eb5f2b161b9745ddbe31e20820f6e5e3",
+        "runtime_reason": "verified",
+        "source_trial_id": null,
+        "status": "solved",
+        "trial_id": "60f16dbb-ce8c-5210-ad77-fefb51316360",
+        "unknown_operations": 0,
+        "verifier_reward": 1,
+        "verifier_status": "completed"
+      },
+      {
+        "observation_id": "d0ca0e9132ef97caeed06358",
+        "pair_id": "02b6765fdcc034850500dc67",
+        "instance_id": "scikit-learn__scikit-learn-9288",
+        "repeat": 0,
+        "split": "pilot",
+        "branch": "A-continue",
+        "order": 3,
+        "protocol_sha256": "461eed77395789d561bc483453352bea9faaa5d26377c239d1e05967e6cb73f6",
+        "checkpoint_id": "afb3aec0-8017-5bab-a960-0d2515345ca5",
+        "elapsed_seconds": 221.908467,
+        "incremental_api_cost_usd": null,
+        "known_incremental_api_cost_usd": 0,
+        "mode": "real-model",
+        "prefix_api_cost_usd": null,
+        "prefix_boundary": {
+          "admitted_tools": 2,
+          "boundary": "cooperative completed turn; sandbox quiescence still required",
+          "completed_tools": 2,
+          "denied_tools": 0,
+          "policy": {
+            "max_tools": 2,
+            "version": "codex-tools-v2"
+          },
+          "receipt_sha256": "71ba0595cf91a114419047ba3880921552a5f4ff5623ca23844632da3076096d",
+          "trigger": "tool_budget"
+        },
+        "queue_seconds": 15.963731,
+        "run_sha256": "8bbee893261888c68db7c86ae25a3859eb5f2b161b9745ddbe31e20820f6e5e3",
+        "runtime_reason": "verified",
+        "source_trial_id": "461f3365-8985-5198-917f-57c090fd6f91",
+        "status": "solved",
+        "trial_id": "414f9237-f331-55fe-b38e-e25496e2e2ed",
+        "unknown_operations": 0,
+        "verifier_reward": 1,
+        "verifier_status": "completed"
+      }
+    ],
+    "arms": {
+      "A-continue": {
+        "planned": 4,
+        "outcomes": {
+          "solved": 4
+        },
+        "graded": 4,
+        "resolved_itt": 1.0,
+        "resolved_among_graded": 1.0,
+        "known_incremental_api_cost_usd": 0,
+        "known_end_to_end_api_cost_usd": 0,
+        "unknown_end_to_end_cost_rows": 4,
+        "unknown_cost_rows": 4,
+        "unknown_operations": 0
+      },
+      "B-workspace": {
+        "planned": 4,
+        "outcomes": {
+          "solved": 2,
+          "unsolved": 2
+        },
+        "graded": 4,
+        "resolved_itt": 0.5,
+        "resolved_among_graded": 0.5,
+        "known_incremental_api_cost_usd": 0.0930132,
+        "known_end_to_end_api_cost_usd": 0.0930132,
+        "unknown_end_to_end_cost_rows": 4,
+        "unknown_cost_rows": 0,
+        "unknown_operations": 0
+      },
+      "B-summary": {
+        "planned": 4,
+        "outcomes": {
+          "solved": 2,
+          "unsolved": 2
+        },
+        "graded": 4,
+        "resolved_itt": 0.5,
+        "resolved_among_graded": 0.5,
+        "known_incremental_api_cost_usd": 0.08292135,
+        "known_end_to_end_api_cost_usd": 0.08292135,
+        "unknown_end_to_end_cost_rows": 4,
+        "unknown_cost_rows": 0,
+        "unknown_operations": 0
+      },
+      "B-fresh": {
+        "planned": 4,
+        "outcomes": {
+          "solved": 2,
+          "unsolved": 2
+        },
+        "graded": 4,
+        "resolved_itt": 0.5,
+        "resolved_among_graded": 0.5,
+        "known_incremental_api_cost_usd": 0.1025931,
+        "known_end_to_end_api_cost_usd": 0.1025931,
+        "unknown_end_to_end_cost_rows": 0,
+        "unknown_cost_rows": 0,
+        "unknown_operations": 0
+      }
+    },
+    "comparisons": {
+      "B-summary minus A-continue": {
+        "tasks": 4,
+        "difference": -0.5,
+        "ci95": [
+          -1.0,
+          0.0
+        ],
+        "complete_graded_pairs": 4,
+        "planned_pairs": 4,
+        "primary": true,
+        "scope": "checkpoint continuation",
+        "provisional": false
+      },
+      "B-workspace minus A-continue": {
+        "tasks": 4,
+        "difference": -0.5,
+        "ci95": [
+          -1.0,
+          0.0
+        ],
+        "complete_graded_pairs": 4,
+        "planned_pairs": 4,
+        "primary": false,
+        "scope": "checkpoint continuation",
+        "provisional": false
+      },
+      "B-summary minus B-workspace": {
+        "tasks": 4,
+        "difference": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "complete_graded_pairs": 4,
+        "planned_pairs": 4,
+        "primary": false,
+        "scope": "checkpoint continuation",
+        "provisional": false
+      },
+      "B-fresh minus A-continue": {
+        "tasks": 4,
+        "difference": -0.5,
+        "ci95": [
+          -1.0,
+          0.0
+        ],
+        "complete_graded_pairs": 4,
+        "planned_pairs": 4,
+        "primary": false,
+        "scope": "end-to-end baseline",
+        "provisional": false
+      }
+    },
+    "received": 16,
+    "planned": 16,
+    "missing": 0,
+    "inference": "Exploratory fixed subset; task-cluster CI, no population superiority claim",
+    "cost_note": "Known API spend is a lower bound when any cost is UNKNOWN. Subscription stages are not priced as free inference. Prefix cost is included per continuation strategy, not summed over physical forks."
+  },
+  "analysis_implementation_sha256": "1b9918114aeff78c147a397606fef76e38b3b8fe31eaef1d277a354eca2f7f21",
+  "analysis_note": "Recomputed after a settled-total precedence edge-case correction; the complete aggregate equals the saved pre-correction aggregate. Runtime and original per-task records are unchanged.",
+  "posthoc_prefix_diagnostics": [
+    {
+      "task": "sympy__sympy-22914",
+      "run_sha256": "520bdca0c4e35b766e14c2747c5397d11723874ad6788906a595018353b22d4f",
+      "model_calls": 0,
+      "timing": "after collection and cleanup of every supplied run; no agent feedback",
+      "status": "completed",
+      "reward": 0.0,
+      "checkpoint_id": "7464b7b7-022f-5c67-8d38-e1638ad2b8ff",
+      "checkpoint_manifest_sha256": "54494ff2996e82022669f88be9165c89c2f9fa27ee2bd290b2cd645ab9c09331",
+      "verification": {
+        "status": "completed",
+        "isolated": true,
+        "workspace_digest": "e0668f910be3638f0178424d98457f0076f54ecefa390b663c29852306acd166",
+        "container": "c3e49bb5101b",
+        "verifier_digest": "29c8d8e160363de8c0f6684db3f8835b3a8c33f1e71cb3c09c4c5e5a0adf6c7c",
+        "workspace_scope": "/testbed",
+        "image_id": "sha256:89e5927c59eff33b56af59ead33d53ea9b6751ff7a6700f1ff80b1312945bb55"
+      },
+      "source_unchanged": true,
+      "elapsed_seconds": 46.08
+    },
+    {
+      "task": "sympy__sympy-15599",
+      "run_sha256": "e53fa9985048e555acbbb30b34af1bab2825bbcb1804069ab9bad4c1fb99b5bc",
+      "model_calls": 0,
+      "timing": "after collection and cleanup of every supplied run; no agent feedback",
+      "status": "completed",
+      "reward": 0.0,
+      "checkpoint_id": "58f756c5-9f10-5017-a16f-019d50209439",
+      "checkpoint_manifest_sha256": "a962a60f477bdb583a943b8a6c86db32061c84a0aca6ffbdeba19dbbac00a03d",
+      "verification": {
+        "status": "completed",
+        "isolated": true,
+        "workspace_digest": "fb50369fe7cf39ad08999017d5516e2408cdf9aab7e38008cce23086a3f205e7",
+        "container": "9885076a1f2e",
+        "verifier_digest": "f4e43e686f4024cd9f66d16f9a07acac222712d606a0d0c5a0255e918cb58a41",
+        "workspace_scope": "/testbed",
+        "image_id": "sha256:1bf8080262866e2068abacf0cf68ad33e1511654b74539a62984c40563e50119"
+      },
+      "source_unchanged": true,
+      "elapsed_seconds": 39.5
+    },
+    {
+      "task": "sympy__sympy-13091",
+      "run_sha256": "7d9616ac5b5e6af14c46126ba84b75adc18605390e65838e4f86c9325d2d3841",
+      "model_calls": 0,
+      "timing": "after collection and cleanup of every supplied run; no agent feedback",
+      "status": "completed",
+      "reward": 0.0,
+      "checkpoint_id": "e8eac1d5-3f6f-5f4d-a09b-ad702d1ac4f9",
+      "checkpoint_manifest_sha256": "a96c6e309d754a8faa1aa1239ef47f9da9a06c9b5465697b36832a93dc8141b3",
+      "verification": {
+        "status": "completed",
+        "isolated": true,
+        "workspace_digest": "d4028f76730cacfc31b82f5c6e65df2243e1e6bee84c103e0e3c6ef784a0f285",
+        "container": "3d1f75fe2392",
+        "verifier_digest": "22b10bddddf454004100ac49e92e2eee2aa5ff1fe8e67195ae733d83249c84a1",
+        "workspace_scope": "/testbed",
+        "image_id": "sha256:abd584927d0e1d80a0e6577ccd0bad4a5b854ffd44df77852fb0251c179c2dcb"
+      },
+      "source_unchanged": true,
+      "elapsed_seconds": 60.58
+    },
+    {
+      "task": "scikit-learn__scikit-learn-9288",
+      "run_sha256": "8bbee893261888c68db7c86ae25a3859eb5f2b161b9745ddbe31e20820f6e5e3",
+      "model_calls": 0,
+      "timing": "after collection and cleanup of every supplied run; no agent feedback",
+      "status": "completed",
+      "reward": 0.0,
+      "checkpoint_id": "afb3aec0-8017-5bab-a960-0d2515345ca5",
+      "checkpoint_manifest_sha256": "b056049f93f68a023758b4b22677c856de69ef58f2f3badcb52293ec1ba7b5e5",
+      "verification": {
+        "status": "completed",
+        "isolated": true,
+        "workspace_digest": "81a00aa5bae3d79bbf1769264507544ca871d76692dafba93a9bdbdf953e940d",
+        "container": "3cf33e6146e4",
+        "verifier_digest": "dd722954acc018eb4506953b421ee2f78a59ebdb24351a2f776368fee7e13f2c",
+        "workspace_scope": "/testbed",
+        "image_id": "sha256:987295c270924a554b840429b76538e0ace7e9732a9719841fb1f1955cddcc2f"
+      },
+      "source_unchanged": true,
+      "elapsed_seconds": 81.4
+    }
+  ],
+  "posthoc_diagnostic_attempts": {
+    "scope": "posthoc diagnostics only; all real-model branches already collected and cleaned; no feedback to agents",
+    "initial_results": [
+      {
+        "task": "sympy__sympy-22914",
+        "run_sha256": "520bdca0c4e35b766e14c2747c5397d11723874ad6788906a595018353b22d4f",
+        "model_calls": 0,
+        "timing": "after collection and cleanup of every supplied run; no agent feedback",
+        "status": "completed",
+        "reward": 0.0,
+        "checkpoint_id": "7464b7b7-022f-5c67-8d38-e1638ad2b8ff",
+        "checkpoint_manifest_sha256": "54494ff2996e82022669f88be9165c89c2f9fa27ee2bd290b2cd645ab9c09331",
+        "verification": {
+          "status": "completed",
+          "isolated": true,
+          "workspace_digest": "e0668f910be3638f0178424d98457f0076f54ecefa390b663c29852306acd166",
+          "container": "c3e49bb5101b",
+          "verifier_digest": "29c8d8e160363de8c0f6684db3f8835b3a8c33f1e71cb3c09c4c5e5a0adf6c7c",
+          "workspace_scope": "/testbed",
+          "image_id": "sha256:89e5927c59eff33b56af59ead33d53ea9b6751ff7a6700f1ff80b1312945bb55"
+        },
+        "source_unchanged": true,
+        "elapsed_seconds": 46.08
+      },
+      {
+        "task": "sympy__sympy-15599",
+        "run_sha256": "e53fa9985048e555acbbb30b34af1bab2825bbcb1804069ab9bad4c1fb99b5bc",
+        "model_calls": 0,
+        "timing": "after collection and cleanup of every supplied run; no agent feedback",
+        "status": "failed",
+        "error": "RuntimeError",
+        "elapsed_seconds": 118.0
+      },
+      {
+        "task": "sympy__sympy-13091",
+        "run_sha256": "7d9616ac5b5e6af14c46126ba84b75adc18605390e65838e4f86c9325d2d3841",
+        "model_calls": 0,
+        "timing": "after collection and cleanup of every supplied run; no agent feedback",
+        "status": "completed",
+        "reward": 0.0,
+        "checkpoint_id": "e8eac1d5-3f6f-5f4d-a09b-ad702d1ac4f9",
+        "checkpoint_manifest_sha256": "a96c6e309d754a8faa1aa1239ef47f9da9a06c9b5465697b36832a93dc8141b3",
+        "verification": {
+          "status": "completed",
+          "isolated": true,
+          "workspace_digest": "d4028f76730cacfc31b82f5c6e65df2243e1e6bee84c103e0e3c6ef784a0f285",
+          "container": "3d1f75fe2392",
+          "verifier_digest": "22b10bddddf454004100ac49e92e2eee2aa5ff1fe8e67195ae733d83249c84a1",
+          "workspace_scope": "/testbed",
+          "image_id": "sha256:abd584927d0e1d80a0e6577ccd0bad4a5b854ffd44df77852fb0251c179c2dcb"
+        },
+        "source_unchanged": true,
+        "elapsed_seconds": 60.58
+      },
+      {
+        "task": "scikit-learn__scikit-learn-9288",
+        "run_sha256": "8bbee893261888c68db7c86ae25a3859eb5f2b161b9745ddbe31e20820f6e5e3",
+        "model_calls": 0,
+        "timing": "after collection and cleanup of every supplied run; no agent feedback",
+        "status": "failed",
+        "error": "RuntimeError",
+        "elapsed_seconds": 139.46
+      }
+    ],
+    "model_free_followups": [
+      {
+        "task": "sympy__sympy-15599",
+        "run_sha256": "e53fa9985048e555acbbb30b34af1bab2825bbcb1804069ab9bad4c1fb99b5bc",
+        "model_calls": 0,
+        "timing": "after collection and cleanup of every supplied run; no agent feedback",
+        "status": "completed",
+        "reward": 0.0,
+        "checkpoint_id": "58f756c5-9f10-5017-a16f-019d50209439",
+        "checkpoint_manifest_sha256": "a962a60f477bdb583a943b8a6c86db32061c84a0aca6ffbdeba19dbbac00a03d",
+        "verification": {
+          "status": "completed",
+          "isolated": true,
+          "workspace_digest": "fb50369fe7cf39ad08999017d5516e2408cdf9aab7e38008cce23086a3f205e7",
+          "container": "9885076a1f2e",
+          "verifier_digest": "f4e43e686f4024cd9f66d16f9a07acac222712d606a0d0c5a0255e918cb58a41",
+          "workspace_scope": "/testbed",
+          "image_id": "sha256:1bf8080262866e2068abacf0cf68ad33e1511654b74539a62984c40563e50119"
+        },
+        "source_unchanged": true,
+        "elapsed_seconds": 39.5
+      },
+      {
+        "task": "scikit-learn__scikit-learn-9288",
+        "run_sha256": "8bbee893261888c68db7c86ae25a3859eb5f2b161b9745ddbe31e20820f6e5e3",
+        "model_calls": 0,
+        "timing": "after collection and cleanup of every supplied run; no agent feedback",
+        "status": "completed",
+        "reward": 0.0,
+        "checkpoint_id": "afb3aec0-8017-5bab-a960-0d2515345ca5",
+        "checkpoint_manifest_sha256": "b056049f93f68a023758b4b22677c856de69ef58f2f3badcb52293ec1ba7b5e5",
+        "verification": {
+          "status": "completed",
+          "isolated": true,
+          "workspace_digest": "81a00aa5bae3d79bbf1769264507544ca871d76692dafba93a9bdbdf953e940d",
+          "container": "3cf33e6146e4",
+          "verifier_digest": "dd722954acc018eb4506953b421ee2f78a59ebdb24351a2f776368fee7e13f2c",
+          "workspace_scope": "/testbed",
+          "image_id": "sha256:987295c270924a554b840429b76538e0ace7e9732a9719841fb1f1955cddcc2f"
+        },
+        "source_unchanged": true,
+        "elapsed_seconds": 81.4
+      }
+    ],
+    "effective_results": [
+      {
+        "task": "sympy__sympy-22914",
+        "run_sha256": "520bdca0c4e35b766e14c2747c5397d11723874ad6788906a595018353b22d4f",
+        "model_calls": 0,
+        "timing": "after collection and cleanup of every supplied run; no agent feedback",
+        "status": "completed",
+        "reward": 0.0,
+        "checkpoint_id": "7464b7b7-022f-5c67-8d38-e1638ad2b8ff",
+        "checkpoint_manifest_sha256": "54494ff2996e82022669f88be9165c89c2f9fa27ee2bd290b2cd645ab9c09331",
+        "verification": {
+          "status": "completed",
+          "isolated": true,
+          "workspace_digest": "e0668f910be3638f0178424d98457f0076f54ecefa390b663c29852306acd166",
+          "container": "c3e49bb5101b",
+          "verifier_digest": "29c8d8e160363de8c0f6684db3f8835b3a8c33f1e71cb3c09c4c5e5a0adf6c7c",
+          "workspace_scope": "/testbed",
+          "image_id": "sha256:89e5927c59eff33b56af59ead33d53ea9b6751ff7a6700f1ff80b1312945bb55"
+        },
+        "source_unchanged": true,
+        "elapsed_seconds": 46.08
+      },
+      {
+        "task": "sympy__sympy-15599",
+        "run_sha256": "e53fa9985048e555acbbb30b34af1bab2825bbcb1804069ab9bad4c1fb99b5bc",
+        "model_calls": 0,
+        "timing": "after collection and cleanup of every supplied run; no agent feedback",
+        "status": "completed",
+        "reward": 0.0,
+        "checkpoint_id": "58f756c5-9f10-5017-a16f-019d50209439",
+        "checkpoint_manifest_sha256": "a962a60f477bdb583a943b8a6c86db32061c84a0aca6ffbdeba19dbbac00a03d",
+        "verification": {
+          "status": "completed",
+          "isolated": true,
+          "workspace_digest": "fb50369fe7cf39ad08999017d5516e2408cdf9aab7e38008cce23086a3f205e7",
+          "container": "9885076a1f2e",
+          "verifier_digest": "f4e43e686f4024cd9f66d16f9a07acac222712d606a0d0c5a0255e918cb58a41",
+          "workspace_scope": "/testbed",
+          "image_id": "sha256:1bf8080262866e2068abacf0cf68ad33e1511654b74539a62984c40563e50119"
+        },
+        "source_unchanged": true,
+        "elapsed_seconds": 39.5
+      },
+      {
+        "task": "sympy__sympy-13091",
+        "run_sha256": "7d9616ac5b5e6af14c46126ba84b75adc18605390e65838e4f86c9325d2d3841",
+        "model_calls": 0,
+        "timing": "after collection and cleanup of every supplied run; no agent feedback",
+        "status": "completed",
+        "reward": 0.0,
+        "checkpoint_id": "e8eac1d5-3f6f-5f4d-a09b-ad702d1ac4f9",
+        "checkpoint_manifest_sha256": "a96c6e309d754a8faa1aa1239ef47f9da9a06c9b5465697b36832a93dc8141b3",
+        "verification": {
+          "status": "completed",
+          "isolated": true,
+          "workspace_digest": "d4028f76730cacfc31b82f5c6e65df2243e1e6bee84c103e0e3c6ef784a0f285",
+          "container": "3d1f75fe2392",
+          "verifier_digest": "22b10bddddf454004100ac49e92e2eee2aa5ff1fe8e67195ae733d83249c84a1",
+          "workspace_scope": "/testbed",
+          "image_id": "sha256:abd584927d0e1d80a0e6577ccd0bad4a5b854ffd44df77852fb0251c179c2dcb"
+        },
+        "source_unchanged": true,
+        "elapsed_seconds": 60.58
+      },
+      {
+        "task": "scikit-learn__scikit-learn-9288",
+        "run_sha256": "8bbee893261888c68db7c86ae25a3859eb5f2b161b9745ddbe31e20820f6e5e3",
+        "model_calls": 0,
+        "timing": "after collection and cleanup of every supplied run; no agent feedback",
+        "status": "completed",
+        "reward": 0.0,
+        "checkpoint_id": "afb3aec0-8017-5bab-a960-0d2515345ca5",
+        "checkpoint_manifest_sha256": "b056049f93f68a023758b4b22677c856de69ef58f2f3badcb52293ec1ba7b5e5",
+        "verification": {
+          "status": "completed",
+          "isolated": true,
+          "workspace_digest": "81a00aa5bae3d79bbf1769264507544ca871d76692dafba93a9bdbdf953e940d",
+          "container": "3cf33e6146e4",
+          "verifier_digest": "dd722954acc018eb4506953b421ee2f78a59ebdb24351a2f776368fee7e13f2c",
+          "workspace_scope": "/testbed",
+          "image_id": "sha256:987295c270924a554b840429b76538e0ace7e9732a9719841fb1f1955cddcc2f"
+        },
+        "source_unchanged": true,
+        "elapsed_seconds": 81.4
+      }
+    ],
+    "reason": "Two initial ungraded diagnostics failed Git ownership checks. Exact-path trust configured only in disposable verifier containers; original failures retained.",
+    "model_calls": 0,
+    "grading_criteria_changed": false,
+    "implementation_sha256": "658b90e208a4b2bfe6ea000b96bdeba9e06a8db01142ea5fe39f1b445c488e74"
+  },
+  "posthoc_verifier_ownership_fix": {
+    "classification": "posthoc verifier infrastructure failure; not a model branch failure",
+    "initial_report": "work/m4-data/tool-prefix-round-3/posthoc-prefix-diagnostics/report.json",
+    "failed_tasks": [
+      "sympy__sympy-15599",
+      "scikit-learn__scikit-learn-9288"
+    ],
+    "confirmed_log_marker": "fatal: detected dubious ownership in repository at '/testbed'",
+    "fix": "Git safe.directory is scoped to /testbed inside each disposable repository verifier; no wildcard, host setting, model prompt, task bytes or grading criterion changes.",
+    "paid_reruns": 0,
+    "diagnostic_followups": 2,
+    "frozen_verification_sha256": "483b1dbfaf6fb57853a6a835fb59efae23ad061685a332d7753ee975dd002b11",
+    "postrun_verification_sha256": "658b90e208a4b2bfe6ea000b96bdeba9e06a8db01142ea5fe39f1b445c488e74"
+  },
+  "failure_diagnostics": {
+    "method": "deterministic string markers in tool outputs plus manual patch inspection; not causal labels",
+    "failed_mini_branches": [
+      {
+        "task": "sympy__sympy-15599",
+        "branch": "B-summary",
+        "reward": 0,
+        "exit_status": "Submitted",
+        "api_requests": 8,
+        "retained_model_responses": 7,
+        "tool_output_markers": [
+          {
+            "after_retained_response": 4,
+            "markers": [
+              "pytest_missing"
+            ],
+            "command_exit_code": 1
+          }
+        ],
+        "tracked_changed_files": [
+          "sympy/core/mod.py",
+          "sympy/core/tests/test_arit.py"
+        ],
+        "trajectory_sha256": "ad441cd7d3c584c9b595bffa8296bc0e04b00960c205fccad573c2c3ebb031f0",
+        "trajectory_path": "work/m4-data/tool-prefix-round-3/sympy__sympy-15599/76d79308-d6b4-56bd-a7c7-c5343f5f76a6/executions/84b6bb91-cd05-5b62-bab3-6fa92d465a78/mini-trajectory.json"
+      },
+      {
+        "task": "sympy__sympy-15599",
+        "branch": "B-workspace",
+        "reward": 0,
+        "exit_status": "LimitsExceeded",
+        "api_requests": 8,
+        "retained_model_responses": 8,
+        "tool_output_markers": [
+          {
+            "after_retained_response": 3,
+            "markers": [
+              "pytest_missing"
+            ],
+            "command_exit_code": 1
+          },
+          {
+            "after_retained_response": 5,
+            "markers": [
+              "public_assertion"
+            ],
+            "command_exit_code": 0
+          }
+        ],
+        "tracked_changed_files": [
+          "sympy/core/mod.py",
+          "sympy/core/tests/test_arit.py"
+        ],
+        "trajectory_sha256": "633c019aa16c45879b4884820ca9d174dbac8ba87664961e12972cf3fd5d77fe",
+        "trajectory_path": "work/m4-data/tool-prefix-round-3/sympy__sympy-15599/526bbbfb-6714-5e34-b168-c0cb11090eef/executions/9e7b537b-7c8d-50e1-9694-465435a5f50b/mini-trajectory.json"
+      },
+      {
+        "task": "sympy__sympy-15599",
+        "branch": "B-fresh",
+        "reward": 0,
+        "exit_status": "Submitted",
+        "api_requests": 6,
+        "retained_model_responses": 6,
+        "tool_output_markers": [
+          {
+            "after_retained_response": 3,
+            "markers": [
+              "pytest_missing"
+            ],
+            "command_exit_code": 1
+          },
+          {
+            "after_retained_response": 4,
+            "markers": [
+              "public_assertion"
+            ],
+            "command_exit_code": 0
+          }
+        ],
+        "tracked_changed_files": [
+          "sympy/core/mod.py",
+          "sympy/core/tests/test_arit.py"
+        ],
+        "trajectory_sha256": "0c692bc0443909eb970756aec6065170d2b1f8f2966128c93c9715bb424e4c08",
+        "trajectory_path": "work/m4-data/tool-prefix-round-3/sympy__sympy-15599/56314da0-2362-5751-bd2d-8ad92ce60cfe/executions/9a682235-3c64-5b06-91d6-18ca143edebd/mini-trajectory.json"
+      },
+      {
+        "task": "sympy__sympy-13091",
+        "branch": "B-fresh",
+        "reward": 0,
+        "exit_status": "Submitted",
+        "api_requests": 9,
+        "retained_model_responses": 9,
+        "tool_output_markers": [
+          {
+            "after_retained_response": 6,
+            "markers": [
+              "pytest_missing"
+            ],
+            "command_exit_code": 1
+          }
+        ],
+        "tracked_changed_files": [
+          "sympy/core/basic.py"
+        ],
+        "trajectory_sha256": "2b4a2ffa4bcffb597484dad8ab3ded47adfb566caedc9565aaf342cf1b6b03f0",
+        "trajectory_path": "work/m4-data/tool-prefix-round-3/sympy__sympy-13091/eb75d3e8-9189-5c29-9361-8c3ceec31f23/executions/3913f9c2-810f-556a-8beb-cd05dab71aad/mini-trajectory.json"
+      },
+      {
+        "task": "sympy__sympy-13091",
+        "branch": "B-workspace",
+        "reward": 0,
+        "exit_status": "LimitsExceeded",
+        "api_requests": 8,
+        "retained_model_responses": 8,
+        "tool_output_markers": [],
+        "tracked_changed_files": [
+          "sympy/core/basic.py",
+          "sympy/core/tests/test_basic.py"
+        ],
+        "trajectory_sha256": "e073940f62eecc2c52709e3698f18f86f3a8646ff65231e84b37e6338aaf5a25",
+        "trajectory_path": "work/m4-data/tool-prefix-round-3/sympy__sympy-13091/f618f4cd-75ca-59ae-8aa3-2363f4f5f4b1/executions/c684ee69-87e8-539e-847e-9deff620c64c/mini-trajectory.json"
+      },
+      {
+        "task": "sympy__sympy-13091",
+        "branch": "B-summary",
+        "reward": 0,
+        "exit_status": "Submitted",
+        "api_requests": 7,
+        "retained_model_responses": 7,
+        "tool_output_markers": [
+          {
+            "after_retained_response": 4,
+            "markers": [
+              "pytest_missing"
+            ],
+            "command_exit_code": 1
+          }
+        ],
+        "tracked_changed_files": [
+          "sympy/core/basic.py",
+          "sympy/core/tests/test_subs.py"
+        ],
+        "trajectory_sha256": "015f99c974c4dcf777fae9fe97f464cbd9cda946b83b4c028baa96d597c11a5c",
+        "trajectory_path": "work/m4-data/tool-prefix-round-3/sympy__sympy-13091/d42e328a-b718-5a00-89f0-7cf5039e16de/executions/66f7f808-d386-5212-8990-c261569046de/mini-trajectory.json"
+      }
+    ]
+  },
+  "mini_shell_observations": [
+    {
+      "task": "sympy__sympy-22914",
+      "branch": "B-workspace",
+      "environment": {
+        "type": "HarborDockerBridge",
+        "cwd": "/testbed",
+        "shell": "bash-login-timeout-v1",
+        "tool_timeout_seconds": 30,
+        "kill_grace_seconds": 2
+      },
+      "timeout_exit_observations": [],
+      "mpmath_import_error_outputs": 0,
+      "mapping_import_error_outputs": 0,
+      "pytest_missing_outputs": 1,
+      "trajectory_sha256": "7c96b93a5981feb97dfac9374bfc4612c8d2462d3cadbdb04bdaf9bfdbbe7fce"
+    },
+    {
+      "task": "sympy__sympy-22914",
+      "branch": "B-fresh",
+      "environment": {
+        "type": "HarborDockerBridge",
+        "cwd": "/testbed",
+        "shell": "bash-login-timeout-v1",
+        "tool_timeout_seconds": 30,
+        "kill_grace_seconds": 2
+      },
+      "timeout_exit_observations": [],
+      "mpmath_import_error_outputs": 0,
+      "mapping_import_error_outputs": 0,
+      "pytest_missing_outputs": 1,
+      "trajectory_sha256": "ad5042f6b7a8b0c4e4cb545465ddc8b0bcadbb553582df8f0b78a2e9d71dd2c3"
+    },
+    {
+      "task": "sympy__sympy-22914",
+      "branch": "B-summary",
+      "environment": {
+        "type": "HarborDockerBridge",
+        "cwd": "/testbed",
+        "shell": "bash-login-timeout-v1",
+        "tool_timeout_seconds": 30,
+        "kill_grace_seconds": 2
+      },
+      "timeout_exit_observations": [],
+      "mpmath_import_error_outputs": 0,
+      "mapping_import_error_outputs": 0,
+      "pytest_missing_outputs": 2,
+      "trajectory_sha256": "8293d9b0b65b71a223e483380a1b3534c28e64f8bc23ad7f38714a59fac019c9"
+    },
+    {
+      "task": "sympy__sympy-15599",
+      "branch": "B-summary",
+      "environment": {
+        "type": "HarborDockerBridge",
+        "cwd": "/testbed",
+        "shell": "bash-login-timeout-v1",
+        "tool_timeout_seconds": 30,
+        "kill_grace_seconds": 2
+      },
+      "timeout_exit_observations": [],
+      "mpmath_import_error_outputs": 0,
+      "mapping_import_error_outputs": 0,
+      "pytest_missing_outputs": 1,
+      "trajectory_sha256": "ad441cd7d3c584c9b595bffa8296bc0e04b00960c205fccad573c2c3ebb031f0"
+    },
+    {
+      "task": "sympy__sympy-15599",
+      "branch": "B-workspace",
+      "environment": {
+        "type": "HarborDockerBridge",
+        "cwd": "/testbed",
+        "shell": "bash-login-timeout-v1",
+        "tool_timeout_seconds": 30,
+        "kill_grace_seconds": 2
+      },
+      "timeout_exit_observations": [],
+      "mpmath_import_error_outputs": 0,
+      "mapping_import_error_outputs": 0,
+      "pytest_missing_outputs": 1,
+      "trajectory_sha256": "633c019aa16c45879b4884820ca9d174dbac8ba87664961e12972cf3fd5d77fe"
+    },
+    {
+      "task": "sympy__sympy-15599",
+      "branch": "B-fresh",
+      "environment": {
+        "type": "HarborDockerBridge",
+        "cwd": "/testbed",
+        "shell": "bash-login-timeout-v1",
+        "tool_timeout_seconds": 30,
+        "kill_grace_seconds": 2
+      },
+      "timeout_exit_observations": [],
+      "mpmath_import_error_outputs": 0,
+      "mapping_import_error_outputs": 0,
+      "pytest_missing_outputs": 1,
+      "trajectory_sha256": "0c692bc0443909eb970756aec6065170d2b1f8f2966128c93c9715bb424e4c08"
+    },
+    {
+      "task": "sympy__sympy-13091",
+      "branch": "B-fresh",
+      "environment": {
+        "type": "HarborDockerBridge",
+        "cwd": "/testbed",
+        "shell": "bash-login-timeout-v1",
+        "tool_timeout_seconds": 30,
+        "kill_grace_seconds": 2
+      },
+      "timeout_exit_observations": [],
+      "mpmath_import_error_outputs": 0,
+      "mapping_import_error_outputs": 0,
+      "pytest_missing_outputs": 1,
+      "trajectory_sha256": "2b4a2ffa4bcffb597484dad8ab3ded47adfb566caedc9565aaf342cf1b6b03f0"
+    },
+    {
+      "task": "sympy__sympy-13091",
+      "branch": "B-workspace",
+      "environment": {
+        "type": "HarborDockerBridge",
+        "cwd": "/testbed",
+        "shell": "bash-login-timeout-v1",
+        "tool_timeout_seconds": 30,
+        "kill_grace_seconds": 2
+      },
+      "timeout_exit_observations": [],
+      "mpmath_import_error_outputs": 0,
+      "mapping_import_error_outputs": 0,
+      "pytest_missing_outputs": 0,
+      "trajectory_sha256": "e073940f62eecc2c52709e3698f18f86f3a8646ff65231e84b37e6338aaf5a25"
+    },
+    {
+      "task": "sympy__sympy-13091",
+      "branch": "B-summary",
+      "environment": {
+        "type": "HarborDockerBridge",
+        "cwd": "/testbed",
+        "shell": "bash-login-timeout-v1",
+        "tool_timeout_seconds": 30,
+        "kill_grace_seconds": 2
+      },
+      "timeout_exit_observations": [],
+      "mpmath_import_error_outputs": 0,
+      "mapping_import_error_outputs": 0,
+      "pytest_missing_outputs": 1,
+      "trajectory_sha256": "015f99c974c4dcf777fae9fe97f464cbd9cda946b83b4c028baa96d597c11a5c"
+    },
+    {
+      "task": "scikit-learn__scikit-learn-9288",
+      "branch": "B-summary",
+      "environment": {
+        "type": "HarborDockerBridge",
+        "cwd": "/testbed",
+        "shell": "bash-login-timeout-v1",
+        "tool_timeout_seconds": 30,
+        "kill_grace_seconds": 2
+      },
+      "timeout_exit_observations": [
+        {
+          "message_index": 15,
+          "exit_code": 124,
+          "later_api_responses": 1
+        }
+      ],
+      "mpmath_import_error_outputs": 0,
+      "mapping_import_error_outputs": 0,
+      "pytest_missing_outputs": 0,
+      "trajectory_sha256": "56fc5966583f35222b52b6f5ae97509b8eab1c40f42521b7ecbe16a39e1e58f8"
+    },
+    {
+      "task": "scikit-learn__scikit-learn-9288",
+      "branch": "B-workspace",
+      "environment": {
+        "type": "HarborDockerBridge",
+        "cwd": "/testbed",
+        "shell": "bash-login-timeout-v1",
+        "tool_timeout_seconds": 30,
+        "kill_grace_seconds": 2
+      },
+      "timeout_exit_observations": [],
+      "mpmath_import_error_outputs": 0,
+      "mapping_import_error_outputs": 0,
+      "pytest_missing_outputs": 0,
+      "trajectory_sha256": "75649062e1fbebd065fbfcd3b4d60031320e160f62c3171b25f05ccd43bf0eab"
+    },
+    {
+      "task": "scikit-learn__scikit-learn-9288",
+      "branch": "B-fresh",
+      "environment": {
+        "type": "HarborDockerBridge",
+        "cwd": "/testbed",
+        "shell": "bash-login-timeout-v1",
+        "tool_timeout_seconds": 30,
+        "kill_grace_seconds": 2
+      },
+      "timeout_exit_observations": [
+        {
+          "message_index": 17,
+          "exit_code": 124,
+          "later_api_responses": 3
+        }
+      ],
+      "mpmath_import_error_outputs": 0,
+      "mapping_import_error_outputs": 0,
+      "pytest_missing_outputs": 0,
+      "trajectory_sha256": "dd5b897bcd24a33f7a3d970374c6a9b6b87b1150f2ccf52203386fd4bde53eca"
+    }
+  ],
+  "interpretation": {
+    "independent_tasks": 4,
+    "graded_observations": 16,
+    "prefix_already_solved": 0,
+    "unfinished_prefix_tasks": [
+      "sympy__sympy-22914",
+      "sympy__sympy-15599",
+      "sympy__sympy-13091",
+      "scikit-learn__scikit-learn-9288"
+    ],
+    "unfinished_prefix_final_success": {
+      "A-continue": 4,
+      "B-workspace": 2,
+      "B-summary": 2,
+      "B-fresh": 2
+    },
+    "source_workspace_changes": [
+      {
+        "task": "sympy__sympy-22914",
+        "git_status": []
+      },
+      {
+        "task": "sympy__sympy-15599",
+        "git_status": []
+      },
+      {
+        "task": "sympy__sympy-13091",
+        "git_status": []
+      },
+      {
+        "task": "scikit-learn__scikit-learn-9288",
+        "git_status": []
+      }
+    ],
+    "unfinished_with_tracked_patch": [],
+    "unfinished_without_tracked_patch": [
+      "sympy__sympy-22914",
+      "sympy__sympy-15599",
+      "sympy__sympy-13091",
+      "scikit-learn__scikit-learn-9288"
+    ],
+    "regressions": [],
+    "limits": [
+      "Joint command-timeout and prefix-notification revision; effects not isolated.",
+      "Development tasks reused after inspecting failures, not held-out confirmation.",
+      "Four independent tasks, not sixteen independent samples.",
+      "Model and scaffold change together; subscription dollar cost unknown.",
+      "Hidden source grades run only after all branches and cleanup; no selection or feedback.",
+      "All tasks retained; no automatic paid retries.",
+      "All Kubernetes nodes share one physical ARM64 host; task images are AMD64."
+    ]
+  },
+  "zero_model_checks": {
+    "unit_mocked_tests": {
+      "passed": 225,
+      "skipped": 1,
+      "skip_reason": "legacy Docker test requires opt-in"
+    },
+    "postrun_analysis_tests": {
+      "passed": 226,
+      "skipped": 1,
+      "actual_round_aggregate_unchanged": true
+    },
+    "postrun_verifier_tests": {
+      "passed": 226,
+      "skipped": 1,
+      "model_calls": 0,
+      "scope": "ownership fix after frozen real-model run"
+    },
+    "runner_source_files_matched": 53,
+    "node_runner_digests": [
+      "docker.io/library/rtv-m4-runner@sha256:ddb0551c72b03d71ed2b43a3f14b7399156938230b995c90217c8215f5dc6cf1",
+      "docker.io/library/rtv-m4-runner@sha256:ddb0551c72b03d71ed2b43a3f14b7399156938230b995c90217c8215f5dc6cf1",
+      "docker.io/library/rtv-m4-runner@sha256:ddb0551c72b03d71ed2b43a3f14b7399156938230b995c90217c8215f5dc6cf1"
+    ],
+    "credential_projection_checks": {
+      "codex_pod_succeeded": true,
+      "codex_projection": true,
+      "codex_mode_0400": true,
+      "codex_adapter_only": true,
+      "codex_no_serviceaccount": true,
+      "codex_no_model_client": true,
+      "codex_assigned_node": true,
+      "mini_pod_succeeded": true,
+      "mini_projection": true,
+      "mini_mode_0400": true,
+      "mini_adapter_only": true,
+      "mini_no_serviceaccount": true,
+      "mini_no_model_client": true,
+      "mini_assigned_node": true,
+      "jobs_and_pods_removed": true,
+      "sentinel_secrets_removed": true,
+      "no_sentinel_in_artifacts": true
+    },
+    "sandbox_timeout_probe": {
+      "model_calls": 0,
+      "images": [
+        {
+          "task": "sympy__sympy-22914",
+          "version": "timeout (GNU coreutils) 8.32",
+          "image": "sha256:617df833249959a54991bca0a5128bceb3fa84fb12884361eeaa1e3d6d3a595f"
+        },
+        {
+          "task": "sympy__sympy-15599",
+          "version": "timeout (GNU coreutils) 8.32",
+          "image": "sha256:f0a871eaf55e213d1efa0136afc04df03ad665b2dc88b552981fa8e8fd62da5a"
+        },
+        {
+          "task": "sympy__sympy-13091",
+          "version": "timeout (GNU coreutils) 8.32",
+          "image": "sha256:a63e1a19cd3c96e9d9b1b34c5735f9823f6a3ae394c67c9bd3d20dcba7bd8a19"
+        },
+        {
+          "task": "scikit-learn__scikit-learn-9288",
+          "version": "timeout (GNU coreutils) 8.32",
+          "image": "sha256:71090a47b582d6dac83e95961842eeee8f854de29d02856beb3fc618622f4236"
+        }
+      ],
+      "term_resistant_process_group": {
+        "command_deadline_seconds": 30,
+        "kill_grace_seconds": 2,
+        "observed_command_exit_code": 137,
+        "descendant_marker_absent_after_37_seconds": true,
+        "elapsed_seconds": 38.37
+      },
+      "transport_timeout_seconds": 40,
+      "future_timeout_seconds": 50
+    },
+    "runtime_notice_scripted_model_probe": {
+      "mode": "real-cli-container-scripted-model",
+      "paid_api_calls": 0,
+      "real_model_calls": 0,
+      "image_id": "sha256:617df833249959a54991bca0a5128bceb3fa84fb12884361eeaa1e3d6d3a595f",
+      "cli_version": "0.160.1",
+      "gate_version": "codex-tools-v2",
+      "network": "none",
+      "checks": {
+        "workspace_restored": true,
+        "native_session_preserved": true,
+        "exact_tool_allowance": true,
+        "excess_tool_denied": true,
+        "fresh_container_continuation": true,
+        "no_surviving_agent_processes": true
+      },
+      "status": "passed",
+      "prefix": {
+        "session_id": "01a132f1-0b27-77c3-8c60-f2b3f661a9a3",
+        "fixture_responses": 4,
+        "boundary": {
+          "policy": {
+            "version": "codex-tools-v2",
+            "max_tools": 2
+          },
+          "admitted_tools": 2,
+          "completed_tools": 2,
+          "denied_tools": 1,
+          "trigger": "tool_budget",
+          "receipt_sha256": "c5332304a63800df1a9f66260de4a7633e0e1ae16e41d6dd63f03d7ced775619",
+          "boundary": "cooperative completed turn; sandbox quiescence still required"
+        }
+      },
+      "containers_removed": 2
+    }
+  },
+  "secret_scan": {
+    "scope": "original API key and original Codex access/refresh/ID token values in regular round artifact files; account metadata excluded",
+    "regular_files": 167795,
+    "bytes_scanned": 12626659457,
+    "matching_files": 0,
+    "elapsed_seconds": 32.53,
+    "not_claimed": "Absence of all possible refreshed tokens or identifying account metadata"
+  },
+  "cleanup": {
+    "jobs_remaining": [],
+    "experiment_pods_remaining": [],
+    "model_secrets_remaining": [],
+    "diagnostic_containers_remaining": [],
+    "nodes_ready": {
+      "k3d-rtv-m4-agent-0": true,
+      "k3d-rtv-m4-agent-1": true,
+      "k3d-rtv-m4-server-0": true
+    },
+    "database_pod_retained": true
+  },
+  "source_artifacts": [
+    {
+      "path": "docs/evidence/m4-early-prefix-development-arm64-20261012.json",
+      "sha256": "2276ca138f9c177239597f0a477182da68de710fb7655362009fedac088a0ff6"
+    },
+    {
+      "path": "work/m4-control/tool-prefix-round-3/analysis.json",
+      "sha256": "60c462fb5e9681e077f749fdb69e141e22c18c30a4d1073b53a5b5149e293ee0"
+    },
+    {
+      "path": "work/m4-control/tool-prefix-round-3/before-cost-precedence-analysis.json",
+      "sha256": "60c462fb5e9681e077f749fdb69e141e22c18c30a4d1073b53a5b5149e293ee0"
+    },
+    {
+      "path": "work/m4-control/tool-prefix-round-3/budget-approval.json",
+      "sha256": "7ebb802e2e5c2077d7600065816985b25842f3e9fd7cecc73603afff44d8ef59"
+    },
+    {
+      "path": "work/m4-control/tool-prefix-round-3/cleanup.json",
+      "sha256": "c873c69ee76b4cfbdc80533de2b5bb8c7f0215919418b14edf68769eacf4279f"
+    },
+    {
+      "path": "work/m4-control/tool-prefix-round-3/diagnose-current.py",
+      "sha256": "573b078b21f184d30b8af8b8f96120ae69da68a080f2e1bbb9708e5e98fb6942"
+    },
+    {
+      "path": "work/m4-control/tool-prefix-round-3/failure-diagnostics.json",
+      "sha256": "8c03d9ad8d9b828bccaea070dc039d200abc58867373771837a9fe626e1b05cd"
+    },
+    {
+      "path": "work/m4-control/tool-prefix-round-3/frozen-manifest.json",
+      "sha256": "96b0f8e32fae75bc90d59c69b1aa12809e089b0269727daaeccf8ff35d7251ac"
+    },
+    {
+      "path": "work/m4-control/tool-prefix-round-3/postrun-regression.log",
+      "sha256": "e41c72655f314cc788b7e45211006b78a786081107dd26c93596931b6665c54b"
+    },
+    {
+      "path": "work/m4-control/tool-prefix-round-3/postrun-verifier-regression.log",
+      "sha256": "6ae3e8228859f2ad733393eaf13ede3bb9332226be7c6fc2b073a296d7f67932"
+    },
+    {
+      "path": "work/m4-control/tool-prefix-round-3/prefix-diagnostic-audit.json",
+      "sha256": "9e2b3b3c7065670b9ed23672d1b04f04ac2c1e7deb7d105c55318357803f3208"
+    },
+    {
+      "path": "work/m4-control/tool-prefix-round-3/records.jsonl",
+      "sha256": "4feaa730dc528415e92df97929959887f1cf70f930c2d597f4b6d17edcfc7d9d"
+    },
+    {
+      "path": "work/m4-control/tool-prefix-round-3/regression.log",
+      "sha256": "1e7a7f8860e1d430e842afe7f813a53b6c4a06a7938b79dc0cb1f786c5243897"
+    },
+    {
+      "path": "work/m4-control/tool-prefix-round-3/round-audit.json",
+      "sha256": "dabe77d091936fddfdb3e070f53e863ad21effbba25bc2288837b47a32f630df"
+    },
+    {
+      "path": "work/m4-control/tool-prefix-round-3/runner-audit.json",
+      "sha256": "b31189191824a85b3be7afb0a0554cce61479ea2c2f9c9e8b15e37538505a7eb"
+    },
+    {
+      "path": "work/m4-control/tool-prefix-round-3/runtime-notice-probe.json",
+      "sha256": "617caa503543a5e5708a174c3044a82cfda94a63aaa7ff8423da8b80ae7f23af"
+    },
+    {
+      "path": "work/m4-control/tool-prefix-round-3/scikit-learn__scikit-learn-9288-plan.json",
+      "sha256": "14d1c31f3c3e5a3477d5fe42de4fb0d2fce40eee85b3bf40441531758d1b3c29"
+    },
+    {
+      "path": "work/m4-control/tool-prefix-round-3/secret-scan.json",
+      "sha256": "e6287f28274691d286440857b61e4b407756d4e7ec3a9583eecbdc53b4308fbf"
+    },
+    {
+      "path": "work/m4-control/tool-prefix-round-3/sympy__sympy-13091-plan.json",
+      "sha256": "c9d7736dd195418c2c5aacd8e76259cc1e6c5737930c0cbd6bd033f655ec4111"
+    },
+    {
+      "path": "work/m4-control/tool-prefix-round-3/sympy__sympy-15599-plan.json",
+      "sha256": "8ca79da7a07dd59305879542da795bbd26582f1481b226b71931c4ac0320bfcc"
+    },
+    {
+      "path": "work/m4-control/tool-prefix-round-3/sympy__sympy-22914-plan.json",
+      "sha256": "7d8ba314dea6727ca2c257b9983fccb17cd45f60d2f688a1cd314dd190a689d9"
+    },
+    {
+      "path": "work/m4-control/tool-prefix-round-3/timeout-probe.json",
+      "sha256": "172b86c6372b9e547b6dd8d815f2c2e0b41f339fce9511a55621db2c170cd18a"
+    },
+    {
+      "path": "work/m4-control/tool-prefix-round-3/verifier-ownership-fix.json",
+      "sha256": "ea57d34fb18d84315ade622616eee0900b7f0d1806ff72e32d6ddbdc89142952"
+    },
+    {
+      "path": "work/m4-data/credentials-probe-tool-prefix-v3/report.json",
+      "sha256": "a917a6d80fe0ef16c7beb1ce0d63a7dfca574329b7d9906f198507a414a930bc"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-3/posthoc-prefix-diagnostics/report.json",
+      "sha256": "24c9fdf9b24370e72be674b68e7608a61ce0692fb0a2328724c773898ef198ad"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-3/posthoc-prefix-ownership-fix/report.json",
+      "sha256": "9c0a484a24f79d239d9ee8eebd0b47e2db9f1dedd5656eea361baa03abea03cf"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-3/scikit-learn__scikit-learn-9288/observations/414f9237-f331-55fe-b38e-e25496e2e2ed.json",
+      "sha256": "ca3727d82ebd29ce82b1b8c8faced85055b05cd4b4b14867ae23df003e134594"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-3/scikit-learn__scikit-learn-9288/observations/461f3365-8985-5198-917f-57c090fd6f91.json",
+      "sha256": "446c596ff07d825020bf969fcdf8d2daa1f21cca486cc0c71e104a2207becd9c"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-3/scikit-learn__scikit-learn-9288/observations/60f16dbb-ce8c-5210-ad77-fefb51316360.json",
+      "sha256": "228d5383d19ab7ed6d057f2ac1c41d6c0e94e88a2c03029378c9fed452498595"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-3/scikit-learn__scikit-learn-9288/observations/709934ab-18c1-5dea-b784-725972c94b31.json",
+      "sha256": "d07d863081a86acacaf4f090a3faf13e1a997e9cf3fe6ad55e72a405f254c523"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-3/scikit-learn__scikit-learn-9288/observations/70d347c4-866a-5f2f-8934-5860f73d7663.json",
+      "sha256": "db4f4b0c35013fdeca272ec5755bc5cdb3fd5752df0d77994ce6a0dd5184ad16"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-3/scikit-learn__scikit-learn-9288/observations/provenance.json",
+      "sha256": "63d824890ebba1f4c5aeda37a9b01db84fba0970ab52388558603897cf6df06a"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-3/scikit-learn__scikit-learn-9288/observations/records.jsonl",
+      "sha256": "01311aa35b26ca295d7722602b7af8b151163debf3c295c0ebc2718521c13e72"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-3/scikit-learn__scikit-learn-9288/observations/run.json",
+      "sha256": "2a157a446aa3bad0402573bf221ddcc40b60b4837fbf32015ea1717a6fa36191"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-3/scikit-learn__scikit-learn-9288/observations/source-checkpoint.json",
+      "sha256": "8f67062a580e2ffd897c9283e1df0014f17ed5a657daa147000c754afef2c747"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-3/scikit-learn__scikit-learn-9288/report.json",
+      "sha256": "cdfde646bdcb75cb409765965841b4988e56622a5f8146e1c759504f6d353fd5"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-3/sympy__sympy-13091/observations/12bc80f9-fba4-5201-8b33-8e2b2db71695.json",
+      "sha256": "f584f4babb186d7646b8323e113009c062e92cc5a3b7d43ab9b7d0ee67fde060"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-3/sympy__sympy-13091/observations/b4fb1127-83f4-5f4c-9b6f-84bbdfbdbc80.json",
+      "sha256": "bd1d4f9971049926d62923ccf3d044f0ab8d1e71cd8a4b6ab0cdb92806997a5f"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-3/sympy__sympy-13091/observations/d42e328a-b718-5a00-89f0-7cf5039e16de.json",
+      "sha256": "381f6ebb94d6677d5762ddb359caeda6e6f51b8c88b1ac537fb4a66bbca04516"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-3/sympy__sympy-13091/observations/eb75d3e8-9189-5c29-9361-8c3ceec31f23.json",
+      "sha256": "f4d0d79af86b1af9c35fa1d696b3b836f8ae58fde5aa8a271504f601b3333911"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-3/sympy__sympy-13091/observations/f618f4cd-75ca-59ae-8aa3-2363f4f5f4b1.json",
+      "sha256": "33f771e731dafe1449a4252c5884ec6bc20ed9db4350079e117400eaeff2b885"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-3/sympy__sympy-13091/observations/provenance.json",
+      "sha256": "028853080d354ff82fdc47004845e9675f9523655255aafaf50399e602fef58a"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-3/sympy__sympy-13091/observations/records.jsonl",
+      "sha256": "ab4708150ef278b4d4df6827fa20d1568435ad102f1e5e7fa3bc986b58bdb4a2"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-3/sympy__sympy-13091/observations/run.json",
+      "sha256": "c1032ec1e865763cd8edbe99fcbec0731521e1580e7c5aca358a0f10d69b3988"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-3/sympy__sympy-13091/observations/source-checkpoint.json",
+      "sha256": "cdc74b05930d472bec5d2f06af962bea9a3c394c43ca1d59c3aefe5aa9b3c80d"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-3/sympy__sympy-13091/report.json",
+      "sha256": "fdf285226ed412374aeb3f827ee83cd5e805f68b840bcbec52601aedd2ea4d2f"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-3/sympy__sympy-15599/observations/25d6a1af-916f-5f69-9976-523067a69a0b.json",
+      "sha256": "7b07423cbbf1ea2debad68228f7a03470377f28082d5db18c38787df7590d060"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-3/sympy__sympy-15599/observations/526bbbfb-6714-5e34-b168-c0cb11090eef.json",
+      "sha256": "e18f62d8d5345a5c10a3a0f88d4bc91d0ab253ab6e43a9dc18c2749e6a054a54"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-3/sympy__sympy-15599/observations/56314da0-2362-5751-bd2d-8ad92ce60cfe.json",
+      "sha256": "8b173645c374adc9083d9042159319e920f1331cfe5f076eecfcd78fb008d671"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-3/sympy__sympy-15599/observations/76d79308-d6b4-56bd-a7c7-c5343f5f76a6.json",
+      "sha256": "dbc77ec71b7d96dcacc4f09d4b2ccee5efa56cbc5a28d4511d56bc19d226004a"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-3/sympy__sympy-15599/observations/ce3cc5f2-ecb6-5ca8-aa76-0f31c8c21ef7.json",
+      "sha256": "d3b4ea7f142a624d6f1d33e443d6cd81bb49da4dd5277742bc2e94b12c30772e"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-3/sympy__sympy-15599/observations/provenance.json",
+      "sha256": "9e383f57aa87235970b0db471ab87c3a3d179e97fdeaf49370f88765df4eb166"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-3/sympy__sympy-15599/observations/records.jsonl",
+      "sha256": "f06ab7637ddeeb198cf150e608b424683777cc8354426bda148c986e5489ec70"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-3/sympy__sympy-15599/observations/run.json",
+      "sha256": "5d719e447d634ae43e836209d8a15a643f1368d52e08feb8dedc1fff85b491ef"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-3/sympy__sympy-15599/observations/source-checkpoint.json",
+      "sha256": "268f70b10c2f7a8f34396ee8d82eed00b6a5a9ab2636dde33a7885447de200ca"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-3/sympy__sympy-15599/report.json",
+      "sha256": "2bac6c1ba2fb9bf5eabc821322508153b3e4a0c0178e6560071dcff3dd79e0a0"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-3/sympy__sympy-22914/observations/04dd8214-0f1f-5705-b148-da93c29d1ab0.json",
+      "sha256": "d833fc92eb6c10b4daf957e10a0993ac0bb4852fc76426d129f81f282935a565"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-3/sympy__sympy-22914/observations/29de3191-1716-5ce2-8ced-e812486c63e2.json",
+      "sha256": "04975690e9d0dc2fcc11675ddb7cbc57c21ce2849c8e577b6f98eeae003bb257"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-3/sympy__sympy-22914/observations/42b66d0c-b712-597e-ba35-d2bfa81c9f82.json",
+      "sha256": "858489c86fa9c332a29c62ccd0fccbe18c0ff8fa7cbbb3632ceac1c75b785e9f"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-3/sympy__sympy-22914/observations/b8bd9bd9-6747-5f12-adbf-d7d4a47d5861.json",
+      "sha256": "d7f5a0a34064f184db810a6e22efb0fa930b58a1989c4d589d824a4fc54b1e83"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-3/sympy__sympy-22914/observations/ee29cfe5-d6f4-5229-8add-e85ee7f6ed89.json",
+      "sha256": "f9002fbdbfdf3997cc079ccc39f0b24557d74726a1a66031812142075bde7e7b"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-3/sympy__sympy-22914/observations/provenance.json",
+      "sha256": "b1fd9f880fdc1eaa1f5970e8b463db5d68ce41dcc5c0bba64d47194c4d3f0818"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-3/sympy__sympy-22914/observations/records.jsonl",
+      "sha256": "64fba41ce9ab0b10e811fb1de8776fbafcf4cc34bd94640dfbeb61f87c01bee5"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-3/sympy__sympy-22914/observations/run.json",
+      "sha256": "8a186b0ca1564ea5adf4f06999165f101aaa5b4615cf728ece3502616857d35d"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-3/sympy__sympy-22914/observations/source-checkpoint.json",
+      "sha256": "f6047d2c9e376333929d192548c73e4ba47c769f5f4edff9ce96aa5449c5c015"
+    },
+    {
+      "path": "work/m4-data/tool-prefix-round-3/sympy__sympy-22914/report.json",
+      "sha256": "67b41db00df7498425bc44e1d9d1c4905d2456bd77b136705ec10ef29c1b9e75"
+    }
+  ],
+  "raw_artifacts_policy": "Full trajectories, workspaces and account metadata stay in ignored work/; no credentials or full trajectories in published evidence."
+}
