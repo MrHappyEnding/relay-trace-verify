@@ -4,6 +4,7 @@ import argparse
 import hashlib
 import json
 import re
+import shutil
 import subprocess
 import time
 from pathlib import Path
@@ -22,10 +23,8 @@ def main(args):
     plan = load(args.plan)
     audit(plan, catalog_for(args.plan), args.upstream)
     task = next(t for t in plan["tasks"] if t["instance_id"] == args.task)
-    if task["split"] != "pilot":
-        raise ValueError(
-            "Preflight is restricted to the development split; do not inspect eval outcomes"
-        )
+    if task["split"] != args.split:
+        raise ValueError("Task does not belong to the explicitly requested split")
     args.output.mkdir(parents=True, exist_ok=False)
     source = args.upstream / task["harbor_path"]
     build = args.output / "build"
@@ -41,10 +40,18 @@ def main(args):
     )
     if count != 1:
         raise ValueError("Expected one pinned base image")
+    shutil.copy2(source / "tests/config.json", build / "config.json")
+    helper = Path(__file__).resolve().parents[1] / "infra/m4/offline-verifier"
+    shutil.copytree(helper, build / "offline-http")
     dockerfile += (
         "\nCOPY parser.py /parser.py\n"
         "RUN /root/.local/bin/uv lock --script /parser.py --python 3.11 "
         "&& /root/.local/bin/uv sync --locked --script /parser.py --python 3.11\n"
+        "COPY offline-http /opt/rtv-offline-http\n"
+        "RUN --mount=type=bind,source=config.json,target=/rtv-build-config.json "
+        "PYTHONPATH=/opt/rtv-offline-http RTV_CACHE_RECORD=1 "
+        "/root/.cache/uv/environments-v2/parser-*/bin/python /opt/rtv-offline-http/warm.py\n"
+        "ENV PYTHONPATH=/opt/rtv-offline-http\n"
         "ENV UV_OFFLINE=1 PIP_NO_INDEX=1 UV_PYTHON_DOWNLOADS=never\n"
     )
     (build / "Dockerfile").write_text(dockerfile)
@@ -56,7 +63,8 @@ def main(args):
         "task": task["instance_id"],
         "platform": task["image"]["platform"],
         "base_image": task["image"]["pinned"],
-        "scope": "development task verifier/environment only; no agent efficacy or relay evidence",
+        "scope": "verifier/environment controls only; no policy tuning or agent efficacy evidence",
+        "split": args.split,
         "status": "failed",
         "controls": {},
         "cleanup": [],
@@ -170,6 +178,14 @@ def main(args):
                     cid + ":/tests",
                     capture_output=True,
                 )
+                if control == "unmodified":
+                    command(
+                        "docker",
+                        "cp",
+                        cid + ":/opt/rtv-offline-http",
+                        str(args.output / "offline-http"),
+                        capture_output=True,
+                    )
                 if control == "oracle":
                     command(
                         "docker",
@@ -241,6 +257,7 @@ if __name__ == "__main__":
     p.add_argument(
         "--plan", type=Path, default=Path("configs/benchmarks/swebench-verified-v1.json")
     )
+    p.add_argument("--split", choices=["pilot", "evaluation"], default="pilot")
     p.add_argument("--upstream", required=True, type=Path)
     p.add_argument("--task", required=True)
     p.add_argument("--output", required=True, type=Path)

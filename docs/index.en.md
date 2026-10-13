@@ -23,5 +23,6 @@ The README presents current capabilities. These documents retain implementation 
 | [Development record: round two](m4-early-prefix.en.md) | Environment correction and partial-patch handoff |
 | [Development record: round three](m4-runtime-notice.en.md) | Runtime notification, command timeout, and complete grading |
 | [Real-agent fault recovery](m4-model-recovery.en.md) | One executor loss, native session recovery, and resource cleanup |
+| [Evaluation execution](m4-evaluation.en.md) | Frozen assignments, cumulative admission, interruption protection and archival |
 
 Start with [demo and deployment](demo.en.md), [system design](design.en.md), or the [roadmap](roadmap.en.md). Sanitized evidence summaries live in [evidence/](evidence/); full trajectories, credentials, images, and large artifacts stay outside Git.

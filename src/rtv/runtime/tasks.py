@@ -16,8 +16,8 @@ def validate_contract(value):
         raise ValueError("Task contract changed or has an unsupported version")
     if value.get("kind") != "swebench" or value.get("workspace") != "/testbed":
         raise ValueError("Unsupported real-repository workspace contract")
-    if value.get("platform") != "linux/amd64" or value.get("split") != "pilot":
-        raise ValueError("Only pinned AMD64 development tasks are enabled at this stage")
+    if value.get("platform") != "linux/amd64" or value.get("split") not in {"pilot", "evaluation"}:
+        raise ValueError("Only pinned AMD64 benchmark tasks are supported")
     if value.get("workspace_excludes") != [".DS_Store"]:
         raise ValueError("Repository workspace exclusions must be explicit")
     if not Path(value["task_directory"]).is_absolute():
@@ -109,7 +109,7 @@ def scripted_commands(spec, partial=False):
     return commands
 
 
-def prepare_contract(plan, upstream, instance_id, preflight, agent_image=None):
+def prepare_contract(plan, upstream, instance_id, preflight, agent_image=None, *, split="pilot"):
     from rtv.benchmark.protocol import environment_protocol, load
     from rtv.benchmark.source import audit, catalog_for
     from rtv.harbor_probe import _docker
@@ -119,7 +119,8 @@ def prepare_contract(plan, upstream, instance_id, preflight, agent_image=None):
     selected = next(t for t in protocol["tasks"] if t["instance_id"] == instance_id)
     report = json.loads(Path(preflight).read_text())
     if (
-        selected["split"] != "pilot"
+        selected["split"] != split
+        or split not in {"pilot", "evaluation"}
         or report.get("status") != "passed"
         or report.get("task") != instance_id
         or report.get("protocol_sha256") != environment_protocol(protocol)
@@ -128,7 +129,7 @@ def prepare_contract(plan, upstream, instance_id, preflight, agent_image=None):
             report.get("controls", {}).get(k, {}).get("passed") for k in ("unmodified", "oracle")
         )
     ):
-        raise ValueError("A matching passed development-task preflight is required")
+        raise ValueError("A matching passed task preflight in the requested split is required")
     verifier = report["verifier_image_id"]
     image = agent_image or verifier
     images = []
@@ -142,7 +143,7 @@ def prepare_contract(plan, upstream, instance_id, preflight, agent_image=None):
         "schema_version": 1,
         "kind": "swebench",
         "instance_id": instance_id,
-        "split": "pilot",
+        "split": split,
         "protocol_sha256": environment_protocol(protocol),
         "task_directory": str(task),
         "task_digest": tree_digest(task),

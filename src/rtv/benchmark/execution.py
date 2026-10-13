@@ -11,7 +11,7 @@ from rtv.runtime.store import identity, spec_hash
 from rtv.runtime.tasks import contract
 
 
-def prepare_pair(protocol, source_spec, root, repeat=0, *, mode="oracle"):
+def prepare_pair(protocol, source_spec, root, repeat=0, *, mode="oracle", split="pilot"):
     from rtv.codex_agent import DEFAULT_MODEL
     from rtv.mini_agent import MINI_MODEL, api_envelope
 
@@ -19,6 +19,8 @@ def prepare_pair(protocol, source_spec, root, repeat=0, *, mode="oracle"):
     declared = contract(source_spec)
     if not declared or declared["protocol_sha256"] != environment_protocol(protocol):
         raise ValueError("Repository task does not match the frozen protocol")
+    if declared["split"] != split or split not in {"pilot", "evaluation"}:
+        raise ValueError("Task split differs from the requested benchmark assignment")
     if mode not in {"oracle", "real-model"}:
         raise ValueError("Unsupported pilot evidence mode")
     real = mode == "real-model"
@@ -41,7 +43,7 @@ def prepare_pair(protocol, source_spec, root, repeat=0, *, mode="oracle"):
         raise ValueError("Real pilot requires pinned Codex, isolated verification and no controls")
     schedule = [
         r
-        for r in matrix(protocol, "pilot")
+        for r in matrix(protocol, split)
         if r["instance_id"] == declared["instance_id"] and r["repeat"] == repeat
     ]
     if len(schedule) != 4:
@@ -100,7 +102,7 @@ def prepare_pair(protocol, source_spec, root, repeat=0, *, mode="oracle"):
     body = {
         "schema_version": 1,
         "mode": mode,
-        "split": "pilot",
+        "split": split,
         "root": root,
         "protocol_sha256": protocol["protocol_sha256"],
         "source": {
@@ -116,7 +118,12 @@ def prepare_pair(protocol, source_spec, root, repeat=0, *, mode="oracle"):
 def validate_run(protocol, run):
     # Reconstruct all assignments, identities and budgets, not just a caller-supplied hash.
     expected = prepare_pair(
-        protocol, run["source"]["spec"], run["root"], run["entries"][0]["repeat"], mode=run["mode"]
+        protocol,
+        run["source"]["spec"],
+        run["root"],
+        run["entries"][0]["repeat"],
+        mode=run["mode"],
+        split=run["split"],
     )
     if expected != run:
         raise ValueError("Frozen runtime assignment changed")
@@ -279,7 +286,7 @@ def collect(protocol, run, store, output):
         )
     records_path = output / "records.jsonl"
     records_path.write_text("".join(json.dumps(r, sort_keys=True) + "\n" for r in records))
-    report = analyze(protocol, records, "pilot", mode=run["mode"])
+    report = analyze(protocol, records, run["split"], mode=run["mode"])
     export(report, output / "analysis", plan=protocol, records=records_path)
     provenance = {
         "run_sha256": run["run_sha256"],

@@ -49,7 +49,9 @@ def prepare(args):
     if args.api_envelope != "mini-40kb-v1":
         spec["api_envelope"] = args.api_envelope
     envelope = api_envelope(spec)
-    run = prepare_pair(load(args.protocol), spec, root, mode="real-model")
+    run = prepare_pair(
+        load(args.protocol), spec, root, args.repeat, mode="real-model", split=args.split
+    )
     body = {
         "schema_version": 1,
         "config": str(args.config.resolve()),
@@ -283,6 +285,8 @@ if __name__ == "__main__":
     prep = sub.add_parser("prepare")
     for name in ("config", "contract", "root", "output"):
         prep.add_argument("--" + name, type=Path, required=True)
+    prep.add_argument("--split", choices=["pilot", "evaluation"], default="pilot")
+    prep.add_argument("--repeat", type=int, default=0)
     prep.add_argument("--protocol", type=Path, default=DEFAULT_PLAN)
     prep.add_argument("--api-envelope", choices=API_ENVELOPES, default="mini-40kb-v1")
     launch = sub.add_parser("run")

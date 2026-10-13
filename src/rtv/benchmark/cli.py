@@ -19,6 +19,7 @@ def add_parser(commands):
     materialize = sub.add_parser("materialize")
     materialize.add_argument("--output", type=Path, required=True)
     prepare = sub.add_parser("prepare-task", help="Bind a passed pilot preflight to local images")
+    prepare.add_argument("--split", choices=["pilot", "evaluation"], default="pilot")
     prepare.add_argument("--upstream", type=Path, required=True)
     prepare.add_argument("--task", required=True)
     prepare.add_argument("--preflight", type=Path, required=True)
@@ -51,7 +52,7 @@ def run(args):
         from rtv.runtime.tasks import prepare_contract
 
         result = prepare_contract(
-            args.plan, args.upstream, args.task, args.preflight, args.agent_image
+            args.plan, args.upstream, args.task, args.preflight, args.agent_image, split=args.split
         )
         args.output.parent.mkdir(parents=True, exist_ok=True)
         with args.output.open("x") as stream:

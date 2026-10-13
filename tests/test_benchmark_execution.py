@@ -15,9 +15,9 @@ from rtv.benchmark.protocol import digest, load, matrix
 from rtv.harbor_probe import tree_digest
 
 
-def pair(tmp_path):
+def pair(tmp_path, split="pilot", repeat=0):
     protocol = load()
-    task = next(t for t in protocol["tasks"] if t["split"] == "pilot")
+    task = next(t for t in protocol["tasks"] if t["split"] == split)
     source = tmp_path / "task"
     source.mkdir()
     (source / "instruction.md").write_text("mock public issue")
@@ -25,7 +25,7 @@ def pair(tmp_path):
         schema_version=1,
         kind="swebench",
         instance_id=task["instance_id"],
-        split="pilot",
+        split=split,
         workspace="/testbed",
         workspace_excludes=[".DS_Store"],
         platform="linux/amd64",
@@ -50,7 +50,7 @@ def pair(tmp_path):
         scripted_source=["true"],
         scripted_target=["true"],
     )
-    return protocol, prepare_pair(protocol, spec, tmp_path / "runtime")
+    return protocol, prepare_pair(protocol, spec, tmp_path / "runtime", repeat, split=split)
 
 
 class MockStore:
@@ -234,3 +234,15 @@ def test_tool_prefix_cannot_reuse_preflight_after_task_change():
     )
     with pytest.raises(ValueError, match="environment lineage"):
         validate(protocol)
+
+
+def test_evaluation_repeat_collects_against_full_frozen_evaluation(tmp_path):
+    protocol, run = pair(tmp_path, "evaluation", 1)
+    validate_run(protocol, run)
+    assert all(e["repeat"] == 1 and e["split"] == "evaluation" for e in run["entries"])
+    report = collect(protocol, run, MockStore(run), tmp_path / "out")
+    assert report["received"] == 4 and report["missing"] == 156
+    with pytest.raises(ValueError, match="split"):
+        prepare_pair(protocol, run["source"]["spec"], tmp_path / "other")
+    with pytest.raises(ValueError, match="outside"):
+        prepare_pair(protocol, run["source"]["spec"], tmp_path / "other", 2, split="evaluation")

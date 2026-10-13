@@ -23,5 +23,6 @@ README 展示当前能力；这里保留实现细节与分版本验收记录。�
 | [开发记录：第二轮](m4-early-prefix.md) | 执行环境修正与已有补丁接力 |
 | [开发记录：第三轮](m4-runtime-notice.md) | 运行时通知、命令超时与完整判分 |
 | [真实 agent 故障恢复](m4-model-recovery.md) | 一次执行丢失、原生会话恢复与资源清理 |
+| [正式评测执行](m4-evaluation.md) | 冻结名单、累计预算、断点保护与产物归档 |
 
 使用入口见[演示与部署](demo.md)、[系统设计](design.md)和[路线图](roadmap.md)。筛选后的验收证据位于 [evidence/](evidence/)；完整轨迹、凭据、镜像与大产物不进入 Git。

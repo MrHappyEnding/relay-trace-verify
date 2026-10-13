@@ -81,6 +81,7 @@ Accepted within the local scope: [M2 guide](m2.en.md), 40 runtime/protocol check
 - [x] Four development tasks under tool-prefix policy: sixteen observations, post hoc prefix grading and cost audit.
 - [x] Real Codex cross-node recovery after executor loss, preserving the native session, code, and execution state and passing independent tests; see [recovery acceptance](m4-model-recovery.en.md).
 - [x] Publish [demo and deployment](demo.en.md), bilingual capability-focused READMEs, and the [acceptance index](index.en.md), retaining historical records.
+- [x] Evaluation execution, cumulative API admission, stopping at a task boundary, and completed-artifact archival; see the [execution guide](m4-evaluation.en.md).
 - [ ] Run the fixed 20-task formal real-model evaluation and complete its report.
 
 **Acceptance evidence**: experiments can be repeated from their configuration; reliability and strategy effectiveness each have measured evidence; and every published result can be traced to raw records.

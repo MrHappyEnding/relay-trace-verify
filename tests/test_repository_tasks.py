@@ -74,7 +74,7 @@ def test_repository_prompt_reads_only_public_instruction(declared):
         ("workspace", "/tmp;bad"),
         ("verifier_image_id", "mutable:tag"),
         ("platform", "linux/arm64"),
-        ("split", "evaluation"),
+        ("split", "unselected"),
     ],
 )
 def test_contract_cannot_silently_change_scope_or_environment(declared, field, value):
