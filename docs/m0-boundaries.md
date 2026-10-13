@@ -1,15 +1,16 @@
-# M0 验收：ATIF、中断与回滚
+# M0 Acceptance: ATIF, Interruption and Rollback
 
-[![中文](assets/lang-zh.svg)](m0-boundaries.md) [![English](assets/lang-en.svg)](m0-boundaries.en.md)
+2026-10-08: **M0 acceptance is complete within the first Codex adapter's stated
+scope.** Native recovery and semantic handoff are now supplemented with same-model
+ATIF import, cancellation during a real tool call, checkpoint rollback, image
+lifecycle handling and explicit capabilities. This page records M0; see [M1](m1.md) for subsequent worker takeover; this is
+not automatic recovery after a worker crash.
 
-2026-10-08：**首个 Codex 适配器的 M0 限定范围验收完成**。在已验证的原生恢复和
-语义交接基础上，补齐同模型 ATIF 导入、真实工具运行中的取消与检查点回滚、镜像
-生命周期和能力声明。本页仅记录 M0；后续 worker 接管能力见 [M1](m1.md)。
+## Reproduce
 
-## 复现
-
-需要 [Codex M0 指南](codex-m0.md)中的 Docker、Harbor 和 ChatGPT 登录。以下执行
-一次源阶段，再执行 ATIF 分支、主动中断分支和回滚恢复分支，消耗现有订阅额度：
+Use the Docker, Harbor and ChatGPT login setup in the [Codex guide](codex-m0.md).
+These commands run one source stage, then an ATIF branch, an interrupted branch and
+a rollback recovery branch. They consume existing subscription quota:
 
 ```bash
 uv sync --python 3.13 --locked --group harbor --dev
@@ -25,92 +26,109 @@ uv run --no-sync rtv codex-boundaries \
   --output work/boundaries-new
 ```
 
-每次使用新输出目录。不带 `--checkpoint-only` 的 `codex-smoke` 仍执行原来的三个
-阶段；它生成的成功报告也能作为 `--source-run`。模型默认 `gpt-6-astra`，CLI 固定
-0.160.1，Harbor 固定 0.24.0；两次命令的模型必须一致，不接受 API key 或自定义端点。
+Always use new output directories. Without `--checkpoint-only`, `codex-smoke` still
+runs its original three stages and its successful report is also a valid source.
+The model defaults to `gpt-6-astra`, CLI is pinned to 0.160.1 and Harbor to 0.24.0.
+Both commands must use the same model; API keys and custom endpoints are rejected.
 
-只检查转换、不调用模型：
+Conversion-only auditing needs no model:
 
 ```bash
 uv run --no-sync rtv codex-atif-audit \
-  --native "work/checkpoint-new/bundle/native/rollout-<实际文件名>.jsonl" \
+  --native "work/checkpoint-new/bundle/native/rollout-<actual-filename>.jsonl" \
   --output work/atif-audit-new
 ```
 
-上面的 rollout 路径需替换为本次真实文件名；CLI 不负责猜测多个历史会话中的“最后一个”。
+Replace the rollout path with the actual filename. The CLI does not guess which
+of several historical sessions should be considered the latest.
 
-## ATIF 保留与丢失
+## What ATIF preserves
 
-复用 Harbor 的原生 → ATIF → 原生转换和 `load()`。RTV 将接收端元数据中的默认
-`/app` 改为 `/workspace`、设置接收端 CLI 版本，并分配新 session ID；来源 session
-写入 ATIF lineage。**ATIF 导入属于语义分支，不代表无损原生恢复。**
+RTV reuses Harbor's native → ATIF → native conversion and `load()`. It changes the
+receiver metadata's default `/app` to `/workspace`, sets the receiver CLI version
+and assigns a new session ID while recording source lineage. **ATIF import is a
+semantic branch, not lossless native recovery.**
 
-实际源轨迹包含 7 条消息、3 次工具调用、3 个结果，转换后全部通过文本 / JSON
-归一化比较。消息文本块拼接、工具输出文本块以换行拼接，因此不声称字节一致。
-真实新会话从导入历史中找回未出现在新提示或工作区的随机标记，并完成任务、通过验证。
+All seven messages, three tool calls and three results in the source passed
+normalized text/JSON comparisons. Message text blocks concatenate; tool output
+blocks join with newlines, so byte identity is not claimed. The real imported
+session recalled a marker absent from its new prompt/workspace and passed the task.
 
-| 内容 | 已验证范围 |
+| Content | Verified scope |
 | --- | --- |
-| 文本消息、工具参数和文本结果 | 本例内容保留；调用与结果必须一一配对 |
-| 工作区 | 单独从文件检查点恢复，ATIF 不包含文件系统 |
-| 元数据 / 文本块边界 | 部分丢失或规范化；完整差异计入 conversion audit |
-| 原生 base instructions、world state、turn context | 不保证保留；接收端运行配置重新建立 |
-| 推理字段、原生累计用量 | 不重建为原生状态；来源成本必须单独归因 |
-| 图片、分段 / 嵌套轨迹、其他 agent / 模型 | 当前适配器拒绝未支持输入，跨框架能力未验证 |
+| Text messages, tool arguments and text results | This fixture's content survives; calls/results must pair one-to-one |
+| Workspace | Restored separately; ATIF does not contain filesystem state |
+| Metadata and text block boundaries | Some are lost/normalized; recorded in the conversion audit |
+| Native base instructions, world state and turn context | Not guaranteed to survive; receiver runtime config is rebuilt |
+| Reasoning fields and native cumulative counters | Not reconstructed as native state; account for source costs separately |
+| Images, segmented/nested traces, other agents/models | Unsupported inputs are rejected; cross-framework import unverified |
 
-转换器可能估算 API 美元价格，本实验会清除这些估算，避免冒充订阅账单。ATIF
-新会话的原生计数从新请求开始，来源阶段用量保留在来源报告，不能因此把前缀成本清零。
+Harbor may estimate API dollar costs during conversion. RTV clears those estimates
+for this subscription experiment. The ATIF receiver starts new native usage
+counters; source usage remains in the source report and must not be treated as free.
 
-## 真实中断协议
+## Real interruption protocol
 
-1. 从已提交检查点恢复原生会话和工作区，Execution 的 epoch 从 1 变为 2。
-2. 真实 agent 调用受控 Python 工具。工具创建独立进程会话中的子进程，持续修改
-   `uncommitted.txt`；父工具等待，不完成任务。
-3. 控制器验证父 / 子 PID 均存活、文件确实变化，然后取消本次执行。
-4. RTV **先停止整个沙箱并核对容器 PID 为 0，再取消并回收本地 transport 任务**。
-   仅取消 `docker exec` 客户端不能证明远端工具已停止。
-5. 缺少 completed 事件的轨迹被拒绝；不发布新检查点。中断后的文件和会话只留作
-   诊断产物，不成为恢复来源。来源检查点目录摘要保持不变。
-6. 新 Execution 使用 epoch 3，从原先提交的检查点恢复。未提交文件不存在；原生
-   session ID 保持，历史标记可找回，任务最终通过验证。
+1. Restore the committed workspace and native session; advance Execution epoch 1→2.
+2. The real agent runs a controlled Python tool. It launches a child in a separate
+   process session that continually modifies `uncommitted.txt`; the parent waits.
+3. Verify both PIDs are alive and the file changes, then cancel the execution.
+4. **Stop the whole sandbox and confirm container PID 0 before cancelling/draining
+   the local transport task.** Cancelling a docker-exec client alone does not prove
+   that remote tools have stopped.
+5. Reject the incomplete turn and publish no new checkpoint. Discarded files and
+   sessions remain diagnostics only; the source checkpoint directory hash is unchanged.
+6. Create epoch 3 from the last committed checkpoint. Uncommitted files are absent,
+   the original session ID/marker survive, and final task verification passes.
 
-这是**工具运行中取消后，回滚至上次完成阶段再执行**；不恢复任意进程内存，也不
-继续那个未完成工具。真实实验覆盖主动取消；超时、停止失败、transport 错误的顺序
-由故障注入单测验证。硬杀 worker、租约和旧 epoch 拦截留给 M1/M2。
+This is **rollback to the last completed stage after mid-tool cancellation**. It
+does not restore process memory or continue the interrupted tool. The real run
+covers explicit cancellation; fault-injection unit tests cover timeout, stop failure
+and transport-error ordering. Hard worker kills, leases and stale-epoch fencing
+remain M1/M2 work.
 
-## 镜像与快照契约
+## Image and snapshot contract
 
-实验发现 Harbor `stop(delete=True)` 的 `down --rmi local` 会删除自动构建的源镜像，
-即使额外加标签也不足以保留。RTV 对当前无持久 Docker volume 的可信 fixture 使用
-`stop(delete=False)` 执行 Compose down，删除容器和网络，保留镜像产物。
-报告中的 `rtv-checkpoint-cache:<image-id>` 是明确保留的引用，恢复前检查确切 image ID
-仍可用。缺失则在模型执行前失败；不静默重建一个不同镜像。
+Harbor `stop(delete=True)` uses `down --rmi local`, which removes generated source
+images even when an extra tag was added. For this trusted fixture with no persistent
+Docker volumes, RTV uses `stop(delete=False)` / Compose down to remove containers
+and networks while retaining image artifacts. Reports include an explicit
+`rtv-checkpoint-cache:<image-id>` reference. Recovery checks the exact image before
+model execution and refuses to silently rebuild a different image.
 
-镜像缓存是检查点依赖，不计为容器泄漏；不使用全局 prune。当前只有本机保留，
-尚无镜像仓库发布、引用 GC 或机器丢失后的恢复保证。旧版报告的镜像可能已被清理，
-这种情况下需创建新检查点。成功运行报告的本地 source-run 元数据也是恢复所需产物。
+Retained images are checkpoint dependencies, not container leaks; no global prune
+is used. Retention is local only, with no registry publication, reference GC or
+machine-loss guarantee. Older reports may point to deleted images and require a
+new checkpoint. The successful local source-run metadata is also a required artifact.
 
-`rtv capabilities` 输出的快照契约包含 `/workspace`、一个完整原生 rollout 和会话
-元数据。保留普通文件字节、权限及空目录；拒绝符号链接、特殊文件和路径穿越。
-目录权限按恢复进程默认值建立，不保留 UID/GID、ACL、xattr、进程或外部服务状态。
-必需生成物要位于 `/workspace`；登录缓存和临时工具进程不进入快照。
+`rtv capabilities` declares a snapshot of `/workspace`, one complete native rollout
+and session metadata. Regular file bytes/permissions and empty directories survive;
+symlinks, special files and traversal are rejected. Directory modes use process
+defaults. UID/GID, ACLs, xattrs, processes and external service state are excluded.
+Required generated files must live under `/workspace`; credentials and temporary
+tool processes are outside the snapshot.
 
-## 本次证据与资源
+## Evidence and resources
 
-- [真实实验报告](evidence/m0-boundaries-arm64-20261008.json)：23 项断言全部通过，
-  ATIF 和回滚分支 reward 均为 1，清理错误为零，清理后原镜像仍可用。
-- 原始产物：`work/codex-checkpoint-20261008-2/` 和
-  `work/codex-boundaries-20261008-3/`；敏感原始轨迹只保留在忽略的 `work/`。
-- 镜像保留问题导致一次额外源阶段执行；两个环境失败尝试没有调用模型。
-  开发开销计入精简报告，没有隐藏重试成本。
-- 中断调用最终 usage 为 `null` / UNKNOWN；观测到的 session 累计计数是下界且包含
-  导入前缀，不能直接加进总量。已完成调用的小计和未知部分分开保存。
-- 使用现有 ChatGPT 订阅，无额外付费 API；美元成本不估造。wall clock 终止还包含
-  停止 / 清理等待窗口，不提供严格 token 或金额准入。
+- [Real experiment report](evidence/m0-boundaries-arm64-20261008.json): all 23
+  assertions pass, both completed branches receive reward 1, cleanup errors are
+  empty and the original image remains available after cleanup.
+- Raw artifacts: `work/codex-checkpoint-20261008-2/` and
+  `work/codex-boundaries-20261008-3/`. Sensitive raw traces remain in ignored `work/`.
+- The image-retention issue required one extra source turn. Two environment failures
+  issued no model calls. Development overhead is included in the committed report.
+- The interrupted turn's final usage is `null`/UNKNOWN. Observed cumulative counters
+  are only a lower bound and include the imported prefix; do not add them directly
+  to totals. Completed-turn subtotals and uncertainty remain separate.
+- Existing ChatGPT subscription quota was used, with no additional paid API enabled
+  or invented dollar price. Wall-clock termination includes stop/cleanup grace
+  periods and is not strict token/dollar admission.
 
-后续已完成 **[M1：单 agent 持久执行](m1.md)**，先落实稳定 operation ID、Temporal 编排、
-状态查询和取消，再验证 worker 重启后的沙箱核对。第二种 agent 仍安排在 M3。
+The subsequent **[M1 durable single-agent execution](m1.md)** now covers stable operation IDs, Temporal
+orchestration, query/cancel behavior, then sandbox reconciliation after worker
+restart. The second agent remains planned for M3.
 
-参考：[Harbor 轨迹加载](https://docs.harborframework.com/jobs/loading-trajectories)、
-[Codex 非交互执行](https://learn.chatgpt.com/docs/non-interactive-mode)。转换与原生
-恢复复用上游；RTV 负责工作区、环境、身份、终止次序和验证边界。
+References: [Harbor trajectory loading](https://docs.harborframework.com/jobs/loading-trajectories)
+and [Codex non-interactive execution](https://learn.chatgpt.com/docs/non-interactive-mode).
+Conversion/native resume are upstream capabilities; RTV supplies workspace,
+environment, identity, termination ordering and validation boundaries.

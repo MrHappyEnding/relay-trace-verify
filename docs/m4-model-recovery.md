@@ -1,32 +1,34 @@
-# M4：真实 agent 的执行器故障恢复
+# M4: real-agent executor recovery
 
-[![中文](assets/lang-zh.svg)](m4-model-recovery.md) [![English](assets/lang-en.svg)](m4-model-recovery.en.md)
+This acceptance run checks whether real Codex can recover a native session and code from a committed
+checkpoint after executor loss. It is a separate reliability workload, excluded from paired benchmark
+denominators.
 
-本项验收检查真实 Codex 在执行器丢失后，能否从已提交检查点恢复原生会话与代码。
-它使用独立的可靠性任务，不进入配对 benchmark 的分母。
+## Execution contract
 
-## 执行契约
+1. Source Codex completes a bounded turn in a pinned repository, quiesces its sandbox, and commits a checkpoint without reading the hidden verifier.
+2. Create a native continuation branch and observe its running `codex exec resume` process.
+3. Delete that branch's executor using its Kubernetes Job UID.
+4. Allow at most one recovery, creating a new Job on another execution node and restoring the native session and files.
+5. Grade with an isolated verifier, export execution history and accounting, and clean up Jobs, Pods, and credentials.
 
-1. 源 Codex 在固定仓库环境中完成一段工作，静止沙箱并提交检查点；该阶段不读取隐藏验证器。
-2. 从该检查点创建原生继续分支；确认 `codex exec resume` 进程正在运行。
-3. 按 Kubernetes Job UID 删除本次分支的执行器。
-4. 控制器最多恢复一次，在另一个执行节点创建新 Job，恢复原生会话与文件。
-5. 独立验证器判分，导出执行历史和账本，清理 Job、Pod 及凭据。
+At most three Codex subscription stages are admitted: source, interrupted continuation, and recovery.
+There are zero additional metered API requests. Interrupted subscription usage remains UNKNOWN;
+the operation is retained in the ledger.
 
-最多三个 Codex 订阅阶段：源阶段、被中断的继续阶段、恢复阶段。新增付费 API 请求为 0；
-被中断阶段的订阅用量保持 UNKNOWN，不抹去已发生的调用。
+The `codex-recovery-v1` credential profile covers two preassigned trials. The source permits only its
+first execution; the target permits its first execution plus one recovery from its inherited source
+checkpoint. Ordinary paired runs continue to prohibit automatic model replay. The profile provides
+no mini API credential, additional task grants, or unbounded retries.
 
-`codex-recovery-v1` 凭据权限只覆盖两个预先指定的 trial。源任务只允许第一轮执行；
-目标只允许第一轮执行及一次恢复，且恢复必须引用继承的源检查点。普通配对运行依旧
-禁止自动模型重放。没有 mini API 凭据、额外任务或无限重试权限。
+## Prepare and execute
 
-## 准备与运行
+Follow [M4 deployment](m4.md) and [repository delivery](m4-repository-cluster.md).
+Use a pinned runner image containing the current source and an uncredentialed single-Job repository
+configuration. The variables below point to that configuration, its task contract, and a private
+Codex credential file. Never put credential contents into commands.
 
-先按 [M4 部署](m4.md)和[仓库交付](m4-repository-cluster.md)准备环境。
-使用包含当前源代码的固定 runner 镜像，以及未投射凭据的单 Job 仓库配置。
-下面变量分别指向该配置、任务契约和私有 Codex 凭据文件；不要将密钥内容放入命令。
-
-先运行真实集群假凭据检查，不调用模型：
+First run fake-credential checks on the real cluster, without calling models:
 
 ```bash
 .venv/bin/python scripts/m4_credentials_acceptance.py \
@@ -34,7 +36,7 @@
   --output work/m4-data/recovery-credential-check --recovery
 ```
 
-冻结任务身份、配置、源文件哈希和恢复次数：
+Freeze task identities, configuration, source hashes, and the recovery allowance:
 
 ```bash
 .venv/bin/python scripts/m4_model_recovery.py prepare \
@@ -43,7 +45,7 @@
   --output work/m4-control/recovery-demo-plan.json
 ```
 
-在已授权的模型调用范围内执行：
+Execute within the authorized model-call scope:
 
 ```bash
 .venv/bin/python scripts/m4_model_recovery.py execute \
@@ -51,39 +53,44 @@
   --auth-file "$RTV_CODEX_AUTH_FILE" --allow-model-calls
 ```
 
-运行目录包含 `prepared.json`、`fault.json`、`report.json` 和 `runtime-report/`。
-重复运行需要新目录和新计划；既有记录保持不变。
+The run directory contains `prepared.json`, `fault.json`, `report.json`, and `runtime-report/`.
+A new run requires new paths and a new plan; previous records remain unchanged.
 
-## 验收口径
+## Acceptance criteria
 
-检查恢复前后文件摘要、会话 ID、检查点身份、attempt 身份、绝对截止时间、执行轮次、
-旧执行发布权限和资源清理。verifier 的任务奖励单独记录，不以策略胜负作为恢复验收条件。
+Check workspace digests, native session ID, checkpoint identity, attempt identity, absolute deadline,
+execution count, stale-execution publication rights, and cleanup. Record verifier reward separately;
+relative strategy performance does not determine recovery acceptance.
 
-Docker Desktop 的 macOS 挂载视图可能把 Git 对象的 `0444` 权限显示为 `0644`。
-容器恢复记录与已提交的 Linux 工作区摘要比较；宿主目录摘要只做宿主视图的前后不变检查。
-检查点恢复本身仍校验 manifest 中的文件内容、类型和权限。
+Docker Desktop's macOS mount view can expose Git objects with mode `0644` where Linux sees `0444`.
+Compare container restore events with the committed Linux workspace digest; use host digests only
+for before/after immutability within the host view. Checkpoint restoration still validates manifest
+content, file types, and permissions.
 
-本地 k3d 的执行节点共享一台物理宿主；本项注入的是执行 Job 丢失。
-本项不测量物理宿主断电、任意外部服务副作用回滚或进程内存恢复。
+Local k3d execution nodes share one physical host. This run injects executor Job loss. It does not
+test physical-host power failure, rollback of arbitrary external effects, or process-memory recovery.
 
-## 验收记录
+## Acceptance record
 
-2026-10-13，针对 `sympy__sympy-22914` 的一次执行器故障注入已在另一个执行节点恢复，
-原生会话保持一致，独立验证器通过（`reward=1`）。源检查点包含
-`sympy/printing/pycode.py` 及其测试的修改。从开始删除 Job 到恢复工作区耗时
-**82.25 秒**，这是单次观测。
+On 2026-10-13, a targeted `sympy__sympy-22914` run recovered on the other execution node,
+preserved its native session, and passed the isolated verifier (`reward=1`). The checkpoint contains
+changes to `sympy/printing/pycode.py` and its tests. Time from Job deletion initiation to restored
+workspace was **82.25 seconds** for this one observation.
 
-[验收证据](evidence/m4-model-recovery-arm64-20261013.json)包含 18 项通过的离线复核和
-17 项通过的真实集群假凭据检查。第一版检查器因比较不同文件系统视图，在故障注入前停止。
-第二次运行完成了真实恢复和判分；最后一项检查发现检查器自己的 `git diff` 刷新了临时导出
-目录的 Git 索引，已提交检查点保持完整。`m4_recovery_audit.py` 重新核验全部检查点文件、
-恢复权限、执行记录和原始评分，没有再次调用模型或 verifier。原检查器状态和检查项保留
-在证据中。检查命令已改为 `git --no-optional-locks`，并补充回归测试。
+The [evidence](evidence/m4-model-recovery-arm64-20261013.json) contains 18 passing offline acceptance
+checks and 17 passing real-cluster fake-credential checks. The first inspector revision stopped before
+fault injection because it compared different filesystem views. The next run completed the actual
+recovery and grading; its final inspector check detected a Git-index refresh caused by its own
+`git diff`. The committed checkpoint remained intact. `m4_recovery_audit.py` revalidated all committed
+files, restored modes, execution records, and the original grade without calling a model or verifier
+again. Original harness statuses and checks are retained in the evidence. The inspector now uses
+`git --no-optional-locks`, covered by a regression test.
 
-两次运行合计五个 Codex 订阅阶段，新增付费 API 请求 0、API 花费 $0；订阅金额未知。
-任务 Job、Pod 和凭据均已清理。原定 20 题正式评测仍是独立的待完成项。
+The two runs used five Codex subscription stages in total, zero metered API requests, and $0 additional
+API charges. Subscription cost remains unknown. Task Jobs, Pods, and credentials were cleaned up.
+The existing fixed 20-task formal evaluation remains a separate pending milestone item.
 
-可在无需数据库或集群连接的情况下复核保存的产物：
+To independently audit saved artifacts without a database or cluster connection:
 
 ```bash
 .venv/bin/python scripts/m4_recovery_audit.py \

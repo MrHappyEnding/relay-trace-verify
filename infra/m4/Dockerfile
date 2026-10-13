@@ -6,7 +6,7 @@ COPY --from=engine /usr/local/libexec/docker/cli-plugins/ /usr/local/libexec/doc
 RUN apt-get update && apt-get install -y --no-install-recommends iptables iproute2 git \
     && rm -rf /var/lib/apt/lists/* && pip install --no-cache-dir uv==0.12.3
 WORKDIR /app
-COPY pyproject.toml uv.lock README.en.md ./
+COPY pyproject.toml uv.lock README.md ./
 RUN uv sync --locked --group runtime --no-dev --no-install-project --python /usr/local/bin/python
 COPY src ./src
 COPY examples ./examples

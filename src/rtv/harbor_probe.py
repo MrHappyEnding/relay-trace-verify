@@ -3,6 +3,7 @@
 import asyncio
 import hashlib
 import json
+import os
 import platform
 import shlex
 import subprocess
@@ -33,16 +34,35 @@ def _docker(*args: str, timeout: int = 30) -> str:
     return result.stdout.strip()
 
 
-def tree_digest(root: Path, *, exclude_names=()) -> str:
+def tree_digest(root: Path, *, exclude_names=(), preserve_symlinks=False) -> str:
     """Digest names, types, permissions and bytes without following symbolic links."""
     if root.is_symlink() or not root.is_dir():
         raise ValueError(f"Digest root must be a real directory: {root}")
+    from rtv.checkpoints import SymlinkEntry, validate_symlinks
+
+    paths = [
+        p
+        for p in sorted(root.rglob("*"))
+        if not any(part in exclude_names for part in p.relative_to(root).parts)
+    ]
+    if preserve_symlinks:
+        validate_symlinks(
+            tuple(
+                SymlinkEntry(p.relative_to(root).as_posix(), os.readlink(p))
+                for p in paths
+                if p.is_symlink()
+            )
+        )
     digest = hashlib.sha256()
-    for path in sorted(root.rglob("*")):
+    for path in paths:
         if any(part in exclude_names for part in path.relative_to(root).parts):
             continue
         if path.is_symlink():
-            raise ValueError(f"Symbolic links are outside this probe's contract: {path}")
+            if not preserve_symlinks:
+                raise ValueError(f"Symbolic links are outside this probe's contract: {path}")
+            entry = [path.relative_to(root).as_posix(), "symlink", os.readlink(path)]
+            digest.update(json.dumps(entry, separators=(",", ":")).encode() + b"\0\0")
+            continue
         if not path.is_file() and not path.is_dir():
             raise ValueError(f"Unsupported entry: {path}")
         entry = [path.relative_to(root).as_posix(), path.stat().st_mode & 0o777]

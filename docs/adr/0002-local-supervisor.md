@@ -1,41 +1,46 @@
-# ADR 0002：M1 本机 supervisor 与持久控制面
+# ADR 0002: M1 local supervisor and durable control plane
 
-[![中文](../assets/lang-zh.svg)](0002-local-supervisor.md) [![English](../assets/lang-en.svg)](0002-local-supervisor.en.md)
+- Date: 2026-10-08
+- Status: Accepted for trusted tasks on one host
 
-- 日期：2026-10-08
-- 状态：Accepted，范围为单机可信任务
+## Problem
 
-## 问题
+Activities may retry after their side effects occur but acknowledgement is lost.
+Putting a complete Harbor/Codex turn in an Activity could duplicate workspace changes
+and model calls. M0's async task lifetime also does not support observing a sandbox
+after the worker receives SIGKILL.
 
-Activity 可因执行后确认丢失而重试。直接把 Harbor/Codex 整轮调用放进 Activity，可能
-重复修改工作区、重复调用模型。M0 的 async task 生命周期也不能保证 worker SIGKILL
-后继续观察已有沙箱。
+## Decision
 
-## 决策
+Temporal runs short control Activities. PostgreSQL holds product identities and cancel
+intent; periodic reconciliation closes the metadata-commit/Workflow-start gap. Each
+Execution gets a detached local supervisor, stable Compose project and artifact directory.
+A local `flock` and pre-side-effect start intent prevent reentry. Lost supervisors are
+not replayed. A local result is written, external resources are cleaned, then a database
+transaction publishes the terminal outcome and event. Failed cleanup remains pending.
 
-Temporal 只负责短控制 Activity。PostgreSQL 保存产品身份和取消意图；周期核对弥补
-提交事务与 Workflow start 的确认窗口。一个 Execution 对应一个独立本机 supervisor、
-稳定 Compose project 名和本地产物目录。`flock` 与先写入的 start intent 防止同一
-Execution 重入；死亡 supervisor 不自动重放。结果先落本地文件、清理外部资源，再以
-数据库事务发布终态和事件；清理失败保留 pending。
+Temporal development persistence uses a SQLite file; product metadata remains PostgreSQL
+as in ADR 0001. Raw artifacts currently use ignored local directories; object storage
+remains M2/M4. M0 session recovery/handoff probes stay independent rather than becoming
+an automatic recovery policy in this milestone.
 
-Temporal 开发服务用持久 SQLite 文件，产品元数据仍按 ADR 0001 使用 PostgreSQL。
-原始产物当前放本地忽略目录；对象存储留到 M2/M4。M0 会话恢复和接力探针保持独立，
-本次不把它们包装成自动恢复策略。
+## Tradeoffs
 
-## 取舍
+Reuse Harbor task/agent/verifier and most public environment interfaces. Three internal
+transport hooks pinned to 0.24.0 add default timeouts and cancellation draining, avoiding
+late operations after merely canceling a client. This adds upgrade maintenance, covered
+by unit tests and real cancellation experiments.
 
-保留 Harbor 公开任务 / agent / verifier 和大部分环境接口；固定 0.24.0 的三个内部
-transport hooks 补齐默认超时与取消后回收，避免只取消本地 client 留下迟到操作。
-这增加升级维护成本，以单测和真实取消实验约束。
+File locks coordinate through one host's kernel; they are not distributed leases or
+fencing. Disk/host loss, a supervisor SIGKILL during sandbox creation causing late
+resources, and multi-host takeover are outside this guarantee. Preserve evidence and
+extend the protocol with conditional commits, epochs and resource collection later.
+Old-worker return and strict treatment of uncertain side effects belong to M2. M1 does
+not promise exactly-once model calls or external tools.
 
-文件锁是同主机内核协调机制，不是租约或跨主机 fencing。磁盘丢失、宿主机故障、
-supervisor 在沙箱创建中硬杀导致的迟到资源、多主机并发接管不属于本次保证。保持
-原始状态以便诊断，后续通过持久条件提交、epoch 和资源回收协议完善。旧 worker 恢复
-与未决副作用的严格处理属于 M2；M1 不宣称模型调用或外部工具 exactly-once。
+## Validation
 
-## 验证
-
-[M1 指南与证据](../m1.md)包含真实 Activity 确认丢失、worker 重启、取消、TTL、
-supervisor 丢失和单次真实 Codex 跨 worker 重启实验。机制复用 Temporal 的持久编排、
-PostgreSQL 事务和 POSIX 文件锁；操作 ID、状态核对与执行边界由 RTV 设计实现。
+[M1 guide and evidence](../m1.md) cover real Activity acknowledgement loss, worker
+replacement, cancellation, TTL, supervisor loss and one real Codex turn across worker
+SIGKILL. Temporal orchestration, PostgreSQL transactions and POSIX locking are reused;
+RTV implements operation identities, reconciliation and execution boundaries.

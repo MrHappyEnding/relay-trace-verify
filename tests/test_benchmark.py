@@ -258,7 +258,7 @@ def test_cli_report_preserves_input_hash_modes_and_refuses_overwrite(tmp_path, c
     assert report["raw_records_sha256"] == hashlib.sha256(records.read_bytes()).hexdigest()
     assert (output / "records.jsonl").read_bytes() == records.read_bytes()
     assert "No model-effect claim" in report["inference"]
-    assert (output / "report.en.md").exists() and (output / "summary.csv").exists()
+    assert (output / "report.md").exists() and (output / "summary.csv").exists()
     assert main(args) == 1
     assert "rtv:" in capsys.readouterr().err
 

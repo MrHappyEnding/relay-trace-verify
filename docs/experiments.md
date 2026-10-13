@@ -1,81 +1,80 @@
-# RTV 实验协议草案
+# RTV Experiment Protocol Draft
 
-[![中文](assets/lang-zh.svg)](experiments.md) [![English](assets/lang-en.svg)](experiments.en.md)
+Status: acceptance and observation criteria · 2026-10-13
 
-状态：验收与观察口径 · 2026-10-13
+## 1. Answer two separate questions
 
-## 1. 分开回答两个问题
+1. **System reliability**: after interruptions, duplicate delivery, and cancellation, does the system maintain its invariants, and what does recovery cost?
+2. **Strategy effectiveness**: under a predefined budget, does handoff improve task success rate, cost, or completion time?
 
-1. **系统可靠性**：中断、重复投递和取消发生后，系统是否维持状态不变量，恢复开销有多大？
-2. **策略有效性**：在预先定义的预算下，接力是否改善解题成功率、费用或完成时间？
+A reliable system does not automatically make handoff effective. Individual successful handoffs do not establish the reliability of the recovery protocol.
 
-系统可靠并不自动证明接力有效；接力个别成功也不证明恢复协议可靠。
+**Milestones are accepted on functionality and reliability.** Paired observations do not prescribe
+a winning strategy, and relay outperforming native continuation is not a completion criterion.
+Unsolved tasks, verifier errors, and state-transfer errors are recorded separately. Fault-injection
+workloads have independent identities and never replace or enter ordinary paired observations.
 
-**里程碑按功能与可靠性验收。** 配对观察不预设胜负，也不以接力超过原 agent 作为完成
-条件。问题未修好、验证器错误和状态交接错误分别记录。可靠性故障注入使用独立任务身份，
-不替换或混入普通配对样本。
+## 2. Paired checkpoint experiments
 
-## 2. 检查点配对实验
+Produce checkpoint C using a predefined switching rule, then create branches with isolated filesystems. Start with the first three primary branches; add the others as the budget permits.
 
-用预先定义的切换规则产生 checkpoint C，再从 C 创建独立文件系统分支。第一轮先跑前三个主要分支，其他分支按成本扩展。
-
-| 分支 | 工作区 | 上下文 | 用途 |
+| Branch | Workspace | Context | Purpose |
 | --- | --- | --- | --- |
-| A-continue | C | A 原生会话 | 主要基线：原 agent 继续 |
-| B-workspace | C | 任务说明 | 主要分支：换 agent、保留工作成果 |
-| B-summary | C | 任务说明＋结构化交接 | 主要分支：摘要的增量价值 |
-| A-fresh | C | 任务说明 | 上下文重置消融 |
-| B-trajectory | C | 可移植轨迹 | 完整历史与摘要的对照 |
+| A-continue | C | A's native session | Primary baseline: continue with the original agent |
+| B-workspace | C | Task instructions | Primary branch: change agent while retaining existing work |
+| B-summary | C | Task instructions and structured handoff | Primary branch: incremental value of the summary |
+| A-fresh | C | Task instructions | Context-reset ablation |
+| B-trajectory | C | Portable trajectory | Full-history versus summary comparison |
 
-另做 B 从任务初始状态开始的端到端基线。优先固定 scaffold 改变模型，再固定模型改变 scaffold；两者同时改变的实验只能得出组合效果。
+Also evaluate an end-to-end baseline where B starts from the task's initial state. First keep the scaffold fixed while changing the model, then keep the model fixed while changing the scaffold. Changing both at once only measures their combined effect.
 
-禁止按最终隐藏测试结果挑选“适合接力”的 checkpoint。触发器只能使用运行时允许的观测，例如固定步数、公开测试、显式阶段结束或预算阈值。
+Do not select checkpoints as suitable for handoff based on final hidden-test results. Triggers may use only observations available at runtime, such as a fixed step count, public tests, an explicit stage boundary, or a budget threshold.
 
-## 3. 预算与成本
+## 3. Budgets and costs
 
-- 预先选定主要约束：美元预算或 wall-clock 预算；token 相同不能替代不同模型的成本公平性。
-- 从 C 继续的所有分支获得同等剩余预算。转换、摘要生成、验证与环境启动的成本口径一致。
-- 同时报告 checkpoint 之后的增量成本，以及加上 A 前缀后的端到端成本。
-- 为节省实验费用可以共享前缀计算，但每条策略的部署成本估计都计入该前缀。
-- B 从头开始的基线获得预先定义的完整预算，不与已经消费前缀预算的分支混算。
-- 模型、容器、存储与网络成本分列；无法确认的模型开销保留 UNKNOWN 与估计范围。
-- 基础设施失败的消耗保留，不能从总体成本中静默删除。
+- Choose the primary constraint in advance: a dollar budget or a wall-clock budget. Equal token counts do not establish cost fairness across models.
+- Give every continuation branch from C the same remaining budget. Account consistently for conversion, summary generation, verification, and environment startup.
+- Report both incremental cost after the checkpoint and end-to-end cost including A's prefix.
+- Prefix computation may be shared to reduce experimental spending, but each strategy's estimated deployment cost must include that prefix.
+- Give the B-from-scratch baseline its predefined full budget. Do not conflate it with branches that have already consumed a prefix budget.
+- Report model, container, storage, and network costs separately. Retain UNKNOWN entries and estimated ranges for unconfirmed model spending.
+- Retain costs caused by infrastructure failures; do not silently remove them from totals.
 
-## 4. 验证器隔离
+## 4. Verifier isolation
 
-在线 agent 和调度策略只能使用公开测试。隐藏测试在最终评测阶段运行；其内容、答案或反馈不得进入交接包，也不能被用来调整测试集上的策略。
+The online agent and scheduling policy may use only public tests. Run hidden tests during final evaluation. Their contents, answers, and feedback must not enter handoff packages or be used to tune policies on the evaluation set.
 
-独立 verifier 环境需要显式传输声明产物并校验 digest；不能假设它继承 agent 的整个文件系统。测试失败、验证器运行错误和基础设施故障分开记录。
+A separate verifier environment requires explicit transfer and digest validation of declared artifacts. Do not assume it inherits the agent's entire filesystem. Record test failures, verifier execution errors, and infrastructure failures separately.
 
-## 5. 样本与统计
+## 5. Samples and statistics
 
-先用约 10 个任务做流程试验，验证采集、预算和复现。它们用于开发，不据此宣称总体提升。
+Start with approximately 10 tasks to validate collection, budgeting, and reproducibility. These are development tasks, not evidence of a general improvement.
 
-正式任务数与重复次数根据试验成本和效果方差确定，冻结开发 / 评测拆分、任务版本、排除规则与实验配置。重复编号用于配对，不承诺远程模型支持确定性 seed。
+Choose the formal task count and repetitions based on pilot cost and outcome variance. Freeze the development/evaluation split, task versions, exclusion rules, and experiment configuration. Repetition identifiers support pairing; they do not imply that a remote model supports deterministic seeds.
 
-报告逐任务结果和成功率差值；置信区间以任务为聚类单位，保留同一任务下多个分支、检查点与重复运行的相关性。因基础设施失败无有效结果的样本单独报告数量、重跑规则与端到端失败率。
+Report per-task outcomes and success-rate differences. Construct confidence intervals with the task as the clustering unit, preserving dependencies among branches, checkpoints, and repetitions of the same task. Separately report samples without valid results because of infrastructure failures, rerun rules, and the end-to-end failure rate.
 
-## 6. 系统实验
+## 6. System experiments
 
-每个故障注入点都要记录发生位置、次数、恢复路径与不变量检查结果。
+For each fault-injection point, record its location, repetition count, recovery path, and invariant-check results.
 
-- checkpoint 提交：上传前、上传中、manifest 完成后、数据库提交后但响应前。
-- ownership：worker 失联、旧 worker 晚到、重复启动与重复完成消息。
-- 取消：排队、恢复中、工具执行中、handoff 目标准备中。
-- 资源：容器丢失、worker 重启、清理失败后重试。
+- Checkpoint commit: before upload, during upload, after manifest completion, and after database commit but before the response.
+- Ownership: worker disconnection, late return of an old worker, duplicate starts, and duplicate completion messages.
+- Cancellation: while queued, restoring, executing a tool, or preparing a handoff target.
+- Resources: container loss, worker restart, and retries after cleanup failure.
 
-指标：恢复成功率及样本数、恢复延迟 p50 / p95、丢失工作窗口、checkpoint 大小与提交耗时、无效旧结果数量、重复外部操作数量、取消收敛时间、残留资源数。
+Metrics: recovery success rate and sample count; recovery latency p50/p95; lost-work window; checkpoint size and commit time; invalid stale-result count; duplicate external-operation count; cancellation convergence time; and residual resource count.
 
-规模测试逐步提高并发，记录宿主机与 worker 配置、队列等待、吞吐和资源占用；模拟 agent 与真实模型结果分开呈现。
+Increase concurrency gradually in scale tests. Record host and worker configuration, queue wait, throughput, and resource usage. Present simulated-agent and real-model results separately.
 
-## 7. 每轮实验产物
+## 7. Artifacts for each experiment
 
 ```text
-experiment-config.json       # 固定任务、分支、预算、版本与重复编号
-provenance.json              # 源代码、镜像、adapter、verifier 与配置 digest
-trials/<trial-id>/            # 原始轨迹、产物引用、账本、结果和故障记录
-summary.csv                  # 从原始记录派生的逐 trial 数据
-report.md                    # 方法、指标、置信区间、失败与局限
+experiment-config.json       # Fixed tasks, branches, budgets, versions, and repetition IDs
+provenance.json              # Source, image, adapter, verifier, and configuration digests
+trials/<trial-id>/            # Raw trajectories, artifact references, ledger, results, and fault records
+summary.csv                  # Per-trial data derived from raw records
+report.md                    # Methods, metrics, confidence intervals, failures, and limitations
 ```
 
-大产物保存在对象存储或本地产物目录，不直接提交 Git。报告保留可解析的内容 digest 和访问说明。
+Keep large artifacts in object storage or a local artifact directory, outside Git. Reports must retain machine-readable content digests and access instructions.

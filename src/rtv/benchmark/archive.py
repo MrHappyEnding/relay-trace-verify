@@ -2,6 +2,7 @@
 
 import hashlib
 import json
+import os
 import shutil
 import tarfile
 from pathlib import Path
@@ -22,6 +23,13 @@ def archive_completed(root):
         targets.append(path)
     archive = root / "artifacts.tar.gz"
     receipt = root / "archive.json"
+    if receipt.exists():
+        saved = json.loads(receipt.read_text())
+        if "cleanup_complete" in saved:
+            with archive.open("rb") as stream:
+                if hashlib.file_digest(stream, "sha256").hexdigest() != saved["sha256"]:
+                    raise ValueError("Verified artifact archive changed")
+            return saved
     if not targets:
         return json.loads(receipt.read_text()) if receipt.exists() else None
     if not archive.exists():
@@ -49,7 +57,7 @@ def archive_completed(root):
                 files += 1
                 size += member.size
             elif member.issym() and path.is_symlink():
-                if str(path.readlink()) != member.linkname:
+                if os.readlink(path) != member.linkname:
                     raise ValueError("Archive symlink changed")
     for directory in targets:
         for path in [directory, *directory.rglob("*")]:
@@ -67,6 +75,14 @@ def archive_completed(root):
         "readback_verified": True,
     }
     receipt.write_text(json.dumps(result, indent=2) + "\n")
+    cleanup_errors = []
     for path in targets:
-        shutil.rmtree(path)
+        try:
+            shutil.rmtree(path)
+        except OSError as exc:
+            # Desktop metadata can change during deletion. Keep the verified archive
+            # and remaining copies; a cache-cleanup error must not replay paid work.
+            cleanup_errors.append({"path": path.name, "error_type": type(exc).__name__})
+    result.update(cleanup_complete=not cleanup_errors, cleanup_errors=cleanup_errors)
+    receipt.write_text(json.dumps(result, indent=2) + "\n")
     return result

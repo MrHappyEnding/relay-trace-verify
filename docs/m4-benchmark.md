@@ -1,88 +1,101 @@
-# M4：真实仓库任务与配对统计
+# M4: Real-repository tasks and paired analysis
 
-[![中文](assets/lang-zh.svg)](m4-benchmark.md) [![English](assets/lang-en.svg)](m4-benchmark.en.md)
+**Status: frozen task selection, statistical protocol and offline analysis are implemented;
+real-container verifier controls pass for all four development tasks.** The [repaired real-model pilot](m4-model-pilot.md) has four graded branches on one task, without a formal evaluation conclusion. Subsequent [cluster repository work](m4-repository-cluster.md) verifies scripted
+relay and recovery. This stage makes zero API calls
+and provisions no cloud resources. M4 as a whole remains in progress.
 
-**状态：任务选择、统计协议、离线分析工具已实现；全部 4 个开发任务的真实容器验证器预检通过。**
-后续[集群仓库阶段](m4-repository-cluster.md)已完成脚本接力与恢复；[修复版真实模型试验](m4-model-pilot.md)已完成一个任务的四分支判分，尚无正式评测结论。
-本次新增 API 调用为 0、云资源费用为 $0。完整 M4 仍进行中。
+All four development verifier environments now pass. The new [tool-prefix protocol](m4-tool-prefix.md) has its own identity and reuses identical task environments. The natural-turn protocol below remains the historical baseline.
 
-## 来源与冻结
+## Sources and frozen identity
 
-任务来自 [SWE-bench Verified](https://huggingface.co/datasets/princeton-nlp/SWE-bench_Verified)，
-复用 [Harbor SWE-bench adapter](https://github.com/harbor-framework/harbor/blob/main/adapters/swebench/README.md)
-生成的任务、镜像、测试与参考解。RTV 自己实现任务选择、配对身份、失败保留、费用归因和统计报告；
-不把上游题目或验证能力计为原创。
+Tasks come from [SWE-bench Verified](https://huggingface.co/datasets/princeton-nlp/SWE-bench_Verified),
+using tasks, images, tests and reference solutions produced by the
+[Harbor SWE-bench adapter](https://github.com/harbor-framework/harbor/blob/main/adapters/swebench/README.md).
+RTV implements selection, paired identities, failure retention, cost attribution and analysis;
+upstream tasks and verification are reused contributions.
 
-| 来源 | 固定身份 |
+| Source | Frozen identity |
 | --- | --- |
-| Verified 数据 | `c104f840cc67f8b6eec6f759ebc8b2693d585d4a`，完整 500 条元数据 |
-| Harbor tasks | `laude-institute/harbor-datasets`，`86723674f04e4209ac479d0fb75d9d9f44b4377e` |
+| Verified data | `c104f840cc67f8b6eec6f759ebc8b2693d585d4a`, all 500 metadata rows |
+| Harbor tasks | `laude-institute/harbor-datasets`, `86723674f04e4209ac479d0fb75d9d9f44b4377e` |
 | Harbor runtime | `0.24.0` |
-| 任务环境 | 24 个 `linux/amd64` 镜像分别按 manifest digest 固定 |
-| 协议 SHA256 | `dbd68d56849681a5ac991409743d0276ee8b5572992c3570a18ae532ab4cd8bb` |
+| Environments | 24 individual `linux/amd64` image manifest digests |
+| Protocol SHA256 | `dbd68d56849681a5ac991409743d0276ee8b5572992c3570a18ae532ab4cd8bb` |
 
-[冻结配置](../configs/benchmarks/swebench-verified-v1.json)包含基线提交、镜像身份和 144 个上游文件的 SHA256。
-[完整目录](../configs/benchmarks/swebench-verified-catalog.json)仅包含任务 ID、仓库、基线提交及来源身份。
-下载的题目、参考解、隐藏测试和完整运行产物留在忽略的 `work/` 中。
+The [frozen configuration](../configs/benchmarks/swebench-verified-v1.json) records base commits,
+image identities and SHA256 hashes for 144 upstream files. The
+[catalog](../configs/benchmarks/swebench-verified-catalog.json) contains only task IDs, repositories,
+base commits and provenance. Downloaded prompts, solutions, hidden tests and full artifacts remain
+under ignored `work/`.
 
-按 `sha256("rtv-m4-swe-v1:" + instance_id)` 排序，前 4 个作开发集，随后 20 个作评测集，
-选择发生在观察结果之前。开发集为 `sympy__sympy-22914`、`sympy__sympy-15599`、
-`sympy__sympy-13091`、`scikit-learn__scikit-learn-9288`。两组互斥；不按是否容易、能运行或
-最终分数替换任务。环境不支持时保留失败记录。修改协议须发布新身份，不能覆盖旧配置。
+Rank by `sha256("rtv-m4-swe-v1:" + instance_id)` before observing outcomes. The first four tasks are
+development tasks; the next twenty are evaluation tasks. Development IDs are `sympy__sympy-22914`,
+`sympy__sympy-15599`, `sympy__sympy-13091` and `scikit-learn__scikit-learn-9288`.
+Splits are disjoint. Do not replace tasks based on difficulty, compatibility or results; unsupported
+environments remain recorded failures. Protocol changes require a new identity without overwriting
+the old configuration.
 
-新增开发阶段的[工具额度交接协议](m4-tool-prefix.md)具有独立身份，复用完全相同的任务与环境预检。下文保留历史自然结束协议的定义。
+## Experimental protocol
 
-## 实验协议
+Each task/repeat forms a paired block. A commits a checkpoint after one naturally completed stage
+within 300 seconds. Hidden rewards never determine fork eligibility. Prefix timeout gives all three
+continuation arms `source_failed` while retaining costs; the fresh baseline can run independently.
+The summary is the source agent's final message, labeled unverified, without an extra model call.
 
-每个任务的每次重复是一个配对块。A 在 300 秒上限内完成一个自然结束的阶段后提交 checkpoint；
-不依赖隐藏测试奖励决定是否分叉。源阶段超时则三个继续分支记 `source_failed`，保留已发生成本；
-从头开始的分支仍可独立运行。摘要取源 agent 的最终消息并标为未经验证，不额外调用模型。
-
-| 分支 | 初始状态与上下文 | 执行上限 |
+| Branch | Initial state and context | Execution cap |
 | --- | --- | --- |
-| A-continue | 同一 checkpoint + A 原生会话 | 300 秒 |
-| B-workspace | 同一 checkpoint + 原始任务 | 300 秒 / 8 个 API 请求 |
-| B-summary | 同一 checkpoint + 原始任务 + 未验证摘要 | 300 秒 / 8 个 API 请求 |
-| B-fresh | 原始仓库与任务，没有 checkpoint 或前缀成本 | 600 秒 / 16 个 API 请求 |
+| A-continue | Shared checkpoint and native A session | 300 seconds |
+| B-workspace | Shared checkpoint and original task | 300 seconds / 8 API requests |
+| B-summary | Shared checkpoint, original task and unverified summary | 300 seconds / 8 API requests |
+| B-fresh | Original repository and task; no checkpoint or prefix cost | 600 seconds / 16 API requests |
 
-开发集重复 1 次：4 个前缀、16 个分支。评测集重复 2 次：40 个前缀、160 个分支。
-块内执行顺序由稳定哈希预先确定，分支拥有独立工作区。排队时间另报，不消耗执行时间上限。
-时间上限是准入约束，不代表各分支实际消耗相同；报告必须保留实际时间和用量。
+The development split has one repeat: 4 prefixes and 16 branches. Evaluation has two repeats:
+40 prefixes and 160 branches. A stable hash sets the within-block order; branches use independent
+workspaces. Queue time is reported separately from execution caps. Caps do not imply equal actual
+consumption; the runtime must preserve measured durations and usage.
 
-主要比较为 **B-summary − A-continue**；其余比较是探索性的描述结果。
-A 计划为 Codex CLI 0.160.1 / `gpt-6-astra`，B 为 mini-swe-agent 2.4.6 /
-`gpt-5.4-mini-2026-03-17`。模型和 scaffold 同时变化，不能把差异解释成单独的交接协议效应。
-B-summary 与 B-workspace 才更直接对应摘要的增量作用。B-fresh 比较整条策略，不是共同 checkpoint 的继续。
-这些是待接入的运行配置，分析 CLI 不会启动模型。
+The primary contrast is **B-summary minus A-continue**; other contrasts are exploratory descriptions.
+Planned A: Codex CLI 0.160.1 / `gpt-6-astra`. Planned B: mini-swe-agent 2.4.6 /
+`gpt-5.4-mini-2026-03-17`. Model and scaffold both change, so this comparison measures a combined
+strategy effect. B-summary versus B-workspace more directly isolates added summary context.
+B-fresh compares end-to-end strategies, not continuation from a common checkpoint.
+These are pending runtime configurations; the analysis CLI never launches models.
 
-## 统计与费用口径
+## Statistics and accounting
 
-- 分母使用全部计划观测。基础设施失败、取消和源阶段失败在 ITT 成功率中计为未成功，
-  同时单列原因与真正完成验证的分母；不悄悄过滤。
-- 缺失行显式补为 `missing`，相关比较为暂定结果，不展示置信区间；完全缺失时差值为 `null`。
-- 先计算每个任务跨重复的平均配对差，再按**任务**聚类 bootstrap 10,000 次，种子 20261011，
-  输出百分位 95% 区间。重复和分支不是独立样本。20 个任务仅供探索，不代表官方 500 题成绩或总体优越性。
-- 原始观测必须声明 `scripted`、`oracle` 或 `real-model`；一次报告拒绝混合模式。
-  重复观测、伪造配对字段、不一致 checkpoint、验证奖励与结果冲突均拒绝。
-- 中断且费用不确定时记录 `null` 与 UNKNOWN 次数，显示已知费用下界。
-  策略总 API 成本包含其前缀；共同前缀不能跨物理分支重复相加来冒充实际账单。
-  Codex 订阅用量另报，不能把 API 成本 0 解释为推理免费。
-- 分析器验证输入一致性，不证明输入来自真实执行；原始日志、账本与产物关联仍须运行器提供。
-  延迟、token 与恢复指标的自动汇总留待真实仓库运行器接入。
+- All planned observations remain in the denominator. Infrastructure failures, cancellations and
+  prefix failures are unsuccessful in ITT resolution, with reasons and graded-only denominators
+  reported separately.
+- Missing rows become explicit `missing` observations. Affected comparisons are provisional with
+  no confidence interval; a wholly missing comparison has a null difference.
+- Average paired differences across repeats within each task, then bootstrap **task clusters**
+  10,000 times with seed 20261011 for percentile 95% intervals. Repeats and branches are not independent
+  samples. Twenty tasks support exploration, not an official 500-task score or population superiority.
+- Reports require a homogeneous `scripted`, `oracle` or `real-model` mode. Duplicate observations,
+  forged pairing fields, inconsistent checkpoints and reward/outcome conflicts are rejected.
+- Unknown interrupted cost stays null with an UNKNOWN count and a known-cost lower bound. Each
+  continuation strategy includes its prefix; do not sum duplicated prefix attribution across physical
+  forks as an invoice. Subscription usage is separate: zero API spend does not mean free inference.
+- Input validation checks consistency, not authenticity. The runtime must connect observations to
+  logs, ledgers and artifacts. Automatic latency, token and recovery summaries await runtime integration.
 
-现有 M3 transport 的每请求 $0.062 预约额仅用于规划，**不是当前价格报价、账单保证或 M4 授权**：
+The existing M3 transport envelope reserves $0.062 per request **for planning only**, not as a current
+price quote, invoice guarantee or M4 authorization:
 
-| 范围 | 最多 API 请求 | API 预约总额 | Codex 订阅阶段 |
+| Scope | Maximum API requests | API reservation | Codex subscription stages |
 | --- | ---: | ---: | ---: |
-| 4 题开发集 | 128 | $7.936 | 8 |
-| 20 题 × 2 评测集 | 1,280 | $79.36 | 80 |
+| Four development tasks | 128 | $7.936 | 8 |
+| Twenty tasks, two repeats | 1,280 | $79.36 | 80 |
 
-运行器与价格核验完成后再提交具体付费预算，获批才运行。之前 M3 的 $8 授权不覆盖这里。
-本机镜像下载只使用现有网络与存储，没有租用云资源或启动 lab GPU。
+Validate the actual transport and current prices, then obtain approval for a concrete paid run.
+The prior M3 $8 approval does not cover M4. Local image downloads use existing network/storage;
+no cloud resources or lab GPUs are launched.
 
-## 零模型命令
+## Model-free commands
 
-从仓库根目录执行。元数据审计、计划与分析只需 Python 3.11 core；下载需要 Git 和网络：
+Run from the checkout root. Metadata audit, scheduling and analysis support Python 3.11 core;
+materialization additionally needs Git and network access:
 
 ```bash
 .venv/bin/python -m rtv benchmark plan
@@ -92,12 +105,14 @@ B-summary 与 B-workspace 才更直接对应摘要的增量作用。B-fresh 比�
 .venv/bin/python -m rtv benchmark audit --upstream work/m4-benchmark/harbor-datasets
 ```
 
-`materialize` 固定上游提交并 sparse checkout 24 个目录，随后核验所有文件。
-已有目录若提交或内容不同则失败。`--plan` 可显式指定配置，须放在子命令之前。
-CLI 默认配置面向本仓库 checkout；安装 wheel 后应显式传配置与旁边的 catalog。
+`materialize` pins the upstream commit, checks out the 24 directories sparsely, then audits every file.
+An existing checkout with a different revision or changed content fails. Supply `--plan` before the
+subcommand to select an explicit configuration. The default targets this checkout; wheel installs
+should supply the configuration and adjacent catalog explicitly.
 
-真实容器预检需要 Docker；只允许开发集。构建时预装 verifier 依赖并生成 lock，测试时断网。
-上游包装提交允许与 base commit 不同，但代码树必须相同且工作区干净：
+Container preflight requires Docker and accepts development tasks only. Build time installs verifier
+dependencies and creates a lock; verification runs offline. Upstream packaging commits may differ
+from the base commit only when the code tree is identical and the worktree is clean:
 
 ```bash
 .venv/bin/python scripts/m4_benchmark_preflight.py \
@@ -105,12 +120,14 @@ CLI 默认配置面向本仓库 checkout；安装 wheel 后应显式传配置与
   --output work/m4-benchmark/preflight-new
 ```
 
-脚本依次在两个独立容器中运行未修改代码和上游参考补丁，检查 parser 报告、奖励和退出状态。
-解析失败产生的 0 分不能算作有效负对照。只删除自己创建的容器；保留镜像、依赖 lock、
-日志和哈希供核对。镜像初次构建要联网；锁文件记录本次解析，跨机器完全复现应保留派生镜像或复用锁，
-不能只凭基础镜像固定就宣称整个构建可逐字节复现。
+Two isolated containers test unmodified code and the upstream reference patch. Parser output, reward
+and exit status must agree; a parser failure producing zero cannot pass the negative control.
+Only owned containers are removed. Images, dependency lock, logs and hashes remain for inspection.
+The initial image build needs network access. The lock records this resolution; reproducing the
+derived environment across machines requires preserving the image or reusing its lock. Pinning only
+the base image does not make the entire build byte-for-byte reproducible.
 
-脚本统计验收、导出与输入格式示例：
+Scripted statistical acceptance, export and input examples:
 
 ```bash
 .venv/bin/python scripts/m4_benchmark_acceptance.py --output work/m4-benchmark/statistics-new
@@ -118,21 +135,23 @@ CLI 默认配置面向本仓库 checkout；安装 wheel 后应显式传配置与
   --records work/m4-benchmark/statistics-new/records.jsonl --output work/m4-benchmark/report-new
 ```
 
-每行 JSON 必须带 schedule 的 observation ID、protocol SHA、task ID、repeat、branch，
-以及 `mode`、`status`、`checkpoint_id`、`prefix_api_cost_usd`、`incremental_api_cost_usd`、
-`unknown_operations`。`solved/unsolved` 还要求 `verifier_status="completed"` 和一致的整数奖励
-`verifier_reward=1/0`。其他状态为 `infra_error/source_failed/cancelled`。
-输出目录不能已存在；报告包含原始 JSONL、输入 SHA256、冻结协议、完整 JSON/CSV 和中英文 Markdown。
+Each JSONL row requires its scheduled observation ID, protocol SHA, task ID, repeat and branch,
+plus `mode`, `status`, `checkpoint_id`, `prefix_api_cost_usd`, `incremental_api_cost_usd` and
+`unknown_operations`. Graded `solved/unsolved` rows also require `verifier_status="completed"` and
+matching integer `verifier_reward=1/0`. Other statuses are `infra_error/source_failed/cancelled`.
+Output directories must be new. Exports contain raw JSONL with its SHA256, the frozen protocol,
+full JSON/CSV and English Markdown reports.
 
-## 已有证据与下一步
+## Evidence and remaining integration
 
-见[容器预检证据](evidence/m4-benchmark-preflight-arm64-20261011.json)与
-[统计验收证据](evidence/m4-benchmark-protocol-20261011.json)。首个开发任务在 macOS ARM64
-宿主上以 `linux/amd64` 运行，未修改代码为 0、参考补丁为 1，容器均清理。
-这只证明一个任务的环境和 verifier 可用，没有 agent 调用，也不是 Kubernetes 结果。
-早期权限、包装提交校验与退出码适配失败均保留。
+See [container preflight evidence](evidence/m4-benchmark-preflight-arm64-20261011.json) and
+[statistical acceptance evidence](evidence/m4-benchmark-protocol-20261011.json). On the ARM64 macOS
+host, the first development task runs as `linux/amd64`: unmodified reward 0, reference-patch reward 1,
+both containers removed. This validates one task environment and verifier, without agents or
+Kubernetes. Earlier permission, packaging-commit and exit-code adaptation failures are retained.
 
-任务感知的本机 runtime 已接入 `/testbed`，完成真实仓库 checkpoint 导出、独立恢复、
-隐藏测试隔离、600 秒 verifier 和 16 请求 fresh 入口；见[真实仓库接入](m4-repositories.md)。
-本节证据为脚本/参考解控制；后续真实模型会话验收见 pilot 指南。Kubernetes 资源、AMD64 执行、材料交付
-及统计关联见[集群仓库接入](m4-repository-cluster.md)。[凭据通道与 pilot 启动器](m4-model-pilot.md)已完成一个任务的真实流程验收；首轮失败、第二轮以及 160 KB 配置的第三轮结果独立保存，第三轮四分支均 solved。全部开发环境预检与[四题工具额度对照](m4-tool-prefix-results.md)现已完成；正式评测仍待完成。
+The local runtime now supports declared `/testbed` tasks, checkpoint export, isolated restoration,
+hidden-test separation, a 600-second verifier and a 16-request fresh entry point; see
+[repository integration](m4-repositories.md). Evidence uses scripted/reference controls, not real
+model sessions. Kubernetes resources, AMD64 execution, task delivery and observation linkage are covered
+in [cluster repository integration](m4-repository-cluster.md). The [credential path and pilot](m4-model-pilot.md) now pass real workflow acceptance on one task. The failed first attempt, repaired second attempt and 160 KB third attempt remain separate; the third grades all four branches solved. All development preflights and the [four-task tool-prefix round](m4-tool-prefix-results.md) are now complete; formal evaluation remains pending.

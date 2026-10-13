@@ -1,5 +1,6 @@
 """Versioned task contract; source prompts never include verifier or oracle files."""
 
+import asyncio
 import json
 import math
 import re
@@ -66,7 +67,17 @@ def workspace(spec):
 
 def workspace_digest(path, spec):
     declared = contract(spec)
-    return tree_digest(path, exclude_names=declared["workspace_excludes"] if declared else ())
+    return tree_digest(
+        path,
+        exclude_names=declared["workspace_excludes"] if declared else (),
+        preserve_symlinks=bool(declared),
+    )
+
+
+async def async_workspace_digest(path, spec):
+    # A repository walk on a shared mount can exceed the execution lease.
+    # Keep the supervisor's heartbeat loop runnable throughout the hash.
+    return await asyncio.to_thread(workspace_digest, path, spec)
 
 
 def prompt(spec, partial):

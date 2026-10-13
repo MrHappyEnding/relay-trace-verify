@@ -1,12 +1,13 @@
 """Final verification consumes only declared workspace bytes in a fresh sandbox."""
 
+import asyncio
 import json
 import shlex
 
 from rtv.codex_probe import main_container, make_environment, verify
 from rtv.harbor_probe import _docker, tree_digest
 from rtv.runtime import sandbox
-from rtv.runtime.tasks import contract, workspace_digest
+from rtv.runtime.tasks import async_workspace_digest, contract
 from rtv.runtime.tasks import workspace as workspace_scope
 
 
@@ -52,11 +53,14 @@ async def isolated_verify(task, row, workspace, output):
         restored = output / "verifier-input"
         restored.mkdir()
         await env.download_dir(scope, restored)
-        digest = workspace_digest(workspace, row["spec"])
-        if workspace_digest(restored, row["spec"]) != digest:
+        digest = await async_workspace_digest(workspace, row["spec"])
+        if await async_workspace_digest(restored, row["spec"]) != digest:
             raise ValueError("Verifier input digest mismatch")
-        container = main_container(env)
-        if _docker("inspect", "--format", "{{.Image}}", container) != image:
+        container = await asyncio.to_thread(main_container, env)
+        if (
+            await asyncio.to_thread(_docker, "inspect", "--format", "{{.Image}}", container)
+            != image
+        ):
             raise ValueError("Verifier image identity changed")
         rewards = await verify(
             task, env, timeout=declared["verifier_timeout_seconds"] if declared else 30
@@ -77,13 +81,13 @@ async def isolated_verify(task, row, workspace, output):
             "isolated": True,
             "workspace_digest": digest,
             "container": container,
-            "verifier_digest": tree_digest(task.paths.tests_dir),
+            "verifier_digest": await asyncio.to_thread(tree_digest, task.paths.tests_dir),
             "workspace_scope": scope,
             "image_id": image,
         }
     finally:
-        ids = sandbox.project_resources(sandbox.session(row) + "-verify")
+        ids = await asyncio.to_thread(sandbox.project_resources, sandbox.session(row) + "-verify")
         if ids["containers"]:
-            _docker("rm", "-f", *ids["containers"])
+            await asyncio.to_thread(_docker, "rm", "-f", *ids["containers"])
         for network in ids["networks"]:
-            _docker("network", "rm", network)
+            await asyncio.to_thread(_docker, "network", "rm", network)

@@ -1,7 +1,7 @@
 **
 !pyproject.toml
 !uv.lock
-!README.en.md
+!README.md
 !src/
 !src/**
 !examples/

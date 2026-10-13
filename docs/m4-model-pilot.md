@@ -1,114 +1,129 @@
-# M4：模型凭据通道与首个真实仓库试验
+# M4: Model credentials and the first real repository pilot
 
-[![中文](assets/lang-zh.svg)](m4-model-pilot.md) [![English](assets/lang-en.svg)](m4-model-pilot.en.md)
+The later [four-task tool-prefix round](m4-tool-prefix-results.md) is complete, including sixteen real-model grades and post hoc prefix diagnosis. This page preserves the three historical natural-turn pilots.
 
-后续[四题工具额度开发试验](m4-tool-prefix-results.md)已完成，包含 16 条真实模型判分及事后前缀诊断。本文保留此前三轮自然结束试验。
+## Third run: 160 KB inputs, all four branches solved
 
-## 第三轮：输入提高到 160 KB，四个分支均 solved
+The owner increased this stage's cumulative API budget from $8 to **$20**, including both prior
+attempts. One run with frozen `mini-160kb-v1` settings completed in 615.34 seconds and passed
+**13 real-model workflow checks**. See the [third-run evidence](evidence/m4-real-pilot-3-arm64-20261012.json).
+Formal evaluation and M4 as a whole remain incomplete.
 
-所有者将本阶段累计 API 预算从 $8 提高到 **$20**，包括前两轮。使用冻结的
-`mini-160kb-v1` 配置运行一次，615.34 秒完成，**13 项真实模型流程检查通过**。
-见[第三轮证据](evidence/m4-real-pilot-3-arm64-20261012.json)。正式评测与整个 M4 仍未完成。
-
-| 分支 | Agent 退出情况 | 独立判分 | API 请求 | 最大已发送输入 | 本轮 API 美元 |
+| Branch | Agent exit | Independent grading | API requests | Maximum sent input | Run API USD |
 | --- | --- | --- | ---: | ---: | ---: |
-| A-continue | 原生会话正常完成，session ID 保持 | solved / 1 | 0 | 不适用 | 订阅成本未知 |
-| B-workspace | `LimitsExceeded`，8 次请求用完 | solved / 1 | 8 | 59,482 字节 | 0.02299590 |
-| B-summary | `Submitted` | solved / 1 | 8 | 45,342 字节 | 0.01889490 |
-| B-fresh | `Submitted` | solved / 1 | 10 | 69,052 字节 | 0.03321300 |
+| A-continue | Native session completed, same session ID | solved / 1 | 0 | N/A | Subscription cost unknown |
+| B-workspace | `LimitsExceeded`, all 8 requests used | solved / 1 | 8 | 59,482 bytes | 0.02299590 |
+| B-summary | `Submitted` | solved / 1 | 8 | 45,342 bytes | 0.01889490 |
+| B-fresh | `Submitted` | solved / 1 | 10 | 69,052 bytes | 0.03321300 |
 
-26 次 API 请求中有 10 次超过旧的 40 KB 限制，没有输入超限停止。B-workspace 仍保留
-`failed / agent_limit_or_error` 的运行状态，独立 verifier 按实际代码判为 solved；
-请求次数耗尽和代码正确性分开记录。B-fresh 从上一轮 unsolved 变为本轮正常提交且 solved，
-说明本次扩大额度允许它继续完成；单任务随机重跑不能据此估计成功率提升。
+Ten of the 26 API requests exceeded the old 40 KB cap, with no input-limit stops. B-workspace keeps
+its `failed / agent_limit_or_error` runtime state while the independent verifier grades its code as
+solved. Request exhaustion and code correctness are separate outcomes. B-fresh changed from unsolved
+in the previous attempt to submitted and solved here; the larger envelope allowed this execution to
+continue, but stochastic reruns on one task do not establish a success-rate improvement.
 
-本轮已知 API 费用 **$0.07510380**；三轮累计 45 次请求、**$0.11725620**，无 UNKNOWN API
-回执。每请求预约 $0.16，本轮最多 32 次请求的准入额度为 $5.12，实际占用预约 $4.16。
-累计不可复用的请求预约为 **$5.338**，按此保守口径 $20 中还剩 **$14.662**。
-预约不是实际收费，Codex 订阅美元成本未知；未使用 GPU 或云资源。
+This run's known API cost is **$0.07510380**. All three attempts total 45 requests and **$0.11725620**,
+with no UNKNOWN API receipts. At $0.16 reserved per request, this run admitted at most 32 requests
+under $5.12 and actually reserved $4.16. Cumulative non-reusable request reservations are **$5.338**,
+leaving **$14.662** of the $20 stage budget by that conservative measure. Reservations are not charges;
+Codex subscription dollars remain unknown. No GPUs or cloud resources were used.
 
-公共前缀已包含核心修复。A-continue 的 tracked patch 与前缀相同且通过判分；两个 mini
-继续分支保留同一修复源文件并补充测试，尚未证明接手者救回未完成任务。三轮仍只有
-一个独立任务，4 个开发任务所需 16 条观察中本轮只有 4 条，不展示置信区间或接力优势。
-启动器收尾取消源 Trial；原始 checkpoint 仍记录 `sealed` 和未运行隐藏 verifier。
+The prefix already contained the core repair. A-continue kept its tracked patch and passed grading;
+both mini continuation branches preserved the repaired source file and added tests. Rescue of
+unfinished work is not demonstrated. Three attempts still represent one independent task; this run
+has four of the 16 planned development observations, with no confidence interval or relay advantage
+claim. Launcher cleanup cancels the source Trial; its immutable checkpoint retains `sealed` and the
+absence of hidden prefix verification.
 
-新配置限制 160,000 输入字节与 4,096 输出 token，不更换模型、采样协议、任务或时限。
-采样协议中的 $0.062 是原计划估算；本轮实际额度由 spec 中的 `api_envelope`、run SHA、
-准备文件和凭据授权共同绑定。未声明配置的历史运行仍按 `mini-40kb-v1`（40,000 字节 /
-$0.062）重建，M3 默认不变。每轮额度与 $20 累计额度分别核对，不自动重跑。
+The new policy allows 160,000 input bytes and 4,096 output tokens, retaining models, sampling protocol,
+task, and time limits. The sampling protocol's $0.062 remains the original planning estimate; the
+spec's `api_envelope`, run SHA, preparation file and credential admission bind this run's actual
+allowance. Historical specs without a policy reconstruct as `mini-40kb-v1` (40,000 bytes / $0.062),
+including unchanged M3 defaults. Run allowance and the $20 cumulative budget are checked separately;
+there is no automatic rerun.
 
-零模型验证：192 项单元/模拟测试通过，1 项真实容器测试需显式启用；Python 3.11
-核心测试 108 项通过、54 项可选依赖测试跳过。52 个镜像源码文件匹配，17 项双节点假凭据
-检查通过。真实运行后 Job、Pod、Secret 和资源预约均清理，3 个节点 Ready。
-47,675 个运行产物文件未发现原 API key 或认证 token；9 个本地原生轨迹副本含账号标识
-元数据，保留在忽略的 `work/`，不提交原始轨迹或凭据值。
+Model-free checks: 192 unit/mocked tests passed, one real-container test requires opt-in; Python 3.11
+core tests passed 108 with 54 optional-dependency skips. All 52 runner Python files matched and 17
+two-node fake-credential checks passed. After the real run, Jobs, Pods, Secrets and allocations were
+cleaned up, with three Ready nodes. Scanning 47,675 artifact files found no original API key or
+authentication token values; nine local native-rollout copies contain account identifier metadata.
+They remain in ignored `work/`; raw histories and credential values are not committed.
 
-**历史记录：修复版第二轮通过 13 项真实模型流程验收。** 一个 SWE-bench 开发任务完成检查点、
-双 agent 接力、Codex 原会话继续和四分支独立判分；整个 M4 与正式效果评测仍未完成。
-本轮 13 次 API 请求记录 $0.02641425，两轮累计 19 次请求、**$0.04215240**，计入同一 $8 总预算。
-Codex 订阅美元成本未知，没有使用 GPU 或云资源。
-见[第二轮证据](evidence/m4-real-pilot-2-arm64-20261012.json)；
-[首轮失败与修复](evidence/m4-real-pilot-1-arm64-20261012.json)及
-[假凭据检查](evidence/m4-credentials-arm64-20261012.json)保持独立，不覆盖旧结果。
+**Historical record: the repaired second run passes 13 real-model workflow checks.** One SWE-bench development
+task completed checkpointing, cross-agent handoff, native Codex continuation and independent grading
+of four branches. M4 and formal effectiveness evaluation remain incomplete. This attempt made 13 API
+requests for $0.02641425; both attempts total 19 requests and **$0.04215240** under the same $8 budget.
+Codex subscription dollar cost remains unknown. No GPUs or cloud resources were used.
+See the [second-run evidence](evidence/m4-real-pilot-2-arm64-20261012.json). The
+[first failed attempt and fixes](evidence/m4-real-pilot-1-arm64-20261012.json) and
+[fake-credential checks](evidence/m4-credentials-arm64-20261012.json) remain separate historical records.
 
-## 第二轮：流程通过与效果边界
+## Second run: workflow acceptance and effectiveness limits
 
-所有者明确要求使用修复版再跑一次，继续使用原 $8 总预算。执行冻结的
-`model-pilot-prepared-3.json`，不改模型、任务或请求上限，总耗时 556.04 秒。
+The owner explicitly requested one repaired rerun within the original $8 total budget. Execution
+used frozen `model-pilot-prepared-3.json` without changing models, task or request caps, taking
+556.04 seconds overall.
 
-| 分支 | Agent 退出情况 | 独立判分 | API 请求 | 本轮分支 API 美元 |
+| Branch | Agent exit | Independent grade | API requests | Branch API USD |
 | --- | --- | --- | ---: | ---: |
-| A-continue | 原生会话正常完成，session ID 保持一致 | solved / 1 | 0 | 订阅成本未知 |
+| A-continue | Native turn completed; same session ID | solved / 1 | 0 | Subscription cost unknown |
 | B-workspace | `InputLimitExceeded` | solved / 1 | 6 | 0.01105530 |
 | B-summary | `Submitted` | solved / 1 | 4 | 0.00727665 |
 | B-fresh | `InputLimitExceeded` | unsolved / 0 | 3 | 0.00808230 |
 
-B-workspace 在第 7 次请求前达到 40,699 字节，B-fresh 在第 4 次请求前达到 41,695 字节；
-均未发送超限请求。它们的运行状态保留为 `failed / agent_limit_or_error`，但工作区、轨迹和
-checkpoint 都被保留，独立 verifier 正常完成。统计器按测试结果分别记 solved、unsolved，
-不能把 agent 退出方式和任务正确性混为一谈。
+B-workspace reached 40,699 bytes before request 7; B-fresh reached 41,695 bytes before request 4.
+Neither oversized request was sent. Both retain runtime status `failed / agent_limit_or_error`,
+but preserve their workspaces, trajectories and checkpoints and complete isolated verification.
+Statistics therefore record solved and unsolved respectively. Agent exit and task correctness are
+separate outcomes.
 
-13 项检查覆盖：公共前缀封存且不读取隐藏测试、三个继续分支的工作区恢复一致、
-Codex session ID 保持、四个独立 verifier、观察记录关联、预约额度和清理。
-收尾时启动器取消已封存的源 Trial，最终行显示 `cancelled`；不可变 checkpoint 中保留
-`sealed / stage_complete`，这次收尾不表示源阶段失败。
+The 13 checks cover sealing the prefix without hidden tests, matching workspace restoration on all
+three continuation branches, native session identity, four independent verifiers, observation linkage,
+budget reservations and cleanup. During finalization the launcher cancels the already sealed source
+Trial, so its final row says `cancelled`; its immutable checkpoint retains `sealed / stage_complete`.
+This cleanup does not indicate a source-stage failure.
 
-**效果边界：三个继续分支的 tracked Git patch 与前缀完全一致，主要修复已在前缀完成。**
-本轮验证了已有工作被保留并能继续执行，尚未证明第二个 agent 补完了一个未完成的修复。
-B-fresh 在输入上限前没有形成 tracked patch。这里只有一个独立任务，4 个开发任务计划的
-16 条观察中得到 4 条、其余 12 条仍缺失，置信区间不展示；两轮调试不能作为两个独立样本。
-不同模型与 scaffold 同时变化，也不能从此推导接力成功率或成本优势。
+**All three continuation branches retained exactly the prefix's tracked Git patch; the substantive
+repair was already present in the prefix.** This validates preservation and continued execution, not
+a second agent rescuing an unfinished repair. B-fresh produced no tracked patch before its input cap.
+Only one independent task is observed: 4 of 16 planned development observations, with 12 still missing
+and confidence intervals withheld. The two debugging attempts are not independent samples. Model and
+scaffold also change together, so this does not establish a success-rate or cost advantage for relay.
 
-本轮仅分配 $1.984 调用额度；实际请求预约 $0.806，加首轮 $0.372 共 **$1.178**，
-按预约不复用口径，$8 中仍余 **$6.822**。13 次 API 回执全部已结算，首轮账本也保持不变。
-Job、Pod、Secret 和资源预约均清理，3 个节点 Ready；47,524 个运行产物文件未发现原凭据值。
-完整轨迹与工作区留在忽略的 `work/`，Git 只保存报告、校验摘要和来源索引。
+This attempt received only a $1.984 allowance and reserved $0.806 for actual requests. With the first
+attempt's $0.372, cumulative reservations are **$1.178**, leaving **$6.822** under conservative non-reuse
+accounting. All 13 API responses have settled usage. Owned Jobs, Pods, Secrets and resource reservations
+are removed; all three nodes are Ready. A scan of 47,524 run artifact files found no original credential
+values. Full trajectories and workspaces remain in ignored `work/`; Git stores reports, hashes and
+provenance indexes only.
 
-## 首次运行与修复
+## First attempt and fixes
 
-2026-10-12 使用已冻结的 `sympy__sympy-22914` 计划执行一次。结果均保留：
+One frozen `sympy__sympy-22914` pilot ran on 2026-10-12. All outcomes are retained:
 
-| 阶段 | 结果 | 原因 |
+| Stage | Outcome | Cause |
 | --- | --- | --- |
-| Codex 公共前缀 | 基础设施失败，未发布 checkpoint | Harbor 的整段 CLI 执行被 RTV 普通命令的 60 秒默认值截断，早于批准的 300 秒阶段时限 |
-| B-summary / B-workspace / A-continue | `source_failed`，未启动 | 没有可用的公共前缀 |
-| B-fresh | `infra_error`，未判分 | 第 7 次请求的输入达到 40,052 字节，在发送前触发 40,000 字节上限；原处理抛异常，跳过收尾与 verifier |
+| Codex prefix | Infrastructure failure; no checkpoint | RTV's 60-second default for ordinary commands cut off Harbor's entire CLI execution before the approved 300-second stage deadline |
+| B-summary / B-workspace / A-continue | `source_failed`; not launched | No sealed shared prefix |
+| B-fresh | `infra_error`; ungraded | Request 7 reached 40,052 input bytes and was rejected before sending at the 40,000-byte cap; the original exception bypassed finalization and verification |
 
-6 次 API 请求全部有用量回执，预约额 $0.372；没有第 7 次 API 调用。阶段级 UNKNOWN
-仍保留，不把 Codex 订阅成本写成零。Job、Pod、运行凭据 Secret 与资源预约均已清理；
-33 个运行产物文件未发现本次凭据值。完整轨迹仅保留在忽略的 `work/`。
+All six API requests have returned usage; their reservations total $0.372. No seventh API request
+was sent. Stage-level UNKNOWN records remain, and Codex subscription cost is not zero. Owned Jobs,
+Pods, Secrets and resource reservations were cleaned up; a scan of 33 run artifact files found no
+credential values. Full trajectories remain in ignored `work/` only.
 
-修复后，无显式超时的 Codex `exec` 使用阶段时限加 30 秒的兜底，外层阶段计时器负责取消；
-普通生命周期命令仍限 60 秒，显式工具时限不变。mini 输入超限改为 `InputLimitExceeded`
-正常停止，保存现有改动、轨迹并继续独立判分，不截断历史、不提高预算、不补发请求。
-运行状态可保留为 agent 达到上限；统计器依据独立 verifier 判定 solved / unsolved。
-这是停止策略修复，尚未加入上下文压缩，真实任务仍可能很早耗尽输入额度。
+The fix gives Codex `exec` commands without an explicit timeout a fallback of the stage limit plus
+30 seconds; the outer stage timer owns cancellation. Ordinary lifecycle commands remain bounded at
+60 seconds and explicit tool timeouts stay unchanged. Mini now exits normally with
+`InputLimitExceeded`, preserving its patch and trajectory for isolated grading without truncating
+history, raising budgets or sending another request. Runtime status may still report an agent limit;
+statistics use the independent verifier to assign solved / unsolved. This fixes stop handling;
+context compression is not implemented and real tasks may still exhaust the input cap early.
 
-代码通过 189 项单元/模拟测试（1 项真实容器测试需显式启用），Python 3.11 核心测试
-108 项通过（52 项可选依赖测试跳过）。零模型真实 Docker 时限探针的 4 项检查通过，
-长命令耗时 65.19 秒；修复镜像的 52 个 Python 文件与工作区一致，已导入 3 个节点，
-17 项双节点假凭据回归检查通过。Docker 探针命令如下。
-以上是重跑前的零模型验证；随后按所有者指示执行第二轮，首轮冻结镜像和失败结果保持不变。
+The changes pass 189 unit/mocked tests (one container test requires opt-in), and 108 Python 3.11 core
+tests (52 optional-dependency skips). Four real Docker timing checks pass without model calls; the
+long command took 65.19 seconds. The repaired image matches all 52 workspace Python files, is
+imported on three nodes, and passes 17 two-node fake-credential regression checks. Run the Docker probe with:
 
 ```bash
 .venv/bin/python scripts/m4_execution_limits_probe.py \
@@ -116,65 +131,80 @@ Job、Pod、Secret 和资源预约均清理，3 个节点 Ready；47,524 个运�
   --output work/m4-control/execution-limits-probe-next
 ```
 
-## 凭据与执行授权
+These were the zero-model checks before the owner-requested second run. The first failed run's
+frozen image and results remain unchanged.
 
-默认配置没有 `model_access`，仍拒绝真实模型。明确批准后的启动器才创建两个不可变的
-Kubernetes Secret，并把 **name + UID 引用**加入该运行的配置。正文不保存 key、登录缓存
-或其内容摘要；实际 Secret 值通过 Kubernetes API 直接提交，不经过 shell 参数、共享目录
-临时文件或 Workflow 历史。启动器报告只保留经过筛选的错误类型。
+## Credentials and execution admission
 
-- 授权绑定一个 runtime root、冻结 run SHA、5 个 Trial ID、各自 spec SHA 和请求数；
-  控制面及 runner 均核对，仅接受 epoch=1，禁止自动恢复和再次执行模型阶段。
-- 每个 Job 仅挂载对应 adapter 的一个 Secret，文件 `0400`，只读挂载；不挂载 service-account token。
-- 启动子进程前清除继承的模型认证变量，只为当前 adapter 设置 opt-in 和文件路径。
-- mini 的 API key 留在外层执行器，工具通过 Harbor 在断网的内层容器执行。
-  Codex 由已有 Harbor adapter 将登录缓存复制到内层临时认证目录，checkpoint 只导出允许的文件。
-- Secret 创建确认丢失时只读取并验证同名、同内容、同运行的不可变对象，不再次创建。
-  Job 启动前复核 Secret UID；清理使用 UID 前置条件，拒绝删除被替换的对象。
+The default pool has no `model_access` and still rejects real models. Only the explicitly approved
+launcher creates two immutable Kubernetes Secrets and records **name + UID references** in that run's
+configuration. Metadata contains neither credential contents nor their hashes. Secret values go
+directly through the Kubernetes API, without shell arguments, shared-volume staging or Workflow
+history. Launcher reports keep filtered types rather than raw authentication responses.
 
-两个执行节点在同一 Docker Desktop 宿主上；外层正式 executor 仍使用 privileged DinD，
-仅支持可信本机实验。Secret 挂载本身不能按 UID 锁定，启动前检查依赖 namespace 管理者可信；
-本实现不声称防御集群管理员、恶意特权进程或恶意 agent 对自身认证文件的读取。
-也未实现 Secret 轮换、Codex 刷新后的认证缓存回写、跨宿主 Secret 管理或静态加密配置。
-启动器异常退出时，可依据 `credential-intent.json` 和 `credential-references.json` 核对并清理
-该运行的 Secret；不得批量删除 namespace 中的其他凭据。
+- Admission binds one runtime root, frozen run SHA, five Trial IDs, their spec hashes and request
+  allowances. Controller and runner both validate these; only epoch 1 is accepted, with no automatic
+  recovery or replay of model stages.
+- Each Job mounts exactly one Secret for its adapter: read-only projection, `0400` file, no
+  service-account token. Inherited model authentication variables are cleared before spawning the
+  supervisor; only the admitted adapter receives opt-in and a file path.
+- Mini's API key stays in the outer executor; Harbor executes tools in the network-disabled inner
+  container. The existing Harbor Codex adapter copies its login cache into the inner temporary auth
+  directory. Checkpoints export only the allowed files.
+- A lost Secret-create acknowledgement is recovered by reading and checking the same immutable
+  object, owner and contents, without a second create. Job admission checks Secret UID, and cleanup
+  uses a UID precondition rather than deleting a replacement object.
 
-## 冻结试验与费用
+Both nodes share one Docker Desktop host. Production executor Pods still use privileged DinD and
+support trusted local experiments only. Secret volumes cannot pin object UIDs themselves; the
+pre-launch check assumes trusted namespace administrators. This does not defend against cluster
+administrators, hostile privileged processes or an agent reading its own auth file. Secret rotation,
+persisting refreshed Codex credentials, multi-host secret management and encryption-at-rest setup
+are not implemented. If the launcher crashes, use `credential-intent.json` and
+`credential-references.json` to identify and clean up this run's Secrets; never bulk-delete unrelated
+namespace credentials.
 
-三轮均只运行 `sympy__sympy-22914`，沿用原有协议、任务镜像、隐藏测试隔离和四分支顺序。
-agent 输入只有公开任务与所选上下文策略，没有脚本修复或参考解。准备命令不接触真实凭据。
+## Frozen experiment and cost
 
-| 阶段 | 配置 | 限制 |
+All three runs cover only `sympy__sympy-22914`, preserving the existing protocol, images, hidden-test
+separation and four-arm order. Agents receive the public issue and selected handoff context, without
+scripted repairs or the reference solution. Preparation does not access real credentials.
+
+| Stage | Configuration | Limit |
 | --- | --- | --- |
-| 公共前缀 | Codex `0.160.1` / `gpt-6-astra` | 300 秒，完成后 sealed，不运行隐藏验证器 |
-| A-continue | 同一 Codex 原生会话 | 300 秒 |
-| B-workspace | mini-swe-agent `2.4.6` / `gpt-5.4-mini-2026-03-17` | 300 秒，最多 8 请求 |
-| B-summary | 同上，另含未验证摘要 | 300 秒，最多 8 请求 |
-| B-fresh | 同上，从原始仓库开始 | 600 秒，最多 16 请求 |
+| Shared prefix | Codex `0.160.1` / `gpt-6-astra` | 300 seconds; sealed without hidden verification |
+| A-continue | Same native Codex session | 300 seconds |
+| B-workspace | mini-swe-agent `2.4.6` / `gpt-5.4-mini-2026-03-17` | 300 seconds / 8 requests |
+| B-summary | Same, with an unverified summary | 300 seconds / 8 requests |
+| B-fresh | Same, starting from the original repository | 600 seconds / 16 requests |
 
-每个 Trial 总期限 1800 秒，包括排队、准备及验证；每池最多一个 Job。
-源失败时保留失败，fresh 仍按冻结顺序尝试；基础设施异常不会自动重跑。
-真实模型记录与 oracle 记录分别导出。collector 核对实际 spec、上下文策略、模型调用类别、
-checkpoint 与前缀账本；未完成验证不能当成成功或失败的已评测结果。
-模型没有修好代码也会保留为有效的 unsolved 观察，而不会为了“验收通过”反复调用。
+Each Trial has a total 1800-second deadline including queueing, preparation and verification; a pool
+runs one Job at a time. Source failures are retained and the fresh baseline still runs in its frozen
+order. Infrastructure failures do not trigger automatic reruns. Real and oracle observations are
+exported separately. Collection checks actual specs, context policies, operation types, checkpoints
+and prefix accounting. Incomplete verification is not a graded outcome. An honest unsolved model
+result remains an observation; the launcher does not retry until the repair succeeds.
 
-2026-10-12 查询的 [OpenAI 官方价格](https://developers.openai.com/api/docs/models/gpt-5.4-mini)
-为每百万 token 输入 $0.75、缓存输入 $0.075、输出 $4.50。
-前两轮使用 40,000 字节 / $0.062 配置，每轮最多预约 **$1.984**，当时共享 $8 总预算。
-第三轮显式选择 160,000 字节 / $0.16 配置，每轮最多预约 **$5.12**；累计预算已提高到 **$20**。
-这是本地调用准入边界，不是供应商账单保证。
-2 个 Codex 阶段另消耗已有订阅额度；其美元成本保留未知，不标为免费。此轮没有云资源开销。
-认证缓存机制参考 [OpenAI 官方认证说明](https://learn.chatgpt.com/docs/auth)，API transport 和
-Codex adapter 继续复用 M3 的实现；没有升级模型。
+The [official OpenAI pricing](https://developers.openai.com/api/docs/models/gpt-5.4-mini), checked on
+2026-10-12, lists $0.75 input, $0.075 cached input and $4.50 output per million tokens. The first two
+attempts used 40,000 bytes / $0.062, reserving up to **$1.984** per run under the then-current $8
+stage budget. The third explicitly selects 160,000 bytes / $0.16, reserving up to **$5.12** per run;
+the cumulative budget is now **$20**. Output remains capped at 4,096 tokens. This is local
+admission accounting, not a provider invoice guarantee. Two Codex stages additionally consume
+existing subscription allowance; their dollar cost stays unknown rather than free. No cloud
+resources are provisioned. Authentication follows the
+[official OpenAI authentication documentation](https://learn.chatgpt.com/docs/auth); M3's API transport
+and Codex adapter are reused without a model upgrade.
 
-## 使用
+## Usage
 
-先根据[仓库本机指南](m4-repositories.md)准备带固定 Codex CLI 的 agent image/contract，
-再由 `cluster prepare-repository` 生成包含该 agent image、独立 verifier 与网络 sidecar 的任务包。
-保持本机 PostgreSQL 转发及 Temporal 服务运行。任务包和运行目录必须位于 cluster 共享目录。
+First prepare the pinned Codex CLI agent image/contract using the
+[local repository guide](m4-repositories.md), then deliver a package with `cluster prepare-repository`.
+It contains that agent image, the independent verifier and network sidecar. Keep the local PostgreSQL
+port-forward and Temporal service running. Package and runtime paths must be on the cluster volume.
 
 ```bash
-# 零模型、零凭据：冻结待批准的计划；输出与 runtime root 都必须使用新路径。
+# No model calls or credentials: freeze a plan using fresh plan and runtime paths.
 .venv/bin/python scripts/m4_model_pilot.py prepare \
   --config work/m4-data/model-repository-package-1/config-160kb-v1.json \
   --contract work/m4-data/model-repository-package-1/contract.json \
@@ -182,7 +212,7 @@ Codex adapter 继续复用 M3 的实现；没有升级模型。
   --output work/m4-control/model-pilot-next.json \
   --api-envelope mini-160kb-v1
 
-# 仅在所有者批准本轮费用之后执行；认证文件为私有普通文件，且在集群共享目录之外。
+# Only after owner approval. Credentials must be private regular files outside the shared volume.
 .venv/bin/python scripts/m4_model_pilot.py run \
   --prepared work/m4-control/model-pilot-next.json \
   --auth-file "$HOME/.codex/auth.json" \
@@ -190,14 +220,16 @@ Codex adapter 继续复用 M3 的实现；没有升级模型。
   --allow-model-calls --allow-api-calls --approved-budget-usd 5.12
 ```
 
-运行会导出 `run.json`、账本及观察记录、检查结果；退出时清理该运行的 Job/Pod/Secret。
-后续可以用 `benchmark collect-run` 只读重新导出。失败现场保留在被 Git 忽略的 `work/`，
-再次试验须新建计划并核对剩余授权，不能覆写旧结果。
+Execution exports `run.json`, ledgers, observations and checks, then cleans up owned Jobs, Pods and
+Secrets. `benchmark collect-run` can re-export observations without launching anything. Failed
+artifacts remain in ignored `work/`; a new attempt needs a new plan and a remaining-budget review.
 
-假凭据验收使用 `scripts/m4_credentials_acceptance.py`：在两个节点运行替代 entrypoint，
-检查 Secret 投递、权限、adapter 独占变量、无模型客户端导入、日志泄漏与清理。
-它不启动正式 supervisor 或模型。首次验收碰到 Kubernetes Python client 将 JSON 日志解码为
-Python 字典再转成字符串的问题；改为读取原始日志字节后通过，失败记录保留。
+The fake-credential acceptance script, `scripts/m4_credentials_acceptance.py`, runs a replacement
+entrypoint on both nodes to check Secret delivery, permissions, adapter-specific variables, no model
+client import, log leakage and cleanup. It does not run the production supervisor or a model. The
+first attempt encountered the Kubernetes Python client's JSON-log-to-dictionary-to-string conversion;
+reading raw log bytes fixed it. That failed attempt is retained.
 
-`model-pilot-prepared-4.json` 已完成，不再复用该运行目录。后续四题试验使用独立目录和新协议，
-见[结果与更新后的费用](m4-tool-prefix-results.md)。正式评测、真实模型故障实验及完整 M4 报告仍待完成。
+`model-pilot-prepared-4.json` is finished; never reuse its runtime root. The later four-task round
+uses separate roots and a new protocol, with [results and updated budget](m4-tool-prefix-results.md).
+Formal evaluation, real-model fault experiments and the full M4 report remain outstanding.

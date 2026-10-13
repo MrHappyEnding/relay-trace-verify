@@ -1,116 +1,116 @@
-# RTV 实施路线与验收
+# RTV Roadmap and Acceptance Criteria
 
-[![中文](assets/lang-zh.svg)](roadmap.md) [![English](assets/lang-en.svg)](roadmap.en.md)
+Status: F0-M3 accepted locally; M4 local foundation and task/statistics protocol implemented, milestone still in progress (2026-10-13)
 
-状态：F0–M3 本机范围验收完成；M4 本机底座及任务/统计协议已实现，整体进行中 · 2026-10-13
+The initial framework completes F0 below. M0 is accepted within the first Codex adapter’s stated scope; M1/M2 are implemented on one host; M3 protocol, scripted-model and real two-agent development-task acceptance are complete; M4 has a local model-free Kubernetes foundation; formal experiments remain outstanding. Local fixtures and mocked protocol tests do not replace real-container or real-agent compatibility tests. Reproduction and original implementation both remain in scope; see the [learning plan](learning-plan.md).
 
-首版框架已完成 F0，M0 已在首个 Codex 适配器的限定范围完成；M1 / M2 已在单机范围实现；M3 协议、脚本模型与真实双 agent 开发任务验收完成；M4 已实现本机 Kubernetes 零模型执行底座，正式实验尚未完成。本地 fixture 和模拟协议测试不能替代实际容器及真实 agent 兼容性验证。参考复现与自主实现均保留，详见[学习计划](learning-plan.md)。
+## F0: Framework skeleton
 
-## F0：框架骨架
+- [x] Python package, `rtv` CLI, and uv dependency lockfile.
+- [x] Trial state transitions, Attempt/Execution identities, and adapter contracts.
+- [x] Local file checkpoints, hash validation, and restoration into independent directories.
+- [x] JSONL events, a two-stage fixture relay, and a final verification report.
+- [x] Tests for states, isolation, corruption detection, and commit failure windows.
 
-- [x] Python 包、`rtv` CLI、uv 依赖锁定。
-- [x] Trial 状态迁移、Attempt / Execution 身份与适配器接口。
-- [x] 本地文件检查点、哈希验证、独立目录恢复。
-- [x] JSONL 事件、两阶段 fixture 接力、最终验证报告。
-- [x] 状态、隔离、损坏检测与提交失败窗口测试。
+See the [framework development guide](framework.md) for the current implementation boundary.
 
-当前实现边界见[框架开发指南](framework.md)。
+## M0: Compatibility and protocol prototype
 
-## M0：兼容性与协议原型
+- [x] Pin Harbor 0.24.0 and the base-image digest; validate the minimal fixture with the real Task parser.
+- [x] Implement read-only preflight, a file recovery prototype, mocked failure tests, and an opt-in real-container test.
+- [x] Pin the first agent: Codex CLI 0.160.1, `gpt-6-astra`, and local Docker versions; pin the second agent at M3.
+- [x] Run a scripted fixture through real container file recovery; validate Harbor Task/sandbox/verifier integration.
+- [x] Run the first real-agent task; reuse Harbor Codex while RTV controls stages and checkpoints.
+- [x] Verify workspace export at stage completion, restoration into a new sandbox and pinned native-session import.
+- [x] Verify pinned same-model Codex text ATIF import and conversion losses; cross-framework validation remains M3 work.
+- [x] Cancel a real running tool and its child, confirm sandbox stop and rollback; publish scope with `rtv capabilities`.
+- [x] Define workspace/session scope, regular-file modes, link rejection and generated-file rules; retain checkpoint images.
+- [x] Current Codex supports soft control only; interrupted usage is UNKNOWN and strict token/dollar admission is unsupported.
 
-- [x] 固定 Harbor 0.24.0 和基础镜像 digest；真实 Task parser 校验最小 fixture。
-- [x] 实现只读预检查、文件恢复原型与模拟故障测试，提供实际容器测试入口。
-- [x] 固定首个 agent：Codex CLI 0.160.1、`gpt-6-astra` 与本机 Docker 版本；第二种 agent 到 M3 再固定。
-- [x] 跑通脚本 fixture 的真实容器文件恢复，验证 Harbor Task / sandbox / verifier 接入。
-- [x] 跑通首个真实 agent 任务；复用 Harbor Codex adapter，RTV 控制阶段与检查点。
-- [x] 验证阶段结束后工作区导出、新沙箱恢复和固定版本的原生会话导入。
-- [x] 验证同版本 / 同模型 Codex 的文本 ATIF 导入和转换损失；跨框架验证留给 M3。
-- [x] 真实工具及其子进程运行中取消，确认沙箱停止并回滚；`rtv capabilities` 声明范围。
-- [x] 明确工作区 / 原生会话范围、普通文件权限、拒绝链接及生成物规则；保留检查点镜像。
-- [x] 当前 Codex 只能软控制；中断用量 UNKNOWN，强 token / 金额准入不支持。
+**Acceptance evidence**: a recovery example between two isolated sandboxes, file-digest comparisons, compatibility records, and explicit rejection of unsupported capabilities. M0 does not require a complex web interface or Kubernetes.
 
-**验收证据**：两个隔离沙箱之间的恢复示例、文件 digest 对照、兼容性记录，以及明确拒绝不支持能力的行为。M0 不要求复杂网页或 Kubernetes。
+See the [M0 guide](m0.md) for commands, protocol, and evidence. Scripted container recovery and the first real Codex native recovery/fresh-session handoff passed; see [Codex evidence](codex-m0.md). Follow-up ATIF and real cancellation/rollback evidence is in [M0 acceptance](m0-boundaries.md). Process-memory recovery and strict budgets remain unsupported; see [M1](m1.md) for worker takeover.
 
-当前命令、协议和证据见 [M0 指南](m0.md)。脚本容器往返及首个真实 Codex 的原生恢复 / 新会话交接均已通过，见 [Codex 证据](codex-m0.md)；后续 ATIF 与真实取消 / 回滚证据见 [M0 验收](m0-boundaries.md)。进程内存恢复与严格预算仍不支持；worker 重启接管见 [M1](m1.md)。
+## M1: Durable single-agent execution
 
-## M1：单 agent 持久执行
+- [x] Trial/Attempt/Execution objects, state transitions, and stable operation IDs.
+- [x] Temporal Workflows and control Activities whose results can be queried and safely retried.
+- [x] Submission, status queries, cancellation, final verification, and artifact persistence.
+- [x] Link control events, execution events, costs, and results from day one.
+- [x] Reconciliation and sandbox takeover after worker restart, TTLs, and cleanup retries.
 
-- [x] Trial / Attempt / Execution 对象、状态迁移与稳定 operation ID。
-- [x] Temporal Workflow 与可查询、可重复调用的控制 Activities。
-- [x] 提交、状态查询、取消、最终验证与产物保存。
-- [x] 从第一天关联控制事件、执行事件、成本与结果。
-- [x] worker 重启后的核对与沙箱接管，TTL 和清理重试。
+**Acceptance evidence**: duplicate submissions do not create duplicate valid executions; cancellation converges; existing sandboxes can be reconciled after restart; and tests leave no task resources behind.
 
-**验收证据**：重复提交不会创建重复有效执行；取消能收敛；重启后可核对已有沙箱；测试结束后无遗留任务资源。
+See [M1 acceptance](m1.md) for implementation, 22 real-service checks and 7 real-Codex checks. Scope: takeover of a surviving supervisor on one host, without automatic replay of lost executions.
 
-实际实现、22 项真实服务检查和 7 项真实 Codex 检查见 [M1 验收](m1.md)。范围为单机存活 supervisor 的接管，不包含丢失执行的自动重放。
+## M2: Checkpoints and reliable recovery
 
-## M2：检查点与可靠恢复
+- [x] Manifest schema, content validation, quiescence barrier, and immutable artifact storage.
+- [x] Conditional checkpoint commits, epoch fencing, and recovery into independent workspaces.
+- [x] Handling of unresolved tool operations and UNKNOWN costs.
+- [x] Fault injection at commit windows, during disconnection, and when old workers return.
+- [x] Collection of unreferenced artifacts and protection of branch references.
 
-- [x] manifest schema、内容校验、静止屏障与不可变产物存储。
-- [x] checkpoint 条件提交、epoch fencing 与独立工作区恢复。
-- [x] 未决工具操作与费用 UNKNOWN 状态处理。
-- [x] 提交窗口、失联与旧 worker 回归故障注入。
-- [x] 未引用产物回收和分支引用保护。
+**Acceptance evidence**: incomplete artifacts cannot be restored; committed files match after recovery; old epochs cannot publish; cumulative cost does not reset; and lost-work windows are recorded.
 
-**验收证据**：半成品不可恢复；已提交文件恢复后一致；旧 epoch 不能发布；成本累计不重置；恢复损失窗口有记录。
+Accepted within the local scope: [M2 guide](m2.md), 40 runtime/protocol checks and 10 real-Codex checks. The ledger covers stage calls; per-tool external effects remain outside the guarantee. Branch reference protection is a pin/GC primitive; actual branches remain M3. Artifacts are local, without object-store replication or verified power-loss durability.
 
-已在本地范围验收：[M2 指南](m2.md)、40 项 runtime / 协议检查与 10 项真实 Codex 检查。账本粒度为阶段调用，逐工具外部副作用仍不在保证内；分支引用保护是 pin / GC 原语，实际分叉留给 M3。产物为本地存储，不含对象存储复制或已验证的断电持久性。
+## M3: Two-agent handoff and experiment branching
 
-## M3：双 agent 接力与实验分叉
+- [x] Idempotent Handoff, target preparation, and transfer of execution control.
+- [x] Task-only, summary, and portable-trajectory context strategies.
+- [x] Isolated branches from the same checkpoint.
+- [x] Paired experiments, prefix-cost attribution, and independent verification.
+- [x] Minimal interface for state, checkpoint lineage, handoff trajectories, and results.
 
-- [x] 幂等 Handoff、目标准备与控制权迁移。
-- [x] task-only / summary / portable trajectory 上下文策略。
-- [x] 从同一个 checkpoint 创建隔离分支。
-- [x] 配对实验、前缀成本归因与独立验证。
-- [x] 最小界面展示状态、checkpoint lineage、交接轨迹和结果。
+**Acceptance evidence**: A-continue, B-workspace, and B-summary can be rerun; branches cannot contaminate one another's files; source state, costs, and final verification are fully traceable.
 
-**验收证据**：A 继续、B-workspace、B-summary 三分支可复跑；分支无文件污染；来源状态、成本和最终验证能完整追溯。
+**Current evidence**: the [M3 guide](m3.md) records 48 zero-cost protocol checks and 14 real-model checks. Native Codex continuation and all three mini-swe-agent handoffs complete one fixed task, with isolated verification, API usage, prefix attribution and cleanup checked. Three failed attempts and the passing fourth attempt remain documented. The local functional scope is accepted; benchmark performance is not established.
 
-**当前证据**：[M3 指南](m3.md)记录 48 项零费用协议检查和 14 项真实模型检查。Codex 原生继续、mini-swe-agent 三种交接均完成同一固定开发任务，独立验证、API 用量、前缀归因和清理通过。三轮失败与第四轮通过的证据均保留；本机功能范围已验收，不构成正式 benchmark 效果结论。
+## M4: Multi-worker validation and complete report
 
-## M4：多 worker 验证与完整报告
+- [x] Local Kubernetes backend; distinct owners for Job/Pod and inner sandbox lifecycles.
+- [x] Bounded concurrency, admission, node/worker recovery and cleanup in the local multi-node scope.
+- [x] Freeze tasks, execution caps, exclusions and statistics; revalidate and approve API reservations before paid execution.
+- [x] Kubernetes delivery, scripted relay, cross-node recovery and observation linkage for the first real repository; no real-model result yet.
+- [x] Run-bound model credentials, 17 real-cluster fake-credential checks and the real pilot launcher; retain the failed first attempt.
+- [x] Four real-model branches on one development repository: the third run passes 13 checks with 160 KB inputs and four solved branches, covering native continuation, handoff and isolated grading.
+- [x] Offline controls for all four development environments; tool-prefix and fresh-container native recovery tests without model calls.
+- [x] Four development tasks under tool-prefix policy: sixteen observations, post hoc prefix grading and cost audit.
+- [x] Real Codex cross-node recovery after executor loss, preserving the native session, code, and execution state and passing independent tests; see [recovery acceptance](m4-model-recovery.md).
+- [x] Publish [demo and deployment](demo.md), an English capability-focused README, and the [acceptance index](index.md), retaining historical records.
+- [x] Evaluation execution, cumulative API admission, stopping at a task boundary, and completed-artifact archival; see the [execution guide](m4-evaluation.md).
+- [ ] Run the fixed 20-task formal real-model evaluation and complete its report.
 
-- [x] Kubernetes 本机后端；Job/Pod 与内部沙箱的生命周期 owner 分离。
-- [x] 本机多节点有界并发、资源准入、节点 / worker 丢失后的恢复及清理。
-- [x] 预先冻结正式任务、执行上限、排除规则与统计方法；API 预约额在付费前重新核价并审批。
-- [x] 首个真实仓库的 Kubernetes 任务交付、脚本接力、换节点恢复及统计关联；尚不包含真实模型结果。
-- [x] 按运行绑定的模型凭据通道、17 项真实集群假凭据检查与真实 pilot 启动器；首轮失败记录保留。
-- [x] 一个真实开发仓库的四分支模型流程：第三轮 13 项检查通过，160 KB 配置下四分支均 solved，原生继续、接力和独立判分完成。
-- [x] 全部 4 个开发环境的离线正负对照；工具额度前缀与新容器原生恢复的零模型测试。
-- [x] 工具额度策略的四题真实模型开发对照：16 条观察、事后前缀判分与费用审计。
-- [x] 真实 Codex 执行器丢失后跨节点恢复原生会话、代码和执行状态，独立测试通过；详见[故障恢复验收](m4-model-recovery.md)。
-- [x] 整理[演示与部署](demo.md)、中英文能力首页及[验收索引](index.md)，保留历史记录。
-- [x] 正式评测执行入口、累计 API 预算、指定任务结束后停止与已完成产物归档；见[执行指南](m4-evaluation.md)。
-- [ ] 固定 20 题正式真实模型评测；完成该评测的完整报告。
+**Acceptance evidence**: experiments can be repeated from their configuration; reliability and strategy effectiveness each have measured evidence; and every published result can be traced to raw records.
 
-**验收证据**：从配置可以重复执行实验；可靠性与策略效果分别有数据；所有对外效果数字能定位到原始记录。
+Phase-one deployment, real-service faults, zero-model cost and reporting boundaries are in the [M4 guide](m4.md). Multiple local k3d nodes do not establish multi-physical-host HA; checked items apply only to this scope.
+Four development and twenty evaluation SWE-bench Verified tasks are frozen. Paired analysis and
+offline positive/negative verifier controls for all four development tasks pass; see the
+[task/statistics protocol](m4-benchmark.md). The [four-task development round](m4-tool-prefix-results.md) has sixteen graded branches. Development evidence does not complete M4.
 
-第一阶段的部署、真实服务故障、零模型成本和报告边界见 [M4 指南](m4.md)。本机 k3d 多节点不等于多物理宿主高可用；以上勾选只适用于该限定范围。
-已固定 SWE-bench Verified 的 4 个开发任务、20 个评测任务，完成配对统计工具和全部 4 个开发任务
-的断网 verifier 正负对照，详见[任务与统计协议](m4-benchmark.md)。[四题开发试验](m4-tool-prefix-results.md)已获得 16 条分支判分。开发阶段证据不等于整个 M4 完成。
+## Later candidates
 
-## 后续候选
+Broader tool coverage and time-triggered checkpoints, more agents, trajectory judges calibrated against labeled examples, training-segment selection, and learned handoff policies. These do not block M0–M4.
 
-更广工具集与时间触发的 checkpoint、更多 agent、经过标注校准的轨迹 judge、训练片段筛选、学习式接力策略。它们不阻塞 M0–M4。
+## Decisions to resolve before implementation
 
-## 开始编码前需要收敛的决策
-
-| 决策 | 初始倾向 | 决定依据 |
+| Decision | Initial preference | Basis for the decision |
 | --- | --- | --- |
-| Harbor 接入层级 | 尽量复用公开 agent / environment 接口 | M0 验证生命周期控制能力 |
-| 调试任务集 | 小型、可重建、文件系统任务 | 恢复契约清楚，试验成本可控 |
-| 文件快照 | 完整声明目录＋不可变 manifest | 先保证正确性，再测量增量优化收益 |
-| 主要预算约束 | 费用与 wall clock 分开配置 | adapter 的准入与观测能力 |
-| 控制语言 | Python | 与 Harbor 接入成本及类型契约 |
-| 首个执行后端 | 本地容器 | 先验证协议，再验证分布式故障 |
+| Harbor integration boundary | Reuse public agent/environment interfaces where possible | M0 verification of lifecycle control |
+| Development task set | Small, reconstructible filesystem tasks | Clear recovery contracts and manageable pilot cost |
+| File snapshots | Complete declared directories plus immutable manifests | Establish correctness before measuring incremental optimizations |
+| Primary budget constraints | Configure money and wall-clock limits separately | Adapter admission and observation capabilities |
+| Control language | Python | Harbor integration cost and typed contracts |
+| First execution backend | Local containers | Validate the protocol before distributed faults |
 
-本机仓库控制、Kubernetes 执行和凭据通道分别见[仓库指南](m4-repositories.md)、
-[集群指南](m4-repository-cluster.md)与[历史 pilot](m4-model-pilot.md)。
-后续[提前交接试验](m4-early-prefix.md)完成失败轨迹诊断和 shell 修正：已有改动且未完成的前缀从 1/4 增至 2/4，工作区接力修好其中 1 题；两个超时未评分记录保留。
+Local repository controls, Kubernetes execution and the credential path remain documented in the
+[repository guide](m4-repositories.md), [cluster guide](m4-repository-cluster.md), and
+[historical pilots](m4-model-pilot.md). The subsequent [earlier-handoff round](m4-early-prefix.md) diagnoses failed traces and fixes the login shell: modified, unfinished prefixes increase from 1/4 to 2/4, with one workspace-relay rescue. Two ungraded timeout failures remain preserved.
 
-[运行时通知与超时修正版](m4-runtime-notice.md)通过 56/56 项流程检查及四个事后前缀诊断：原生继续 4/4，三种 mini 路径各 2/4，16 个分支都有判分。4/4 前缀均未完成但尚未改码，部分补丁样本为 0，不能用单一未完成比例宣称策略改进。真实工具超时后继续执行并通过判分的路径已验证。
+The [runtime-notification and timeout revision](m4-runtime-notice.md) passes 56/56 workflow checks and four post hoc prefix diagnostics: native continuation solves 4/4 and all three mini strategies solve 2/4, with sixteen graded branches. All four prefixes are unfinished but unchanged; there are no partial-patch samples. Unfinished percentage alone therefore does not establish policy improvement. Real command-timeout continuation followed by a passing grade is verified.
 
-上述开发及恢复验收截至该轮的 M4 已知 API 费用累计 $0.85497195，未知 API 请求为 0，处于 $30 授权内；订阅成本未知。
-真实恢复验收新增 API 花费为 $0。正式评测的执行入口已接入，完整任务集的运行与报告仍待完成。
-里程碑依据功能与可靠性验收，配对结果不预设胜负。
+M4 known API charges total $0.85497195, with zero unknown API requests, within the $30 authorization;
+subscription cost is unknown. Real recovery acceptance adds $0 in API charges. Next, complete runtime
+integration, environment preparation, and reporting for the fixed 20-task evaluation. Milestones are
+accepted on functionality and reliability; paired outcomes do not prescribe a winner.

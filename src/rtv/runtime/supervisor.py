@@ -62,7 +62,7 @@ async def execute(settings, row, output):
     task_dir = tasks.directory(spec)
     contract = tasks.contract(spec)
     scope = tasks.workspace(spec)
-    if tree_digest(task_dir) != spec["task_digest"]:
+    if await asyncio.to_thread(tree_digest, task_dir) != spec["task_digest"]:
         raise ValueError("Task definition changed after submission")
     adapter = None
     if spec["adapter"] == "codex":
@@ -105,8 +105,11 @@ async def execute(settings, row, output):
     )
     store.phase(row, "running", {"supervisor_pid": os.getpid()})
     await env.start(force_build=False)
-    container = main_container(env)
-    if _docker("inspect", "--format", "{{.Image}}", container) != spec["image_id"]:
+    container = await asyncio.to_thread(main_container, env)
+    if (
+        await asyncio.to_thread(_docker, "inspect", "--format", "{{.Image}}", container)
+        != spec["image_id"]
+    ):
         raise ValueError("Sandbox image identity changed")
     store.event(
         row,
@@ -127,16 +130,15 @@ async def execute(settings, row, output):
         roundtrip = output / "roundtrip"
         roundtrip.mkdir()
         await env.download_dir(scope, roundtrip)
-        if tasks.workspace_digest(roundtrip, spec) != tasks.workspace_digest(
-            restored / "workspace", spec
-        ):
+        restored_digest = await tasks.async_workspace_digest(roundtrip, spec)
+        if restored_digest != await tasks.async_workspace_digest(restored / "workspace", spec):
             raise ValueError("Recovery workspace digest mismatch")
         store.event(
             row,
             "workspace.restored",
             {
                 "checkpoint_id": row["resume_from"],
-                "workspace_digest": tasks.workspace_digest(roundtrip, spec),
+                "workspace_digest": restored_digest,
             },
         )
     elif contract:
@@ -161,8 +163,8 @@ async def execute(settings, row, output):
     mini = None
     from rtv.runtime.handoff import load_context, summary_payload
 
-    context_input = load_context(settings, row)
-    prompt = tasks.prompt(spec, partial)
+    context_input = await asyncio.to_thread(load_context, settings, row)
+    prompt = await asyncio.to_thread(tasks.prompt, spec, partial)
     if native is not None and cp["context"]["result"].get("prefix_boundary"):
         prompt += (
             "\nThis is a new continuation stage. The previous prefix's tool allowance has "
@@ -247,7 +249,7 @@ async def execute(settings, row, output):
     if not contract and not spec.get("isolated_verifier"):
         result["rewards"] = await verify(task, env)
     await asyncio.to_thread(sandbox.stop, row)
-    ids = sandbox.resources(row)["containers"]
+    ids = (await asyncio.to_thread(sandbox.resources, row))["containers"]
     store.event(row, "sandbox.quiesced", {"containers": ids})
     bundle = output / "bundle"
     workspace = bundle / "workspace"
@@ -307,8 +309,8 @@ async def execute(settings, row, output):
             if contract and turn is None
             else summary_payload(turn),
         )
-    result["workspace_digest"] = tasks.workspace_digest(workspace, spec)
-    context = checkpoint.boundary(settings, row, bundle, result, ids)
+    result["workspace_digest"] = await tasks.async_workspace_digest(workspace, spec)
+    context = await asyncio.to_thread(checkpoint.boundary, settings, row, bundle, result, ids)
     cp = await asyncio.to_thread(checkpoint.publish, settings, row, bundle, context)
     return {**result, "checkpoint_id": cp["checkpoint_id"]}
 

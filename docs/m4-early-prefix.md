@@ -1,86 +1,103 @@
-# M4：更早的交接与执行环境修正
+# M4: earlier handoff and execution-environment correction
 
-[![中文](assets/lang-zh.svg)](m4-early-prefix.md) [![English](assets/lang-en.svg)](m4-early-prefix.en.md)
+## Frozen before execution (2026-10-12)
 
-## 运行前冻结（2026-10-12）
+The [previous round](m4-tool-prefix-results.md) left only one of four prefixes unfinished.
+This revision keeps the same tasks, models, 300/300/600-second limits, and mini's 8/8/16
+request caps, while moving every source prefix from six to **two tool admissions**.
+The development traces first edited code at tools 4, 3, 4, and 3. The new boundary is fixed
+before execution, without inspecting new hidden grades. Natural early completion remains
+included; two tools do not guarantee unfinished work, and a tool can perform several operations.
 
-[上一轮](m4-tool-prefix-results.md)四题只有一个未完成前缀，不足以观察异构接力能否完成
-剩余工作。本轮保留同四题、模型、300/300/600 秒时限和 mini 的 8/8/16 请求上限，
-把所有任务的前缀统一从 6 次工具准入提前到 **2 次**。这个选择来自开发轨迹中首次改码
-分别发生在第 4、3、4、3 次工具调用；不是在新一轮运行中根据隐藏测试动态选择边界。
-自然提前结束也保留，额度不保证前缀一定未完成，一次工具调用也可能执行多个操作。
+Mini repository commands also switch to `bash -lc`. Harbor's ordinary `exec` uses `bash -c`,
+which does not load these images' login configuration. Previously mini's `python` selected
+base Python 3.11, while Codex's default login shell selected `testbed`. SymPy branches lacked
+mpmath, and old SymPy additionally encountered Python 3.11's `collections.Mapping`
+incompatibility. The fix loads existing image configuration without installing dependencies
+or adding solution hints, uniformly across mini repository arms. Quoting the complete action
+preserves multiline commands and exit status.
 
-另一个必要修正是 mini 的仓库命令使用 `bash -lc`。Harbor 的普通 `exec` 使用 `bash -c`，
-未加载这些任务镜像的登录配置；原先 mini 的 `python` 因而指向基础 Python 3.11，
-而 Codex 默认登录 shell 使用 `testbed` 环境。SymPy 分支因此缺少 mpmath，旧版本还遇到
-Python 3.11 的 `collections.Mapping` 不兼容。修正只加载镜像现有登录环境，不安装依赖，
-不提供解题提示；所有 mini 仓库分支一致适用。原始命令整体引用，保留多行脚本和退出码。
+This is a **joint development revision**, changing the prefix allowance and correcting the
+shell. Before/after results cannot isolate their causal effects. The separate
+[tool-prefix-v2 protocol](../configs/benchmarks/swebench-verified-tool-prefix-v2.json) preserves
+all earlier protocols, traces, and results. Execution binds a new runner digest while reusing
+the exact task and verifier images.
 
-这轮同时改变前缀额度和修正 shell，属于**开发版本联合修订**，不能从前后差异分离两者
-的因果效果。协议另存为 [tool-prefix-v2](../configs/benchmarks/swebench-verified-tool-prefix-v2.json)，
-旧协议、旧轨迹和旧结果均保留。运行绑定新 runner 摘要，不改变任务与 verifier 镜像。
+## Observations from failed trajectories
 
-## 失败轨迹中已确认的事实
-
-| 旧分支 | 观察 | 判断边界 |
+| Earlier branch | Observation | Interpretation limit |
 | --- | --- | --- |
-| sympy-15599 工作区接力 | 第 1 次尝试运行 Python 缺少 mpmath；第 3 次把余数分配条件扩大；最终只做编译检查 | 引入回归；环境问题妨碍反馈，但未证明它是唯一原因 |
-| sympy-15599 从头开始 | 找到 testbed 后公开 `test_Mod` 仍有断言失败，随后提交 | 有测试反馈却未修好；14 次请求未触及 16 次上限 |
-| sympy-13091 两个继续分支 | 都用尽 8 次请求；存在测试环境错误，修补集中于 Basic/Expr，未覆盖 numbers.py 的数值类型重载 | 同时存在环境浪费与修复覆盖不足，不能只归因于请求额度 |
-| sympy-13091 从头开始 | 只修改 Basic 比较逻辑，公开运行缺依赖，编译后提交 | 6 次请求，不能用耗尽预算解释 |
-| sympy-13091 原生继续 | 扩展到 numbers.py 多种数值类型及测试，独立判分通过 | 是一条有效完成路径，不证明其他修法不可能通过 |
+| sympy-15599 workspace relay | Tool 1 cannot import mpmath; tool 3 broadens the modulo distribution condition; only compilation is checked afterward | Introduces a regression; environment trouble impedes feedback but is not proven the sole cause |
+| sympy-15599 fresh | After finding testbed, public `test_Mod` still fails an assertion; the agent submits anyway | Does not repair observed test failure; 14 requests remain below the cap of 16 |
+| sympy-13091 both continuations | Both exhaust eight requests, encounter test-environment errors, and focus on Basic/Expr without numbers.py overrides | Both wasted environment effort and incomplete repair coverage; not attributable solely to the cap |
+| sympy-13091 fresh | Edits only Basic comparisons, cannot run the public example with missing dependencies, compiles and submits | Six requests; budget exhaustion does not explain this failure |
+| sympy-13091 native continuation | Extends the repair to numeric-type overrides in numbers.py and corresponding tests; isolated grading passes | One successful completion path, not proof that all other repairs must fail |
 
-这些是人工检查本地记录的诊断，不是经人工标注校准的自动根因分类器。没有把旧解答、
-金标准补丁或隐藏测试反馈注入新一轮 agent 的任务包。
+These are manual observations from local records, not a calibrated automatic root-cause
+classifier. Prior solutions, gold patches, and hidden-test feedback are not injected into
+the new agents' task packets.
 
-## 验证与费用约束
+## Validation and spending constraint
 
-先运行单元/模拟测试，再在四个真实任务镜像中无模型检查：登录 shell 的 Python 路径、
-任务包导入、引号/多行命令与非零退出码。新 runner 还需通过假凭据的投射和清理验收。
-随后固定四题各一次，全部 16 个分支结束并清理后，才对四个源 checkpoint 断网判分。
-不根据结果换题、挑选前缀或自动付费重跑；20 题评测集仍不执行。
+Unit/mocked tests precede model-free probes in all four actual task images: login Python
+identity, project imports, quoting/multiline semantics, and nonzero exits. The new runner
+also passes fake-credential projection/cleanup acceptance. Each fixed task then runs once;
+all sixteen branches finish and clean up before offline grading of the four source checkpoints.
+No outcome-based substitution, prefix selection, or automatic paid retry. The twenty-task
+evaluation split remains unexecuted.
 
-用户本轮授权上限 $30。历史 M4 的 136 个 API 请求均有已知用量，已知费用 $0.33947070；
-本轮最多 128 个请求，每次仍按 $0.16 保守准入，整轮最多 $20.48。
-本轮采用“历史已结算费用＋未知/在途请求全额预约＋新轮最坏额度”检查，初始上界
-为 $20.81947070，小于 $30。历史 $19.898 是累计毛预约，不是账单；原报告的预约不复用
-口径不改写，新旧口径单列。未知回执不释放预约，单次运行内部的预约限制也不放宽。
-订阅用量仍单独记录，美元成本未知；以上按已记录价格计量，不保证供应商最终发票。
+The owner authorizes up to $30. All 136 historical M4 API requests have known usage, costing
+$0.33947070. This round allows at most 128 requests, retaining the conservative $0.16 admission
+reservation per request: at most $20.48. The round-level accounting is historical settled
+cost plus full reservations for unknown/pending requests plus the new round's worst-case
+allowance, initially $20.81947070, below $30. The historical $19.898 gross reservations are
+not an invoice; earlier non-reusable-reservation reports remain unchanged and are reported
+separately. Unknown responses never release reservations, and within-run limits are unchanged.
+Subscription usage is separate with unknown dollar cost; recorded API pricing is not an
+invoice guarantee.
 
-## 第二轮结果（2026-10-12）
+## Round-two results (2026-10-12)
 
-筛选后的[证据](evidence/m4-early-prefix-development-arm64-20261012.json)绑定运行代码
-`3de0652e1245c6a950d73d124798973f6febfc71`。四题各一次，共 16 个分支：14 个完成独立评分，
-2 个因基础设施错误未评分。56 项执行检查中 54 项通过；错误记录保留，没有自动重跑。
-四个源前缀都准入并完成 2 个工具，封存时已有代码修改；全部分支结束后才判源前缀。
+The filtered [evidence](evidence/m4-early-prefix-development-arm64-20261012.json) binds runtime
+commit `3de0652e1245c6a950d73d124798973f6febfc71`. Four tasks ran once: fourteen of sixteen branches
+received independent grades; two remained ungraded infrastructure errors. Execution checks passed
+54/56. Failed records remain intact, with no automatic retry. All four prefixes admitted and
+completed two tools and contained code changes. Prefixes were graded only after every branch ended.
 
-| 任务 | 源前缀 | A 原生继续 | B 工作区 | B 工作区＋摘要 | B 从头开始 |
+| Task | Source prefix | A native continuation | B workspace | B workspace + summary | B fresh |
 | --- | --- | --- | --- | --- | --- |
-| sympy-22914 | 通过 | 通过 | 通过 | 通过 | 未通过 |
-| sympy-15599 | 通过 | 通过 | 通过 | 通过 | 未通过 |
-| sympy-13091 | 未通过 | 通过 | 未通过 | 未通过 | 未通过 |
-| scikit-learn-9288 | 未通过 | 通过 | 通过 | 未评分：基础设施错误 | 未评分：基础设施错误 |
+| sympy-22914 | Pass | Pass | Pass | Pass | Fail |
+| sympy-15599 | Pass | Pass | Pass | Pass | Fail |
+| sympy-13091 | Fail | Pass | Fail | Fail | Fail |
+| scikit-learn-9288 | Fail | Pass | Pass | Ungraded: infrastructure | Ungraded: infrastructure |
 
-未完成前缀覆盖为 **2/4**，上一轮为 1/4。在这两题上，A 原生继续修复 2/2，B 工作区接力
-修复 1/2；B 工作区＋摘要为 0/2（含一个未评分分支）。KMeans 并行随机种子任务提供了
-一次真实的异构接力修复证据，但四题反复开发不足以证明接力总体优于原 agent 继续。
-16 个分支也不是 16 个独立任务；20 题评测集仍未运行。
+Unfinished-prefix coverage is **2/4**, versus 1/4 previously. Within those two tasks, native
+continuation rescues 2/2, workspace relay 1/2, and workspace-plus-summary 0/2 including one ungraded
+branch. The KMeans parallel random-seed task supplies one real heterogeneous rescue, not evidence
+of overall superiority over native continuation. Repeated development on four tasks is exploratory;
+sixteen branches are not sixteen independent tasks. The twenty-task evaluation split remains unrun.
 
-环境修正后，SymPy 的 mpmath/Mapping 错误消失，但修复覆盖问题仍在：13091 的 mini
-修复仍集中在 Basic；15599 从头分支仍在看到公开浮点断言失败后提交；22914 从头分支
-用尽 16 次请求而未修好。这些结果不支持把失败全部归因于环境或输入额度。
+The corrected shell removes the observed SymPy mpmath/Mapping errors, but incomplete repairs
+persist: mini's 13091 changes still focus on Basic; the fresh 15599 branch submits despite a public
+floating-point assertion failure; fresh 22914 exhausts sixteen requests without solving the issue.
+Environment and input allowance therefore do not explain all failures.
 
-scikit-learn 的摘要接力和从头分支在公开命令超过 30 秒时被 Harbor 传输层超时中止，
-没有生成可判分产物。其 4 次和 6 次 API 请求都有已知用量；父操作状态未知不等于 API
-账单未知。下一版将命令超时放进容器进程组，返回正常退出码供 agent 继续处理，保留真正的
-传输错误。另修正分析器：基础设施失败行仍累计已知费用下界，不把未知总额填成零。
-本证据用修正后的分析器重算汇总，保留原始观测与原汇总副本，并单独记录分析代码哈希。
+The scikit-learn summary and fresh arms abort when a public command exceeds Harbor's 30-second
+transport timeout, leaving no gradable artifact. All four and six respective API requests have
+known usage; an unknown parent operation is not an unknown API invoice. The next version will
+enforce command timeouts inside the container process group and return ordinary exit feedback,
+while retaining genuine transport failures. A separate analysis fix includes known cost lower
+bounds from infrastructure-error rows without zero-filling unknown totals. This evidence recomputes
+the aggregate with that fix, preserves raw observations and the earlier aggregate copy, and records
+the analysis implementation hash separately from the executed runtime.
 
-本轮 99 次 API 请求的已知费用 **$0.23697360**，无未知 API 请求；M4 累计 235 次，
-已知费用 **$0.57644430**。累计毛预约 $35.738 是历次准入上界之和，不是实际花费。
-本轮 8 个订阅阶段另记，美元成本未知。任务执行合计约 43.5 分钟。
-原始凭据值扫描未发现匹配；不据此声称完整轨迹没有账户元数据。任务 Job、模型 Secret 和
-诊断容器已清理，Postgres 服务保留。真实运行前的单元/模拟检查为 218 通过、1 项可选跳过；
-后续修正另有 225 通过、1 项可选跳过，不能倒算为当时已部署的版本。
+The round made 99 API requests costing **$0.23697360**, with no unknown API requests. Cumulative
+M4 totals are 235 requests and **$0.57644430** known cost. Historical gross reservations of $35.738
+sum admission bounds, not actual spending. Eight subscription stages remain separately accounted
+with unknown dollar cost. Task execution took about 43.5 minutes in total. A scan found no original
+credential-value matches; this does not assert that full trajectories contain no account metadata.
+Task Jobs, model Secrets, and diagnostic containers were removed; Postgres remains. The pre-run
+unit/mocked suite passed 218 tests with one optional skip. Subsequent corrections pass 225 with
+one optional skip; those later checks are not attributed to the already executed runtime.
 
-后续开发协议见[运行时通知与命令超时](m4-runtime-notice.md)。
+The next development protocol is [runtime notification and command timeout](m4-runtime-notice.md).

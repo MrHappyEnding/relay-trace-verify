@@ -3,8 +3,8 @@
 - This repository supports learning through reproduction, engineering implementation,
   and original exploration. Keep relevant mechanisms even when prior art exists.
   Attribute sources and distinguish reproduction, adaptation, and new proposals.
-- Keep README and project documentation in Chinese and English with reciprocal
-  language links, following the existing `.en.md` convention.
+- Keep README, project documentation, generated reports, and the viewer in English.
+  Use canonical `.md` paths without duplicate language versions or language buttons.
 - Separate scripted fixtures, mocked tests, real-container tests, and real-model
   experiments in every report. Never promote a capability from proposed to verified
   without evidence. Preserve M0–M4 acceptance criteria when adding foundations.

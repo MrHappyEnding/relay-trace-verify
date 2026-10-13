@@ -505,3 +505,27 @@ def test_checkpoint_validation_scratch_is_not_shared_storage(tmp_path, monkeypat
     )
     assert len(seen) == 1 and not seen[0].exists()
     store.checkpoint_commit.assert_called_once()
+
+
+def test_repository_hash_does_not_block_supervisor_heartbeat(tmp_path, monkeypatch):
+    import threading
+
+    from rtv.runtime import tasks
+
+    entered, heartbeat = threading.Event(), threading.Event()
+
+    def slow_digest(path, spec):
+        entered.set()
+        assert heartbeat.wait(2), "hash blocked the heartbeat event loop"
+        return "verified-digest"
+
+    monkeypatch.setattr(tasks, "workspace_digest", slow_digest)
+
+    async def run():
+        task = asyncio.create_task(tasks.async_workspace_digest(tmp_path, {}))
+        while not entered.is_set():
+            await asyncio.sleep(0.001)
+        heartbeat.set()
+        assert await task == "verified-digest"
+
+    asyncio.run(run())

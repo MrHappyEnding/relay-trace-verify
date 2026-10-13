@@ -117,3 +117,24 @@ def test_recovery_inspector_does_not_refresh_git_index(tmp_path):
     before = tree_digest(repo)
     assert inspect(repo, "HEAD") == ["code.py"]
     assert tree_digest(repo) == before
+
+
+def test_runner_failure_diagnostics_omit_exception_text_and_credentials(tmp_path, monkeypatch):
+    import json
+    from uuid import uuid4
+
+    from rtv.cluster.runner import record_startup_failure
+
+    monkeypatch.setenv("RTV_RUNTIME_ROOT", str(tmp_path))
+    trial, execution = str(uuid4()), str(uuid4())
+    try:
+        raise ValueError("private-provider-token-do-not-persist")
+    except ValueError as error:
+        record_startup_failure(trial, execution, error)
+    raw = (tmp_path / trial / "executions" / execution / "runner-error.json").read_text()
+    assert "private-provider-token" not in raw
+    assert json.loads(raw)["error_type"] == "ValueError"
+    assert (
+        json.loads(raw)["frames"][-1]["function"]
+        == "test_runner_failure_diagnostics_omit_exception_text_and_credentials"
+    )

@@ -1,71 +1,79 @@
-# M4：开发集预检与中途交接
+# M4: development preflights and mid-task handoff
 
-[![中文](assets/lang-zh.svg)](m4-tool-prefix.md) [![English](assets/lang-en.svg)](m4-tool-prefix.en.md)
+2026-10-12: all four verifier environments pass, and the new policy has completed its
+[four-task real-model round](m4-tool-prefix-results.md): sixteen observations, fourteen workflow
+checks per task, and four post hoc offline prefix grades. This page describes the mechanism and its
+earlier zero-model tests; formal evaluation remains incomplete.
 
-2026-10-12：全部四个验证环境通过，新策略已完成[四题真实模型开发试验](m4-tool-prefix-results.md)：
-16 条观察、每题 14 项流程检查及四个事后断网前缀诊断。本文保留机制和此前的零模型测试；
-正式评测仍未完成。
+## Development preflights
 
-## 开发任务预检
-
-| 任务 | 未修改代码 reward | 标准补丁 reward | 本轮耗时 |
+| Task | Unmodified reward | Reference-patch reward | This run |
 | --- | ---: | ---: | ---: |
-| sympy__sympy-22914 | 0 | 1 | 之前已完成 |
-| sympy__sympy-15599 | 0 | 1 | 56.12 秒 |
-| sympy__sympy-13091 | 0 | 1 | 41.33 秒 |
-| scikit-learn__scikit-learn-9288 | 0 | 1 | 119.21 秒 |
+| sympy__sympy-22914 | 0 | 1 | Previously completed |
+| sympy__sympy-15599 | 0 | 1 | 56.12 s |
+| sympy__sympy-13091 | 0 | 1 | 41.33 s |
+| scikit-learn__scikit-learn-9288 | 0 | 1 | 119.21 s |
 
-后三题使用固定 Harbor 文件与 AMD64 基础镜像；测试容器断网，分别验证 parser、奖励和
-退出状态，6 个控制容器已删除。派生镜像、依赖 lock 与原始日志保留在本机 `work/`。
-见[后三题证据](evidence/m4-development-preflights-arm64-20261012.json)和
-[首题证据](evidence/m4-benchmark-preflight-arm64-20261011.json)。这是环境及验证器验收，
-不是 agent 解题结果；未查看 20 个评测任务的运行结果，也未替换样本。
+The three new tasks use pinned Harbor files and AMD64 base images. Each offline control checks the
+parser, reward and exit status. All six control containers were removed; derived images, dependency
+locks and raw logs remain under ignored `work/`. See [new evidence](evidence/m4-development-preflights-arm64-20261012.json)
+and the [first task](evidence/m4-benchmark-preflight-arm64-20261011.json). These are environment/verifier
+controls, not agent outcomes. No evaluation-task outcomes were inspected and no tasks were replaced.
 
-## 中途边界如何工作
+## Boundary semantics
 
-新开发协议 [swebench-verified-tool-prefix-v1.json](../configs/benchmarks/swebench-verified-tool-prefix-v1.json)
-设定前缀最多准入 **6 次 Bash / apply_patch 工具调用**，仍保留 300 秒总上限。
-这是用于开发的初始参数，尚未冻结为最终评测策略。旧自然结束协议及三轮结果不变。
+The new development [protocol](../configs/benchmarks/swebench-verified-tool-prefix-v1.json) admits at
+most **six Bash/apply_patch tools** in the prefix, retaining the 300-second stage cap. Six is an initial
+development setting, not a finalized evaluation policy. The historical natural-turn protocol and all
+three prior runs remain unchanged.
 
-1. 同步 PreToolUse 钩子在文件锁下计数，达到额度后拒绝新的工具调用。
-2. 已启动的 shell 可经 write_stdin 完成；PostToolUse 记录匹配的完成收据并提醒结束阶段。
-3. agent 正常结束当前会话轮次，留下未经验证的交接摘要。拒绝工具不等于立即停止推理；
-   不配合结束而触及总时限仍记失败，不创建前缀 checkpoint。
-4. 宿主核对 SessionStart / Stop、会话与轮次身份、工具收据和原生轨迹。缺失钩子、
-   重复/未匹配收据、未支持工具、残留进程或版本变化均拒绝封存。
-5. 运行器停止整个沙箱，确认容器静止后保存工作区、原生会话、收据及摘要，复用已有
-   条件提交与所有权协议。三个继续分支使用同一 checkpoint；前缀额度不继承给继续分支。
+1. Synchronous PreToolUse hooks count admissions under a file lock and deny tools beyond the limit.
+2. Already-started shell processes may finish via write_stdin. PostToolUse records matching completion
+   receipts and requests a final handoff message.
+3. The agent ends its turn normally with an unverified summary. Denial does not immediately stop
+   inference; refusal to finish before the stage timeout fails without a prefix checkpoint.
+4. The host verifies start/stop receipts, session/turn identity, tool records and the native rollout.
+   Missing hooks, duplicate/unmatched receipts, unsupported tools, surviving processes or incompatible
+   versions prevent sealing.
+5. The runner stops the sandbox, verifies quiescence and commits the workspace, native session,
+   receipts and summary through the existing ownership protocol. Continuations share that checkpoint
+   and do not inherit its tool gate.
 
-自然提前结束（包括零工具）记录 `natural_completion` 并保留，不借助隐藏判分筛选前缀。
-达到额度记录 `tool_budget`。工具额度不是 token、API 请求、命令子进程数量或美元上限；
-一次 shell 调用可能完成很多工作，6 次调用也可能已解决任务。最终效果必须通过开发实验观察。
+Early natural completion, including zero tools, is retained as `natural_completion`; reaching the
+allowance is `tool_budget`. Hidden grading never selects prefixes. A tool allowance does not bound
+tokens, API requests, subprocess counts or dollars. One shell call can do substantial work, so six
+tools can still solve the issue. Development runs must measure this.
 
-前缀、继续及 fresh 的时限仍为 300 / 300 / 600 秒，API 请求上限仍为 8 / 8 / 16。
-提前结束的剩余时间不会追加给继续分支。统计时保留实际前缀时间、用量、交接开销与失败；
-额度相同不代表实际算力相同。摘要、模型和 scaffold 的混杂因素仍适用。
+Prefix/continuation/fresh caps remain 300/300/600 seconds; API request caps remain 8/8/16. Unused prefix
+time is not transferred. Report actual prefix time, usage, handoff overhead and failures; identical
+caps do not imply identical compute. Model/scaffold and summary confounding still apply.
 
-## 复用与保证范围
+## Attribution and scope
 
-复用 [Codex 官方 Hooks](https://learn.chatgpt.com/docs/hooks) 的工具准入与完成通知，
-以及 Harbor 0.24.0 的 Codex 适配器；RTV 实现额度协议、收据核对、进程检查及 checkpoint
-关联。已直接测试固定的 Codex 0.160.1，不能据此承诺其他版本兼容。
+The implementation adapts [official Codex hooks](https://learn.chatgpt.com/docs/hooks) and Harbor
+0.24.0's Codex adapter. RTV supplies the allowance protocol, receipt reconciliation, process check
+and checkpoint linkage. Codex CLI 0.160.1 was tested directly; other versions are not certified.
 
-这是可信开发任务中的合作式暂停。钩子本身可能失败后放行，RTV 因此在封存前再次审计；
-它不是对恶意 agent 的安全隔离。进程检查覆盖当前容器中新生且仍存活的进程，不覆盖
-外部服务副作用，也不保存进程内存。工具不会在任意指令中间强行生成可恢复 checkpoint。
-仅沙箱内本仓库上传的固定钩子使用一次性 hook trust 参数，不修改宿主安全设置。
+This is cooperative yielding for trusted development tasks. Hooks can fail open, so checkpoint
+eligibility is independently audited; they are not isolation against malicious agents. Process
+checks detect new live processes in the container, not external side effects. No process memory is
+restored, and arbitrary instruction-level interrupts do not become recoverable checkpoints. Hook
+trust is bypassed only for the vetted RTV hook uploaded into the disposable sandbox; host settings
+are unchanged.
 
-## 验证与复现
+## Validation and reproduction
 
-218 项单元/模拟测试通过；默认跳过 1 项需显式启用的旧容器测试。Python 3.11 核心测试
-131 项通过，55 项可选依赖测试跳过。
-并发准入、额度耗尽、提前完成、收据缺失、会话错配、未完成工具、残留进程和协议变更均有检查。
+218 unit/mocked tests pass; one older container test remains explicitly opt-in. The Python 3.11 core
+suite passes 131 tests with 55 optional-dependency skips. Checks cover concurrency, exhaustion, early completion, missing receipts,
+identity mismatch, unfinished tools, surviving processes and protocol changes.
 
-[断网 CLI 证据](evidence/m4-tool-prefix-offline-arm64-20261012.json)使用本地脚本响应代替模型：
-实际执行异步 shell 并等待、apply_patch、拒绝第三次工具调用，在沙箱退出后提交及恢复
-完整工作区，启动新容器继续原生会话。6 项检查通过，两个容器均已清理。脚本响应不是
-真实模型行为，也不是新的 Kubernetes / mini 接力效果验收。
-第一次探针的恢复脚本无法覆盖只读 Git 对象，记录保留；改为替换新容器的基线目录后通过。
+The [offline CLI probe](evidence/m4-tool-prefix-offline-arm64-20261012.json) supplies scripted local
+responses, executes and waits for an asynchronous shell, applies a patch, denies the next tool,
+commits/restores the workspace after sandbox exit, and continues the same native session in a fresh
+container. Six checks pass and both containers are removed. Scripted responses do not establish real
+model behavior or new Kubernetes/mini relay effectiveness. The first probe's restore script failed
+to overwrite read-only Git objects; that record is retained. Replacing the fresh container's base
+directory fixed the probe.
 
 ```bash
 .venv/bin/python scripts/m4_tool_prefix_probe.py \
@@ -73,10 +81,11 @@
   --output work/m4-tool-prefix-new
 ```
 
-该镜像需已在本机；不读取或挂载凭据，不访问真实 provider，输出必须使用新目录。
-准备真实开发试验时，先构建并导入包含新代码的 runner，再按原 pilot 指南准备新 pool/config；
-不能继续使用旧 runner 来执行新协议。任务与环境完全相同时允许复用原预检和任务契约，
-但运行使用新的 protocol SHA、run SHA 和凭据授权。
+The image must already exist locally. No credentials are read/mounted or real provider contacted.
+Use a fresh output directory. Before real development runs, build/import a runner containing this
+code and prepare a new pool config as described in the pilot guide. An old runner must not execute
+the new protocol. Identical tasks/environments may reuse prior preflights and task contracts, while
+protocol SHA, run SHA and credential grants change.
 
 ```bash
 .venv/bin/python scripts/m4_model_pilot.py prepare \
@@ -86,6 +95,7 @@
   --root <fresh-runtime-root> --output <fresh-plan-file>
 ```
 
-已批准的四题开发试验已完成，见[结果、诊断与费用](m4-tool-prefix-results.md)。
-下一步分析失败继续与回归案例，按新预注册的开发策略改善未完成前缀覆盖，再冻结正式策略。
-20 题评测与真实模型故障实验仍待完成。
+The approved four-task round is complete. See [results and costs](m4-tool-prefix-results.md).
+Next, analyze failed continuations and regressions, improve unfinished-prefix coverage under a new
+preregistered development policy, then freeze the final evaluation strategy. The twenty-task evaluation
+and real-model fault experiments remain pending.

@@ -28,7 +28,11 @@ def validate(settings, cp, destination):
     storage = artifacts(settings)
     ref = reference(cp)
     manifest = storage.load(ref)
-    expected_schema = 3 if cp["context"].get("task_contract_sha256") else 2
+    expected_schema = (
+        cp["context"].get("schema_version", 3) if cp["context"].get("task_contract_sha256") else 2
+    )
+    if expected_schema not in ((3, 4) if cp["context"].get("task_contract_sha256") else (2,)):
+        raise ValueError("Unsupported checkpoint recovery schema")
     if manifest.schema_version != expected_schema or manifest.context != cp["context"]:
         raise ValueError("Checkpoint recovery context differs from committed metadata")
     if (
@@ -41,7 +45,11 @@ def validate(settings, cp, destination):
     if manifest.excluded_names != exclusions:
         raise ValueError("Checkpoint workspace exclusions differ from manifest")
     if (
-        tree_digest(destination / "workspace", exclude_names=exclusions)
+        tree_digest(
+            destination / "workspace",
+            exclude_names=exclusions,
+            preserve_symlinks=expected_schema == 4,
+        )
         != cp["context"]["workspace_digest"]
     ):
         raise ValueError("Checkpoint workspace differs from verified boundary")
@@ -97,7 +105,11 @@ def boundary(settings, row, bundle, result, container_ids):
         if e["payload"]["execution_id"] == row["execution_id"]
     ]
     return {
-        "schema_version": 3 if contract(row["spec"]) else 2,
+        "schema_version": (
+            4 if any(p.is_symlink() for p in (bundle / "workspace").rglob("*")) else 3
+        )
+        if contract(row["spec"])
+        else 2,
         "stage": row["stage"],
         **{k: row["spec"][k] for k in ("task_digest", "image_id", "adapter", "model")},
         "harbor_version": HARBOR_VERSION,
@@ -142,6 +154,7 @@ def publish(settings, row, bundle, context):
             checkpoint_id=UUID(cp["checkpoint_id"]),
             preserve_directory_modes=bool(context.get("task_contract_sha256")),
             exclude_names=tuple(context.get("workspace_excludes", [])),
+            preserve_symlinks=context.get("schema_version") == 4,
         )
     uploaded = {**cp, "manifest_sha256": ref.manifest_sha256}
     # Validation is process-local scratch, not a durable artifact. Shared macOS

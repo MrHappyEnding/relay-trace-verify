@@ -1,61 +1,69 @@
-# M4：Kubernetes 真实仓库执行与统计关联
+# M4: Kubernetes repository execution and observation linkage
 
-[![中文](assets/lang-zh.svg)](m4-repository-cluster.md) [![English](assets/lang-en.svg)](m4-repository-cluster.en.md)
+**Status: 28 real-cluster scripted-control checks pass; M4 formal evaluation remains incomplete.**
+[Acceptance evidence](evidence/m4-repository-cluster-arm64-20261012.json) includes raw artifact hashes and failure history.
 
-**状态：28 项真实集群脚本控制检查通过，M4 正式评测仍未完成。**
-[验收证据](evidence/m4-repository-cluster-arm64-20261012.json)包含原始产物摘要及失败历史。
+This stage runs `sympy__sympy-22914` on local k3d with real Jobs, Harbor containers, PostgreSQL,
+Temporal and the mini-swe-agent loop. Actions are scripted and use the upstream reference patch.
+There are no model calls or agent-effectiveness conclusions. The other three pilot tasks and the
+evaluation set have not run.
 
-本阶段将 `sympy__sympy-22914` 接入本机 k3d，使用真实 Job、Harbor 容器、PostgreSQL、
-Temporal 与 mini-swe-agent 执行循环。修复动作来自脚本和上游参考补丁；没有模型调用，
-不能用这些结果推断 agent 的成功率或接力收益。其余三个开发任务和正式评测集仍未运行。
+## Delivery and resources
 
-## 任务交付与资源
+`cluster prepare-repository` creates a separate task package on the shared volume. Original task
+definitions remain intact; the delivered path gets a new contract digest. Task contents, immutable
+agent/verifier image IDs and the AMD64 platform remain bound. Each Job checks the Docker archive
+SHA256 before loading and checks repository image identities afterwards. Contracts contain no API
+keys. Default pools still reject real models; the subsequent opt-in path is described in
+[model credentials and pilot](m4-model-pilot.md).
 
-`cluster prepare-repository` 在共享目录创建独立的任务包。原始定义不变，交付后重新计算
-路径绑定的契约摘要；验证 task digest、不可变 agent/verifier 镜像 ID 与 AMD64 平台。
-Docker 镜像归档另有 SHA256，每个 Job 加载前校验，加载后再次检查仓库镜像身份。
-任务契约不包含 API key。默认池仍拒绝真实模型；后续 opt-in 通道见[模型凭据与 pilot](m4-model-pilot.md)。
-
-| 项目 | 仓库执行池 | 原有小型 fixture 池 |
+| Setting | Repository pool | Existing small-fixture pool |
 | --- | --- | --- |
-| 同时执行的 Job | 1 | 2 |
-| 每个 Job 的 CPU / 内存 | 2 CPU / 5120 MiB | 1 CPU / 1536 MiB |
-| Docker engine 临时目录上限 | 16 GiB | 4 GiB |
-| Pod 临时存储 request / limit | 17 GiB | 5 GiB |
-| 镜像加载超时 | 300 秒 | 90 秒 |
-| 容器启动超时 | 180 秒 | 60 秒 |
+| Concurrent Jobs | 1 | 2 |
+| CPU / memory per Job | 2 CPU / 5120 MiB | 1 CPU / 1536 MiB |
+| Docker engine temporary directory | 16 GiB | 4 GiB |
+| Pod ephemeral-storage request / limit | 17 GiB | 5 GiB |
+| Image-load timeout | 300 seconds | 90 seconds |
+| Container startup timeout | 180 seconds | 60 seconds |
 
-仓库任务本身声明 1 CPU、4 GiB 内存和 10 GiB 存储，外层为 Docker daemon 与执行器预留余量。
-本机 namespace 内存配额提升至 6144 MiB，CPU 配额仍为 2500m，包含 PostgreSQL。
-配置固定到独立 runtime root；不要复用不同 runner 镜像或资源配置的旧 pool。
-临时存储限额由 kubelet 监控，不能将其描述成同步文件系统硬配额。
+The inner task declares 1 CPU, 4 GiB memory and 10 GiB storage; the outer envelope includes daemon
+and executor overhead. The local namespace memory quota is now 6144 MiB; its CPU quota remains
+2500m, including PostgreSQL. Use a new runtime root when the frozen runner image or pool configuration
+changes. Kubelet monitors ephemeral storage; this is not a synchronous filesystem hard quota.
 
-外层执行器使用宿主原生 ARM64 镜像，内层任务声明 `linux/amd64`。这依赖当前 Docker Desktop
-提供的异构执行能力，不代表任意 ARM Kubernetes 集群都能直接运行该镜像。未启动 GPU 任务。
-沿用[ADR 0005](adr/0005-kubernetes-executions.md)的每 Job 独立 Docker daemon 设计，
-复用 Harbor 环境及上游 SWE-bench verifier；RTV 负责身份、契约、恢复边界和统计关联。
+The outer runner uses native ARM64; the inner repository container declares `linux/amd64`, using this
+Docker Desktop installation's cross-architecture support. Arbitrary ARM Kubernetes clusters are not
+therefore supported. No GPU workload starts. The design extends [ADR 0005](adr/0005-kubernetes-executions.md),
+reusing Harbor environments and the upstream SWE-bench verifier. RTV supplies identities, delivery
+contracts, recovery boundaries and observation linkage.
 
-## 从预先分配到观察记录
+## Assignments to observations
 
-`benchmark.execution.prepare_pair` 在提交任何 Trial 前生成 `run.json`，绑定原协议 SHA、
-任务 / repeat、分支顺序、Trial ID、上下文策略和执行 spec。本页证据仅覆盖 pilot 的 oracle 控制；后续启动器另支持显式的 real-model 模式。
-源阶段为 300 秒，继续分支为 300 秒，fresh 为 600 秒；整个 Trial 的 1800 秒期限还包含
-镜像准备和验证。实验分支禁止自动恢复；额外的故障 Trial 独立运行，不替换实验样本。
+`benchmark.execution.prepare_pair` writes `run.json` before submitting any Trial. It binds the
+original protocol SHA, task/repeat, branch order, Trial identities, context policies and execution
+specs. This page covers pilot oracle controls; the subsequent launcher also supports an explicit
+real-model mode. Prefix and continuation stages get 300 seconds each;
+fresh gets 600 seconds. The absolute Trial deadline is 1800 seconds including preparation and
+verification. Experiment branches have no automatic recovery. A separate fault Trial cannot replace
+an assigned observation.
 
-`collect-run` 从数据库快照推导结果，校验 spec、源 checkpoint、prefix operation ID 与实际
-handoff 策略；导出原始记录 SHA256、排队 / 总耗时、用量账本、JSONL、CSV 和中英文报告。
-源 Trial 清理或到期后，仍通过已提交的 sealed checkpoint 验证历史关联。
+`collect-run` derives outcomes from database snapshots and validates execution specs, source
+checkpoints, prefix operation IDs and actual handoff policies. Exports include raw SHA256 references,
+queue/elapsed times, ledgers, JSONL, CSV and English reports. A retained committed sealed checkpoint
+keeps historical lineage verifiable even after the source Trial is cleaned up or expires.
 
-- reward=0 但 verifier 未完成，归类为基础设施错误，不能当成已评测的未解决任务。
-- 缺失分支仍留在原计划的分母；本次只覆盖 4/16 个 pilot 观察，另外 12 个保持 missing。
-- UNKNOWN 成本保留 null 和已知费用下界；不将订阅推理标为免费。
-- 真实模型调用记录不能导入 oracle 报告；有缺失观察时不展示置信区间。
-- 本轮验收脚本要求控制实验成功，失败即保留现场并清理。它不是完整的正式实验调度服务。
+- Reward zero without completed verification is an infrastructure error, not a graded failure.
+- Missing branches remain in the original denominator. This run covers 4/16 pilot observations;
+  the other 12 remain missing.
+- UNKNOWN costs remain null alongside known lower bounds. Subscription inference is not priced as free.
+- Real model operations cannot enter an oracle report. Incomplete observations suppress confidence intervals.
+- The acceptance script stops and cleans up on a failed control. It is not a complete formal experiment scheduler.
 
-## 复跑与导出
+## Reproduction and export
 
-先完成[仓库本机接入](m4-repositories.md)及[本机集群部署](m4.md)，保持 PostgreSQL 转发与
-Temporal 服务运行。使用新的输出目录，旧的失败和成功产物都保留在 `work/`。
+Complete [local repository integration](m4-repositories.md) and [local cluster setup](m4.md).
+Keep the PostgreSQL forward and Temporal service running. Choose fresh output directories and retain
+both failed and successful artifacts under `work/`.
 
 ```bash
 .venv/bin/python scripts/m4_local_setup.py --build
@@ -71,11 +79,12 @@ Temporal 服务运行。使用新的输出目录，旧的失败和成功产物�
   --output work/m4-data/repository-cluster-new
 ```
 
-验收先执行源阶段及冻结顺序的四个分支，然后单独注入 Job 删除故障。清理仅针对本轮 pool
-的 Job UID；确认 Job 和 Pod 都消失后才释放预约。恢复从继承的 checkpoint 创建新 epoch，
-避开故障节点，保留原始 deadline 与 UNKNOWN 调用。
+Acceptance executes the prefix and four branches in their frozen order, then separately deletes a
+running Job. Cleanup uses this pool's exact Job UIDs and releases reservations only after Jobs and
+Pods disappear. Recovery creates a new epoch from the inherited checkpoint on another node, preserving
+the deadline and UNKNOWN invocation.
 
-只重新导出数据库观察，不启动任务或模型：
+Re-export database observations without launching tasks or models:
 
 ```bash
 RTV_SCHEMA=rtv4 RTV_RUNTIME_ROOT="$PWD/work/m4-data/repository-cluster-new" \
@@ -85,20 +94,25 @@ RTV_DATABASE_URL=postgresql://rtv:rtv-local-cluster@127.0.0.1:55434/rtv \
   --output work/m4-data/repository-cluster-new/observations-new
 ```
 
-## 验收边界与已知差异
+## Acceptance boundaries and observed differences
 
-Docker Desktop 的共享目录中，本次观察到 4 个 Git 只读文件在 Linux 视图为 `0444`，
-macOS 宿主视图为 `0644`。因此验收分别比较同一视图的摘要：宿主源目录与恢复目录，
-以及容器内 `workspace.restored` 事件与源运行摘要。manifest 仍保留原始权限；运行时
-恢复与独立 verifier 仍逐次校验内容、路径和权限，没有忽略 Git 元数据。
-第一次失败是验收脚本直接跨视图比较摘要，失败记录保留。
+In this Docker Desktop shared mount, four read-only Git files had Linux mode `0444` but macOS host
+mode `0644`. Acceptance therefore compares digests within each view: host source versus host restored
+directories, and container `workspace.restored` events versus the original execution digest. The
+manifest retains original permissions. Runtime restores and independent verifiers still check paths,
+contents and permissions; Git metadata is not excluded. The initial failed cross-view comparison is
+retained in the evidence history.
 
-后续一次恢复已完成修复及测试，但共享临时校验目录在清理时出现新的 `.DS_Store`，
-导致发布前失败。checkpoint、恢复和交接的临时校验现已使用进程私有目录；持久化产物
-仍在共享存储。另一次在并行本机回归期间触发原有 60 秒容器启动超时，仓库启动现有
-独立的 180 秒上限，工具超时和 Trial 总期限仍分别受限。本机重型验收应串行执行。
+A later attempt completed repair and tests but failed while deleting a shared validation scratch
+directory containing newly appearing `.DS_Store` files. Checkpoint, recovery and handoff validation
+now use process-private temporary directories; committed artifacts remain on shared storage. Another
+attempt hit the legacy 60-second container startup limit while local regression was also running.
+Repository startup now has a separate 180-second limit; tool timeouts and the Trial deadline remain
+bounded independently. Heavy acceptance runs should be serialized on this development host.
 
-本机两个节点共享同一 Docker Desktop 宿主和共享目录；Job 删除与换节点恢复不能证明
-物理宿主丢失后的高可用。外层 Pod 仍为 privileged，只支持可信本机开发控制。
-后续[模型凭据通道](m4-model-pilot.md)已通过假凭据测试和一个仓库的原生继续/双 agent 流程验收；正式效果与费用对比仍待完成。
-新增付费调用须先核价并批准。当前阶段 API 调用 0、云费用 $0、GPU 使用 0。
+Both Kubernetes nodes share one physical Docker Desktop host and local storage. Job deletion and
+node migration do not prove host-loss availability. Outer Pods remain privileged, for trusted local
+development experiments only. The subsequent [credential path](m4-model-pilot.md) passes
+fake-credential checks and native continuation/cross-agent workflow acceptance on one repository.
+Formal effectiveness and cost comparisons remain pending. New paid runs require pricing and approval.
+This stage uses zero API calls, $0 cloud spend and no GPUs.

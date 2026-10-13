@@ -144,6 +144,18 @@ def reconcile(settings, trial_id, *, launch=True):
                     cleanup(store, backend, row)
                     return summary(recover(settings, row, "loss:" + row["execution_id"]))
                 result = empty_result(row, "executor_lost" if lost else "job_failed")
+                diagnostics = execution_dir(settings, row) / "runner-error.json"
+                result["executor_failure"] = {
+                    "startup": json.loads(diagnostics.read_text())
+                    if diagnostics.is_file()
+                    else None,
+                    "terminations": [
+                        {k: state.get(k) for k in ("reason", "exitCode", "signal")}
+                        for pod in pods
+                        for container in pod.get("status", {}).get("containerStatuses", [])
+                        if (state := container.get("state", {}).get("terminated"))
+                    ],
+                }
             if result is not None and cleanup(store, backend, row):
                 store.finish(row, result, controller=True)
             return summary(store.get(trial_id))

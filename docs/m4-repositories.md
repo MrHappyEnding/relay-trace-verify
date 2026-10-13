@@ -1,54 +1,66 @@
-# M4：真实仓库的接力与恢复接入
+# M4: Real-repository relay and recovery integration
 
-[![中文](assets/lang-zh.svg)](m4-repositories.md) [![English](assets/lang-en.svg)](m4-repositories.en.md)
+**Status: local runtime integration for the first SWE-bench development task passes model-free acceptance.**
+Twenty-six real-container/PostgreSQL/Temporal checks pass. Mini-swe-agent receives scripted responses,
+and repair actions derive from the upstream reference patch. This validates execution semantics,
+not model problem-solving ability or relay effectiveness.
 
-**状态：首个 SWE-bench 开发任务的本机 runtime 接入已通过零模型验收。**
-26 项真实容器 / PostgreSQL / Temporal 检查通过；mini-swe-agent 使用脚本响应，
-修复动作来自上游参考补丁。这验证执行语义，**不构成模型解题或接力收益证据**。
+No GPU is required here. Current real-model paths use Codex subscription inference and a metered API;
+the local machine runs containers, CPU tests, storage and orchestration. Lab GPUs remain useful for
+later self-hosted inference or training. If moving to an x86_64 Linux lab environment, native task
+architecture, memory and storage can be useful before enabling GPU inference.
 
-本次不依赖 GPU。当前 Codex 和 mini 的真实模型入口分别使用订阅服务与 API，推理发生在服务端；
-本机负责任务容器、CPU 测试、存储和编排。Lab GPU 可在后续自托管模型或训练路线中使用，
-不需要为了使用现有 H100 改变当前目标。若迁往 lab 的 x86_64 Linux 环境，首先受益的是
-仓库环境的原生架构、内存和存储，而不必先启用 GPU。
+## Runtime contract
 
-## 新增的运行契约
+`rtv benchmark prepare-task` binds the [frozen protocol](m4-benchmark.md) and a passing offline
+preflight to a local contract: task identity, definition digest, `/testbed`, AMD64 platform, base
+commit, agent/verifier image IDs, verifier timeout and explicit exclusions. It has its own
+`contract_sha256`. Only the four development tasks are enabled; actual runtime evidence covers one.
+Evaluation tasks remain gated. The full definition is checked at preparation, submission and
+execution; handoff and recovery cannot change the contract or workspace.
 
-`rtv benchmark prepare-task` 从[冻结任务协议](m4-benchmark.md)和通过的离线预检生成本机契约。
-它绑定 task ID、原始定义摘要、`/testbed`、AMD64 平台、base commit、agent/verifier 镜像 ID、
-verifier 超时与显式排除项，计算独立的 `contract_sha256`。
-目前只允许 4 个开发任务的契约，实际运行证据覆盖其中 1 个；评测集入口仍关闭。
-完整定义必须在创建契约、提交和执行时保持一致，交接及恢复不能更换契约或工作区。
+- Prompts read only `instruction.md`, never hidden tests, reference solutions or hidden rewards.
+- The prefix seals after a naturally completed turn, without hidden verification or an intentionally
+  introduced defect. Only final branches run an isolated verifier.
+- Mini tools and Codex session metadata use the declared cwd. Native recovery requires matching
+  version, model and cwd. Unit tests cover the new path contract; the subsequent
+  [real pilot](m4-model-pilot.md) verifies the session round trip on one repository.
+- The verifier uses its pinned image offline, receiving only declared workspace data, without native
+  agent state. Its default timeout is 600 seconds. SWE-bench parser output must agree with the reward;
+  parser failures cannot masquerade as valid unresolved outcomes.
+- The new mini path supports a 16-request fresh budget and 600-second stage cap. M3 defaults remain.
+  `--ttl` is the absolute Trial lifetime including setup and verification; `--agent-seconds` applies
+  to the agent stage. Full experiment scheduling, queue accounting and statistical linkage are pending.
 
-- 提示只读 `instruction.md`；不把 `tests/`、参考解或隐藏奖励加入 agent 上下文。
-- 源阶段自然结束后封存，不运行隐藏 verifier，也不要求制造部分错误。只有最终分支独立验证。
-- mini 工具 cwd 与 Codex 会话元数据都使用声明目录；Codex 原生恢复检查同版本、同模型、同 cwd。
-  新目录下的原生协议校验有单元测试；后续[真实 pilot](m4-model-pilot.md)已验证一个仓库的会话往返。
-- 每次独立 verifier 使用冻结的 verifier 镜像，断网并接收声明工作区；它不接收 agent 的原生会话。
-  默认 600 秒；除 reward 外还检查 SWE-bench parser 报告，解析失败不能算正常的未解答。
-- mini 新入口支持最多 16 请求的 fresh 预算与 600 秒阶段上限；M3 入口继续沿用原有默认值。
-  `--ttl` 是整个 Trial 的绝对期限，包含环境和验证；`--agent-seconds` 只约束 agent 阶段。
-  这不代表正式实验调度器已经实现了协议的所有排队与统计关联。
+## Snapshot and recovery boundaries
 
-## 快照与恢复边界
+Repository snapshots preserve regular-file and directory permission bits `0o777`, empty directories,
+`.git` and uncommitted files. Snapshots containing symbolic links use **manifest v4**, recording link
+paths and exact target strings without copying their referents. Relative in-workspace links, chains
+and dangling in-workspace targets are supported. Absolute, escaping and cyclic links are rejected.
+Links are installed after regular files so restoration never writes through a link. Link-free
+repositories retain v3; v1/v2 and legacy fixture behavior remain supported. Special files, UID/GID,
+ACLs, xattrs and process memory remain unsupported.
+Tasks depending on them fail closed; this is not compatibility evidence for every SWE-bench repository.
 
-新仓库契约使用 **manifest v3**：保留常规文件和目录的 `0o777` 权限位、空目录、`.git` 与未提交文件。
-v1/v2 仍可读写，旧 fixture 行为不变。符号链接、特殊文件、UID/GID、ACL、xattr 和进程内存仍不支持。
-任务若依赖这些内容会被拒绝，不能据此宣称全部 SWE-bench 仓库已兼容。
+`.DS_Store` is the only permitted excluded name, recorded in the contract, manifest and recovery
+context. It is excluded from workspace hashes and restoration; recovery/verifier containers remove
+any copy introduced during host transfer before running. Git data, other hidden files and code are
+not ignored. Tampered snapshot files still fail validation, with tests covering that distinction.
+The stopped-container barrier remains mandatory; excluding host metadata does not permit other
+external workspace writers.
 
-宿主目录元数据 `.DS_Store` 是唯一允许的排除名称，写入任务契约、manifest 和恢复上下文。
-它不参与工作区摘要，也不恢复为任务输入；恢复/验证容器在运行前删除传输过程中夹带的该文件。
-不忽略 `.git`、其他隐藏文件或实际代码。快照文件被篡改仍会报错；单元测试覆盖此边界。
-保留 Docker 停止屏障，不能把宿主元数据排除推广成允许其他外部进程修改工作区。
+A branch that has not published its own checkpoint can recover from its inherited committed input.
+A new epoch/container/workspace retains the original deadline, discards unfinished changes and leaves
+the interrupted call UNKNOWN. Acceptance kills only its own A-branch supervisor, then verifies
+recovery and completion; unrelated user processes are untouched.
 
-分支尚未发布自己的 checkpoint 时，可以从继承的已提交 checkpoint 恢复。
-新 epoch / 容器 / 工作区保持原期限，丢弃中断阶段的改动；旧调用留为 UNKNOWN。
-实际注入为杀死本轮 A 分支的 supervisor，随后检查恢复并完成验证，不涉及用户的其他进程。
+## Model-free reproduction
 
-## 零模型复跑
-
-需要现有本机 PostgreSQL、Temporal、Docker 和已安装的 runtime 依赖。
-下面使用 M4 PostgreSQL 的本机端口，但以独立 root 和 `rtv3` schema 跑本机 supervisor；
-不是 Kubernetes Job 实验。M4 集群已有的 `rtv4` 记录保持独立。先完成[环境预检](m4-benchmark.md)。
+Requires running local PostgreSQL, Temporal and Docker plus the runtime dependency group.
+The example uses the M4 PostgreSQL forwarded port, but runs a local supervisor under a separate root
+and `rtv3` schema, not a Kubernetes Job. Existing `rtv4` records remain separate.
+Complete the [environment preflight](m4-benchmark.md) first.
 
 ```bash
 .venv/bin/python -m rtv benchmark prepare-task \
@@ -62,11 +74,12 @@ RTV_DATABASE_URL=postgresql://rtv:rtv-local-cluster@127.0.0.1:55434/rtv \
   --output work/m4-benchmark/repository-new
 ```
 
-脚本串行使用容器额度，创建 1 个源 Trial、3 个继续分支和 1 个 fresh Trial，故障恢复多创建
-一个 Execution。它会关闭自身 worker 的模型开关，保留失败尝试并清理自己创建的容器/网络。
-参考补丁只用于这个显式脚本控制，不得将其结果导入 `real-model` 报告。
+The script admits containers serially and creates one source Trial, three continuation branches and
+one fresh Trial, with one additional Execution after fault recovery. It disables its worker's model
+switches, retains failed attempts and cleans up owned containers/networks. The reference patch is an
+explicit scripted control; never import these outcomes into a `real-model` report.
 
-仅安装 Codex CLI 并检查版本，不登录、不调用模型：
+Install and version-check Codex without authentication or inference:
 
 ```bash
 .venv/bin/python scripts/m4_repository_codex_prepare.py \
@@ -74,22 +87,24 @@ RTV_DATABASE_URL=postgresql://rtv:rtv-local-cluster@127.0.0.1:55434/rtv \
   --output work/m4-benchmark/codex-prepare-new
 ```
 
-脚本复用 M0 的官方包 SHA512 校验安装器，版本固定 0.160.1。
-`prepare.json` 返回 `agent_image_id`，可传给 `prepare-task --agent-image` 创建另一个契约；
-verifier 镜像保持独立。构建与 `codex --version` 通过不代表真实会话恢复通过。
+This reuses M0's official-package SHA512-checked installer for CLI 0.160.1. `prepare.json` returns an
+`agent_image_id`; pass it to `prepare-task --agent-image` when creating another contract. The verifier
+image remains separate. Building and checking the CLI version do not verify real native-session recovery.
 
-开发者入口 `rtv runtime submit --task-contract ...` 支持 `fixture/mini-fixture/codex/mini`。
-脚本 adapter 必须传 `--scripted-controls`，真实 adapter 拒绝该参数。真实 Codex/API 调用需要
-提交端及 worker 的双重开关和相应凭据，M4 仍须事先单独批准预算；本次没有读取模型凭据。
-Kubernetes 接入请使用新增的[仓库任务交付](m4-repository-cluster.md)入口；未绑定到执行池的本机契约仍会被拒绝。
+The developer entry point `rtv runtime submit --task-contract ...` supports
+`fixture/mini-fixture/codex/mini`. Scripted adapters require `--scripted-controls`; real adapters reject
+that option. Real Codex/API calls need both submission and worker opt-ins plus credentials, and a
+separately approved M4 budget. No model credentials were read this stage. Use the new
+[Kubernetes delivery entry point](m4-repository-cluster.md); contracts not bound to the pool are rejected.
 
-## 证据与下一步
+## Evidence and remaining work
 
-[本轮证据](evidence/m4-repository-runtime-arm64-20261011.json)记录所有检查和之前失败尝试。
-原始记录在 `work/m4-benchmark/repository-3/`，包括完整 experiment、事件、账本、manifest、
-恢复副本和独立 verifier 日志。`.DS_Store` 造成的失败没有从历史删除。
-正式统计配置仍使用上一阶段的 SHA，不因这次脚本结果改变选题。
+[Evidence](evidence/m4-repository-runtime-arm64-20261011.json) records all checks and earlier failures.
+Raw artifacts under `work/m4-benchmark/repository-3/` include experiment data, events, ledgers,
+manifests, restored files and isolated verifier logs. Host-metadata failures remain in history.
+The frozen statistical protocol and selection are unchanged by these scripted results.
 
-本阶段 API 调用 0、云费用 $0、GPU 使用 0。后续的任务材料、AMD64 镜像、资源配置及统计关联
-见[Kubernetes 仓库接入](m4-repository-cluster.md)；默认配置仍关闭模型；后续[凭据通道与 pilot 启动器](m4-model-pilot.md)已通过假凭据检查和一个仓库的真实双 agent 流程验收。
-接力效果优势尚未验证；其余 3 个开发任务也尚待环境检查。
+This stage uses zero API calls, $0 cloud spend and no GPUs. Subsequent task delivery, AMD64 images,
+resources and statistical linkage are covered in [Kubernetes repository integration](m4-repository-cluster.md).
+Model credentials remain disabled by default; the subsequent [credential path and pilot launcher](m4-model-pilot.md) pass fake-credential checks and real dual-agent workflow acceptance on one repository.
+Relay effectiveness is not established. The other three development environments remain to be checked.

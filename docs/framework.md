@@ -1,29 +1,27 @@
-# RTV 框架开发指南
+# RTV Framework Development Guide
 
-[![中文](assets/lang-zh.svg)](framework.md) [![English](assets/lang-en.svg)](framework.en.md)
+This page documents the synchronous F0/M0 teaching runner. For the current durable runtime, see [M2](m2.md): manifest v2, conditional commits, epoch fencing, recovery, usage ledger and reference GC. F0 limitations below are not the complete runtime capability matrix.
 
-本页描述 F0/M0 同步教学 Runner。当前持久 runtime 的 manifest v2、条件提交、epoch 校验、恢复、用量账本和引用 GC 见 [M2](m2.md)；下文 F0 限制不代表完整 runtime 能力。
+Status: local framework and M0 accepted for the first Codex adapter · 2026-10-08
 
-状态：本地框架与首个 Codex 的 M0 验收完成 · 2026-10-08
-
-## 1. 当前代码
+## 1. Current code
 
 ```text
 src/rtv/
-  domain.py        # Trial 状态、执行身份、接力上下文与能力声明
+  domain.py        # Trial states, execution identities, handoff context, capabilities
   contracts.py     # AgentAdapter / WorkspaceBackend / CheckpointStore / EventSink / Verifier
-  checkpoints.py   # 本地 manifest v1、内容摘要引用和格式校验
-  storage.py       # 文件检查点与独立工作目录
-  events.py        # 单写入者 JSONL 事件
-  runner.py        # 组合接口的两阶段本地接力
-  demo.py          # 确定性 fixture agent 与 verifier
-  harbor_probe.py  # 可选 Harbor 预检查与容器文件恢复原型
-  codex_agent.py   # 可选真实 Codex 适配、会话校验和增量用量
-  codex_probe.py   # 原生恢复 / 新会话交接与源检查点
-  codex_atif.py    # ATIF 转换校验、接收端元数据适配和信息损失审计
-  codex_lifecycle.py # 先停止沙箱，再回收 transport 的取消次序
-  codex_boundaries.py # 真实 ATIF 导入、工具中断和回滚实验
-  capabilities.py # 版本范围、快照策略与预算边界声明
+  checkpoints.py   # Local manifest v1, digest references, and format validation
+  storage.py       # File checkpoints and independent working directories
+  events.py        # Single-writer JSONL events
+  runner.py        # Two-stage local relay composed from the interfaces
+  demo.py          # Deterministic fixture agents and verifier
+  harbor_probe.py  # Optional Harbor preflight and container file recovery prototype
+  codex_agent.py   # Optional real Codex adapter, session validation and incremental usage
+  codex_probe.py   # Native recovery / fresh handoff and source checkpoints
+  codex_atif.py    # ATIF validation, receiver metadata and conversion-loss audit
+  codex_lifecycle.py # Stop sandbox before draining cancelled transport
+  codex_boundaries.py # Real ATIF, tool interruption and rollback experiment
+  capabilities.py # Version, snapshot and budget scope declarations
   cli.py           # demo / harbor-* / codex-prepare / codex-smoke / --version
 tests/
   test_domain.py
@@ -35,13 +33,13 @@ tests/
   test_codex_atif.py
   test_codex_lifecycle.py
   test_codex_boundaries.py
-examples/tasks/positive-sum/  # Harbor 格式的受控脚本任务
-examples/tasks/codex-session/ # 固定 Codex 的真实 agent 实验任务
+examples/tasks/positive-sum/  # Controlled scripted task in Harbor format
+examples/tasks/codex-session/ # Pinned Codex real-agent experiment
 ```
 
-基础运行时代码只依赖 Python 标准库，支持 Python 3.11+。可选 `harbor` 组需要 Python 3.12+；Harbor 只在集成入口按需导入。pytest、Ruff 是开发依赖，具体版本锁在 `uv.lock`。`pyproject.toml` 定义可安装的包与 CLI。
+The core runtime uses only the Python standard library and supports Python 3.11+. The optional `harbor` group requires Python 3.12+; Harbor is imported lazily by the integration entry points. pytest and Ruff are development dependencies, with their versions pinned in `uv.lock`. `pyproject.toml` defines the installable package and CLI.
 
-## 2. 运行与检查
+## 2. Run and check
 
 ```bash
 uv sync --locked --dev
@@ -52,13 +50,13 @@ uv run ruff check src tests
 uv run ruff format --check src tests
 ```
 
-`rtv demo` 要求新的输出目录，不覆盖已有实验。CLI 成功退出码为 0；验证失败或运行错误返回非零退出码。演示不会下载任务、调用模型或启动容器。
+`rtv demo` requires a new output directory and never overwrites an existing experiment. Successful execution returns exit code 0; verification failures or runtime errors return a nonzero code. The demo does not download tasks, call models, or start containers.
 
-演示的 A 将 `answer.txt` 写为 41，然后请求交接；B 在另一个执行目录中读取恢复的文件，将其改为 42。独立的 verifier 检查文件内容。这里的验证器独立于 agent 接口，但仍在同一宿主进程中运行，不是隔离的隐藏测试服务。
+Fixture A writes 41 to `answer.txt` and requests a handoff. B reads the restored file in another execution directory and changes it to 42. A separate verifier checks its contents. This verifier is separate from the agent interface but runs in the same host process; it is not an isolated hidden-test service.
 
-Harbor 的安装、`harbor-doctor` 和 `harbor-smoke` 使用方法见 [M0 指南](m0.md)。容器原型独立于现有同步 Runner，先验证厂商接口和文件传输，再决定正式 adapter 契约；它不是已完成的 WorkspaceBackend。
+See the [M0 guide](m0.md) for Harbor installation, `harbor-doctor`, and `harbor-smoke`. The container prototype is separate from the synchronous Runner: it validates vendor interfaces and file transfer before defining formal adapter contracts. It is not a completed WorkspaceBackend.
 
-## 3. 产物与身份
+## 3. Artifacts and identities
 
 ```text
 work/demo/
@@ -71,45 +69,45 @@ work/demo/
   workspaces/<target-execution-uuid>/
 ```
 
-事件保留 Trial、Attempt、Execution、epoch 和来源序号。接力保持 Trial ID，创建新的 Attempt / Execution。`ExecutionRef.recover()` 只生成同一 Attempt 的新执行身份与下一 epoch，并未实现租约获取、进程恢复或过期执行拦截。
+Events retain Trial, Attempt, Execution, epoch, and source sequence identifiers. Handoff keeps the Trial ID and creates a new Attempt/Execution. `ExecutionRef.recover()` only creates a new execution identity and next epoch for the same Attempt; it does not acquire leases, recover processes, or fence stale executions.
 
-`report.json` 标记 `mode: local-fixture`，记录来源与目标工作区、checkpoint ID、manifest SHA-256、最终状态和验证结果。
+`report.json` uses `mode: local-fixture` and records source/target workspaces, the checkpoint ID, manifest SHA-256, final status, and verification result.
 
-## 4. 本地检查点的保证
+## 4. Local checkpoint guarantees
 
-- 调用者必须先停止全部写入；fixture 是同步函数，返回后没有后台进程。
-- 在临时目录完整写入文件和 manifest 后，用同一文件系统内的目录 rename 发布。
-- 只有已发布的 UUID 目录可通过引用加载；读取时验证 manifest 摘要。
-- 恢复时验证每个文件的大小和 SHA-256，完整写入后才发布目标目录。
-- 保留普通文件内容、文件权限位和空目录；拒绝符号链接、特殊文件、路径穿越和文件 / 目录冲突。
-- 拒绝恢复到已有目标；各分支复制文件，不共享可写内容。
+- The caller must stop all writes first. Fixtures are synchronous functions with no background processes after return.
+- Write all files and the manifest into a temporary directory, then publish with a directory rename on the same filesystem.
+- Only published UUID directories can be loaded by reference. Loading validates the manifest digest.
+- Restore validates each file's size and SHA-256, publishing the destination only after it has been fully written.
+- Preserve regular-file contents, file permission bits, and empty directories. Reject symbolic links, special files, path traversal, and file/directory conflicts.
+- Reject existing restore destinations. Branches copy files and share no writable contents.
 
-本地格式 v1 保存文件、摘要和事件边界；Codex 原型在其文件包中加入工作区、原生 rollout 和版本元数据，见 [Codex 指南](codex-m0.md)。正式环境重建清单与预算账本尚未实现。它是系统设计中完整 checkpoint 协议的一个实现起点。
+Local format v1 stores files, a summary and an event boundary. The Codex probe bundles a workspace, native rollout and version metadata as those files; see the [Codex guide](codex-m0.md). Formal environment reconstruction manifests and a budget ledger remain unimplemented. This is a starting point for the full checkpoint protocol.
 
-存储目录按单进程受控环境使用，不提供对抗恶意磁盘写入的安全边界。源文件并发修改、跨进程提交、断电持久性、引用 GC 和分布式所有权尚不支持。SHA-256 用于完整性检查，不是签名。
+The store assumes a controlled single-process environment, not a security boundary against hostile disk writes. Concurrent source modifications, cross-process commits, power-loss durability, reference garbage collection, and distributed ownership are unsupported. SHA-256 provides integrity checking, not signatures.
 
-## 5. 集成入口
+## 5. Integration points
 
-| 接口 | 当前实现 | 下一步 |
+| Interface | Current implementation | Next step |
 | --- | --- | --- |
-| AgentAdapter | PrepareAgent / FinishAgent | M0 验证真实 CLI 阶段终止、会话格式与静止能力 |
-| HarborCodexAdapter | 异步真实 Codex 原型，独立于同步 fixture 接口 | ATIF、真实中断与正式能力契约；见 [Codex 指南](codex-m0.md) |
-| WorkspaceBackend | 普通本地目录 | 基于 Harbor 环境接口验证容器及远程工作区契约 |
-| CheckpointStore | 本地文件和 manifest | 扩展会话、环境清单、对象存储与条件提交 |
-| EventSink | 单写入者 JSONL | 持久身份、去重、重连与查询投影 |
-| Verifier | 固定文件内容检查 | Harbor 任务验证器与隔离验证环境 |
-| Runner | 同步两阶段函数 | Temporal 编排、取消、恢复和资源清理 |
+| AgentAdapter | PrepareAgent / FinishAgent | M0 verification of real CLI stage termination, session formats, and quiescence |
+| HarborCodexAdapter | Asynchronous real Codex probe, separate from the synchronous fixture contract | ATIF, real interruptions and a formal capability contract; see [Codex guide](codex-m0.md) |
+| WorkspaceBackend | Ordinary local directories | Validate container and remote-workspace contracts against Harbor environment interfaces |
+| CheckpointStore | Local files and manifests | Add sessions, environment manifests, object storage, and conditional commits |
+| EventSink | Single-writer JSONL | Durable identities, deduplication, reconnection, and query projections |
+| Verifier | Fixed file-content check | Harbor task verifiers and isolated verification environments |
+| Runner | Synchronous two-stage function | Temporal orchestration, cancellation, recovery, and resource cleanup |
 
-这些接口是可修改的初始契约，不应在 Harbor 兼容性原型完成前认定为稳定 API。
+These are provisional, changeable contracts. Do not consider them stable APIs before the Harbor compatibility prototype is complete.
 
-## 6. 验证范围
+## 6. Validation scope
 
-测试覆盖恢复 / 交接身份差异、状态迁移、取消后的状态约束、文件与分支隔离、manifest / 内容损坏、缺失文件、非法路径、符号链接、已有目录保护和提交写入失败。端到端测试还验证事件关联、verifier 失败时的最终状态及 CLI 行为。
+Tests cover recovery/handoff identity differences, state transitions, cancellation state constraints, file and branch isolation, manifest/content corruption, missing files, unsafe paths, symbolic links, existing-destination protection, and commit write failures. End-to-end tests also cover event correlation, final status after verifier failure, and CLI behavior.
 
-可选 Harbor 测试使用真实 Task parser 与模拟容器传输，覆盖停止失败、文件往返损坏、验证失败和清理残留。实际容器集成测试默认跳过，需显式设置 `RTV_RUN_DOCKER=1`；不能把模拟测试计为容器验证成功。
+Optional Harbor tests use the real Task parser with mocked container transport, covering failed stops, round-trip corruption, failed verification, and cleanup leaks. The real-container integration test is skipped unless `RTV_RUN_DOCKER=1` is set; mocked tests are not evidence of container validation.
 
-另行执行的真实 Docker smoke 已验证容器间文件恢复、工作区隔离和 Harbor verifier，记录见 [M0 指南](m0.md)。首个真实 Codex 的原生恢复与新会话交接也已通过，见 [Codex 指南](codex-m0.md)；模拟故障测试覆盖超时、取消、拒绝不静止快照、损坏和清理残留。这些证据不能证明接力收益、通用沙箱安全性、故障后的工作流自动恢复、预算上限或多 worker 正确性，仍按[实施路线](roadmap.md)逐步验证。
+A separately executed real Docker smoke verified file recovery, workspace isolation and Harbor verification; see the [M0 guide](m0.md). The first real Codex native recovery and fresh-session handoff also passed; see the [Codex guide](codex-m0.md). Mocked faults cover timeout, cancellation, unquiesced snapshot refusal, corruption and cleanup leaks. This evidence does not establish handoff gains, general sandbox security, workflow crash recovery, budget caps or multi-worker correctness; follow the [roadmap](roadmap.md).
 
-M0 的最终限定范围验收、`capabilities` / `codex-atif-audit` / `codex-boundaries` 命令与镜像保留策略见 [M0 验收](m0-boundaries.md)。当前同步 Runner 仍是 fixture；持久编排从 M1 开始。
+See [M0 acceptance](m0-boundaries.md) for the final scope, `capabilities` / `codex-atif-audit` / `codex-boundaries` commands and image retention. The synchronous Runner remains a fixture; durable orchestration begins at M1.
 
-M1 已另增 `src/rtv/runtime/` 持久控制面，保留上述同步 fixture 用于教学和协议单测。部署及已验证的 worker 重启接管见 [M1 指南](m1.md)。
+M1 now adds the durable control plane in `src/rtv/runtime/`, retaining the synchronous fixture above for learning and protocol tests. See the [M1 guide](m1.md) for deployment and verified worker takeover.

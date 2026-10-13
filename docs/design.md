@@ -1,51 +1,49 @@
-# RTV 系统设计提案
+# RTV System Design Proposal
 
-[![中文](assets/lang-zh.svg)](design.md) [![English](assets/lang-en.svg)](design.en.md)
+Status: Draft · 2026-10-07
 
-状态：Draft · 2026-10-07
+## 1. Goals and guarantee scope
 
-## 1. 目标与保证范围
+Build an execution system with consistent checkpoints, heterogeneous agent handoffs, and branching experiments. The first version supports only tasks whose writes can be stopped at a declared quiescent boundary and whose environments can be reconstructed from pinned images and declared files.
 
-构建支持一致性检查点、异构 agent 接力和分支实验的执行系统。第一版只支持能够在声明的静止边界停止写入、且环境可由固定镜像和声明文件重建的任务。
+Recovery targets the last committed application-level checkpoint. Uncommitted work may be lost, and that loss window must be observable. Checkpoints do not preserve arbitrary process memory, network connections, or undeclared external-service state.
 
-承诺恢复到最后一个已提交的应用级检查点。尚未提交的工作可能丢失；损失窗口必须可观测。检查点不保存任意进程内存、网络连接或未声明的外部服务状态。
+Reproducibility means traceable configurations, inputs, and artifacts, with an environment that meets the recovery contract. It does not guarantee identical model output.
 
-复现指配置、输入和产物可追溯，环境满足恢复契约；不承诺模型输出逐字确定。
+## 2. State objects
 
-## 2. 状态对象
-
-| 对象 | 定义 | 关系及标识 |
+| Object | Definition | Relationships and identifiers |
 | --- | --- | --- |
-| Experiment | 固定任务集合、策略、预算口径及重复次数的实验 | `experiment_id`，不可变配置 digest |
-| Trial | 某任务在某个实验分支与重复编号下的完整求解过程 | `trial_id`，拥有累计预算和最终结果 |
-| Attempt | 由一套 agent / model / scaffold 配置负责的逻辑执行阶段 | `attempt_id`；一个 Trial 可有多个 Attempt |
-| Execution | Attempt 的一次物理执行实例 | `execution_id`、单调递增 `epoch`、独立 sandbox |
-| Checkpoint | 已静止状态的一组不可变产物及 manifest | `checkpoint_id`、digest、来源执行与事件边界 |
-| Handoff | 从源 Attempt 的检查点到目标 Attempt 的持久化交接操作 | `handoff_id`，绑定源检查点及目标配置 |
-| Operation | 创建沙箱、启动、终止、提交等可核对操作 | 稳定 `operation_id`，重试不换 ID |
-| Event | 控制面或执行过程的持久记录 | 来源执行、来源序号、类型、时间与产物引用 |
+| Experiment | An experiment with fixed tasks, strategies, budget accounting, and repetitions | `experiment_id`, immutable configuration digest |
+| Trial | One complete task-solving run for an experiment arm and repetition | `trial_id`, cumulative budget and final result |
+| Attempt | A logical execution stage assigned to one agent/model/scaffold configuration | `attempt_id`; a Trial may contain several Attempts |
+| Execution | One physical execution instance of an Attempt | `execution_id`, monotonically increasing `epoch`, independent sandbox |
+| Checkpoint | Immutable artifacts and a manifest describing a quiescent state | `checkpoint_id`, digest, source execution, and event boundary |
+| Handoff | A durable transfer operation from a source Attempt's checkpoint to a target Attempt | `handoff_id`, source checkpoint, and target configuration |
+| Operation | A reconcilable action such as sandbox creation, startup, termination, or commit | Stable `operation_id`, unchanged across retries |
+| Event | A durable record from the control plane or execution | Source execution, source sequence, type, timestamp, and artifact references |
 
-**恢复**保留 Attempt ID，创建新的 Execution / epoch。**接力**创建新的 Attempt。**实验分叉**创建新的 Trial 与独立预算账本，记录 `parent_checkpoint_id` 和前缀成本；它不是原 Trial 的自动重试。
+**Recovery** preserves the Attempt ID and creates a new Execution/epoch. **Handoff** creates a new Attempt. **Experiment branching** creates a new Trial and an independent budget ledger, recording `parent_checkpoint_id` and prefix cost; it is not an automatic retry of the original Trial.
 
-不得直接把 Temporal Activity attempt number 当作产品层 Attempt ID。
+Do not use a Temporal Activity attempt number as the product-level Attempt ID.
 
-## 3. 必须维持的不变量
+## 3. Required invariants
 
-1. 只有已提交、内容校验通过的检查点能成为恢复 / 交接输入。
-2. 同一 Attempt 只有当前 epoch 能提交权威状态与有效结果。
-3. 不同 Execution 默认使用独立可写工作区；实验分支不能共享可写目录。
-4. 取消一旦生效，禁止新的执行准入与 agent 阶段启动；清理可以异步重试。
-5. Trial 的成本账本跨恢复和接力累计，不因 Execution 重建而清零。
-6. 每个有效结果都能追溯到任务版本、执行配置、工作区产物及验证器版本。
-7. 结果状态与资源清理状态分开记录；结束不意味着沙箱已删除。
+1. Only committed checkpoints with validated contents may be used for recovery or handoff.
+2. Within an Attempt, only the current epoch may commit authoritative state and valid results.
+3. Different Executions use independent writable workspaces by default; experiment branches must not share writable directories.
+4. Once cancellation takes effect, reject new execution admissions and agent-stage starts. Cleanup may retry asynchronously.
+5. The Trial cost ledger accumulates across recovery and handoff; rebuilding an Execution does not reset it.
+6. Every valid result is traceable to its task version, execution configuration, workspace artifacts, and verifier version.
+7. Record result status and resource-cleanup status separately. Completion does not imply sandbox deletion.
 
-## 4. 状态所有权
+## 4. State ownership
 
-Temporal 持有工作流执行历史；PostgreSQL 持有产品对象、取消意图、ownership epoch、预算准入和产物提交记录。工作流通过具备稳定操作 ID 的 Activity 访问这些记录，不在 Workflow 代码中直接做 I/O。
+Temporal owns workflow execution history. PostgreSQL owns product objects, cancellation intent, ownership epochs, budget admission, and artifact-commit records. Workflows access these records through Activities with stable operation IDs; Workflow code does not perform I/O directly.
 
-不使用数据库和 Temporal 的双写来假设分布式原子性。数据库先提交的操作结果可被重试查询；尚未完成的跨系统操作由 reconciliation 继续核对。API 的状态展示以产品状态与明确的同步时间为准。
+Do not assume distributed atomicity from dual writes to the database and Temporal. Operations committed to the database can be queried on retry. Reconciliation continues to resolve incomplete cross-system operations. The API presents product state with an explicit synchronization time.
 
-最小状态示意：
+Minimal state sketches:
 
 ```text
 Trial: QUEUED -> RUNNING -> VERIFYING -> SUCCEEDED | FAILED
@@ -62,114 +60,114 @@ Handoff: REQUESTED -> SOURCE_SEALED -> TARGET_READY -> COMPLETED
                    \------------------------------> ABORTED
 ```
 
-状态迁移采用条件更新并检查 epoch / 取消标志。失败分类是结构化字段，不把所有超时合并为 agent 失败。
+Use conditional state updates that check the epoch and cancellation flag. Record failure categories as structured fields instead of treating every timeout as an agent failure.
 
-## 5. 检查点提交协议
+## 5. Checkpoint commit protocol
 
-### 5.1 安全边界
+### 5.1 Safe boundaries
 
-优先支持阶段结束时的 checkpoint；工具边界 checkpoint 只有在 adapter 可证明静止时开启。仅停止 agent 主进程不足以证明没有子进程或后台服务写入。
+Support checkpoints at stage completion first. Enable tool-boundary checkpoints only when the adapter can demonstrate quiescence. Stopping the main agent process alone does not prove that child processes or background services have stopped writing.
 
-静止要求：停止新工具请求；等待或终止当前工具与相关子进程；刷新受控日志；确认声明的文件范围不再写入。不能确认时拒绝提交新 checkpoint，并保留最后一个有效 checkpoint。
+Quiescence requires stopping new tool requests, waiting for or terminating active tools and related subprocesses, flushing controlled logs, and confirming that the declared file scope is no longer being written. If this cannot be confirmed, reject the new checkpoint and retain the last valid one.
 
-原型应验证使用进程组 / sandbox 生命周期完成静止是否足够；不支持的任务必须明确失败。
+The prototype must establish whether process-group and sandbox-lifecycle controls are sufficient to achieve quiescence. Unsupported tasks must fail explicitly.
 
-### 5.2 Manifest 内容
+### 5.2 Manifest contents
 
-- Schema version、checkpoint ID、来源 Trial / Attempt / Execution / epoch。
-- Task digest、起始代码版本、镜像 digest、环境与恢复配置 digest。
-- 声明文件范围内的快照清单、文件内容 hash、权限和符号链接语义。
-- 会话快照引用、格式、agent / scaffold 版本、转换器版本及已知信息损失。
-- 已确认工具记录与执行事件的完整边界，不仅记录最大序号。
-- 公开测试结果引用及其对应工作区 digest；禁止把旧版本测试结果当作当前结论。
-- 预算账本 revision、已消费、预留、待核对记录的引用。
-- 父检查点与创建原因。
+- Schema version, checkpoint ID, and source Trial/Attempt/Execution/epoch.
+- Task digest, starting code revision, image digest, and environment/recovery configuration digests.
+- Snapshot inventory for the declared file scope, file-content hashes, permissions, and symbolic-link semantics.
+- Session-snapshot reference, format, agent/scaffold versions, converter version, and known information loss.
+- Complete boundaries of acknowledged tool records and execution events, not merely the maximum sequence number.
+- Public-test result references and the workspace digests they describe. Do not treat results from an older workspace as current evidence.
+- Budget-ledger revision and references to consumed, reserved, and unresolved entries.
+- Parent checkpoint and creation reason.
 
-单独的 Git diff 不构成完整文件快照。新增文件、必要生成物与声明挂载必须覆盖；凭据通过运行时重新注入，不写入可移植产物。
+A Git diff alone is not a complete file snapshot. Include new files, required generated artifacts, and declared mounts. Reinject credentials at runtime rather than placing them in portable artifacts.
 
-### 5.3 提交步骤
+### 5.3 Commit steps
 
-1. 核对当前执行所有权与取消意图，进入 QUIESCING。
-2. 完成静止屏障，确定文件 / 会话 / 事件的共同边界。
-3. 上传不可变文件、会话和事件产物，计算并验证 digest。
-4. 上传不可变 manifest，校验其全部引用可读且一致。
-5. 在数据库事务中条件提交 checkpoint，并更新相应指针；检查 epoch 与取消标志。
-6. 返回稳定操作结果；若响应丢失，通过同一 operation ID 读取已提交记录。
+1. Check current execution ownership and cancellation intent; enter QUIESCING.
+2. Complete the quiescence barrier and establish a common boundary for files, session state, and events.
+3. Upload immutable file, session, and event artifacts; compute and validate their digests.
+4. Upload the immutable manifest and verify that all references are readable and consistent.
+5. Conditionally commit the checkpoint and update the relevant pointers in a database transaction, checking the epoch and cancellation flag.
+6. Return a stable operation result. If the response is lost, retrieve the committed record using the same operation ID.
 
-对象存储与数据库不需要跨系统事务：只有第 5 步成功的产物才可恢复。未引用产物经保留期后回收；GC 必须保护正在提交的上传会话和所有存活分支引用。
+Object storage and the database do not require a cross-system transaction: artifacts become recoverable only after step 5 succeeds. Collect unreferenced artifacts after a retention period. Garbage collection must protect uploads still being committed and references from all live branches.
 
-## 6. 恢复与接力
+## 6. Recovery and handoff
 
-### 6.1 恢复
+### 6.1 Recovery
 
-1. 确认故障类别；基础设施重试与 agent 继续尝试使用不同策略。
-2. 原子申请新 epoch，创建带稳定操作 ID 的新沙箱。
-3. 校验 manifest，重建镜像与声明文件，验证工作区 digest。
-4. 导入原生会话；不支持时只能按明确标记的语义恢复策略处理。
-5. 核对未决 Operation 与预算；无法确认完成的动作记录为 UNKNOWN。
-6. 再次检查取消状态后启动 agent。
+1. Identify the failure category. Use distinct policies for infrastructure retries and continued agent attempts.
+2. Atomically acquire a new epoch and create a new sandbox with a stable operation ID.
+3. Validate the manifest, reconstruct the image and declared files, and verify the workspace digest.
+4. Import the native session. If unsupported, use only an explicitly labeled semantic recovery policy.
+5. Reconcile pending Operations and budget entries. Record actions whose completion cannot be established as UNKNOWN.
+6. Check cancellation again before starting the agent.
 
-旧执行即使恢复联网，也只能产生过期观测，不能提交有效状态。epoch 校验不能阻止磁盘写入，所以旧执行和新执行禁止共享可写工作区。终止与回收旧沙箱持续由独立 reconciliation 处理。
+An old execution that reconnects may produce only stale observations, not valid state commits. Epoch checks cannot prevent disk writes, so old and new executions must not share writable workspaces. Independent reconciliation continues terminating and reclaiming old sandboxes.
 
-### 6.2 接力
+### 6.2 Handoff
 
-接力由 source checkpoint、目标配置、上下文传递策略与预算上限共同定义。目标准备完毕并验证恢复状态后，再提交控制权迁移。重复投递同一 handoff ID 不能创建第二个有效目标 Attempt。
+A handoff is defined by its source checkpoint, target configuration, context-transfer strategy, and budget limit. Commit the transfer of control only after the target is ready and its restored state has been validated. Duplicate delivery of one handoff ID must not create a second valid target Attempt.
 
-交接上下文支持：任务说明；可移植轨迹；结构化摘要。摘要必须区分观察事实、测试证据、已尝试方案和 agent 推测，并引用原始事件。摘要生成和转换消耗计入总预算。
+Supported context strategies are task instructions, portable trajectories, and structured summaries. Summaries must distinguish observed facts, test evidence, attempted approaches, and agent hypotheses, with references to original events. Include summary generation and conversion costs in the total budget.
 
-agent 或模型变化不隐含工具兼容、原生会话兼容或相同上下文语义。
+Changing an agent or model does not imply tool compatibility, native-session compatibility, or identical context semantics.
 
-## 7. Adapter 能力契约
+## 7. Adapter capability contract
 
-以下是需要探测和测试的能力，不是对某个 agent 当前实现的保证。
+These capabilities must be probed and tested; they are not guarantees about any particular agent's current implementation.
 
-| 能力 | 第一阶段策略 |
+| Capability | Initial policy |
 | --- | --- |
-| 启动、结果收集、状态核对 | 必需；统一退出状态和错误类别 |
-| 进程组终止与静止证明 | 必需；无法证明时拒绝 checkpoint |
-| 阶段边界 checkpoint | 必需 |
-| 工具边界 checkpoint | 可选，后续扩展 |
-| 原生会话导出 / 导入 | 显式声明，受版本兼容性约束 |
-| ATIF 输出 / 加载 | 分别声明，不把能输出视作能导入 |
-| 增量事件与 token / 费用统计 | 标注完整度和估算来源 |
-| 请求费用上界 / 调用拦截 | 支持时提供强准入限制，否则声明软限额 |
+| Startup, result collection, and status reconciliation | Required; normalize exit states and error categories |
+| Process-group termination and quiescence evidence | Required; reject checkpoints if quiescence cannot be demonstrated |
+| Stage-boundary checkpoints | Required |
+| Tool-boundary checkpoints | Optional, later extension |
+| Native-session export/import | Explicit declaration, subject to version compatibility |
+| ATIF output/loading | Declare separately; output support does not imply import support |
+| Incremental events and token/cost accounting | Label completeness and estimation sources |
+| Request-cost upper bounds and call interception | Enforce strict admission when supported; otherwise declare soft limits |
 
-首个已验证对象为 Codex CLI 0.160.1 + `gpt-6-astra`，通过 Harbor 0.24.0 接入，见[实验记录](codex-m0.md)。M3 第二种 agent 已固定为 mini-swe-agent 2.4.6，脚本模型与真实 API 执行循环均已验证，三种上下文交接和原生 A 分支通过单个开发任务验收，见 [M3](m3.md)。先做阶段边界交接，避免假设任意 CLI 能在任意工具调用后暂停。
+The first verified integration is Codex CLI 0.160.1 + `gpt-6-astra` through Harbor 0.24.0; see the [experiment](codex-m0.md). M3 pins mini-swe-agent 2.4.6 as the second scaffold. Its scripted and real-API loops are verified, including three context policies and native A continuation on one development task. See [M3](m3.md). Start with stage-boundary handoffs rather than assuming every CLI can pause after any tool call.
 
-## 8. 预算模型
+## 8. Budget model
 
-Trial ledger 包含 `reserved`、`settled`、`unknown` 三类记录，模型费用与基础设施费用分列。每个 operation 的账本更新幂等；真实发出的重复请求必须分别记账，不能通过去重隐藏实际开销。
+The Trial ledger contains `reserved`, `settled`, and `unknown` entries, with model and infrastructure costs recorded separately. Ledger updates for each operation are idempotent. Actual duplicate requests must be accounted for individually; deduplication must not hide real spending.
 
-在可拦截调用的 adapter 中，先预留请求费用上界，再发送请求，收到 usage 后结算并释放差额。响应丢失时保留待核对额度，不能自动当作零消耗。
+For adapters that can intercept requests, reserve an upper cost bound before sending a request. Settle against returned usage and release the difference. If the response is lost, retain the unresolved reservation rather than assuming zero consumption.
 
-对无法拦截内部请求的 CLI，预算仅能通过原生限制、观测与终止实现软控制。文档与指标必须报告可能超出的窗口；不能宣称严格金额上限。
+For CLIs whose internal requests cannot be intercepted, enforce only soft limits through native controls, observation, and termination. Documentation and metrics must disclose the possible overshoot window; do not claim a strict monetary cap.
 
-基础设施额度采用资源配额和运行 TTL 约束，账单属于延迟观测。用户取消后，在途请求仍可能产生费用。
+Constrain infrastructure allocation through resource quotas and runtime TTLs. Billing is a delayed observation. In-flight requests may still incur costs after cancellation.
 
-## 9. 故障处理矩阵
+## 9. Failure-handling matrix
 
-| 注入位置 / 故障 | 预期处理 | 核心断言 |
+| Injection point or failure | Expected handling | Core assertion |
 | --- | --- | --- |
-| 沙箱创建完成但确认丢失 | 按 operation ID 查询并接管 | 不产生第二个有效执行 |
-| 文件上传中断 | checkpoint 保持未提交 | 恢复端看不到半成品 |
-| checkpoint 数据库提交后响应丢失 | 重试读回同一结果 | 不重复推进状态 |
-| worker 心跳超时后旧 worker 回归 | epoch fencing，旧结果隔离 | 旧代次不能发布 |
-| 容器销毁 | 新沙箱恢复已提交 checkpoint | 声明文件与会话契约一致 |
-| 取消与启动 / 接力并发 | 取消意图在准入点持续检查 | 不开始新有效阶段，最终清理 |
-| 模型响应丢失 | UNKNOWN，按策略核对或受控重试 | 费用不被错误释放 |
-| 隐藏验证器失败 / 超时 | 独立分类并限次重试 | 不直接算作 agent 解题失败 |
+| Sandbox created but acknowledgement lost | Query by operation ID and take over | No second valid execution |
+| File upload interrupted | Leave checkpoint uncommitted | Recovery cannot observe partial artifacts |
+| Checkpoint committed in the database but response lost | Retrieve the same result on retry | No duplicate state advancement |
+| Old worker returns after heartbeat timeout | Epoch fencing and stale-result isolation | Old epochs cannot publish |
+| Container destroyed | Restore committed checkpoint into a new sandbox | Declared files and session satisfy the contract |
+| Cancellation races with startup or handoff | Check persistent cancellation intent at admission points | No new valid stage; eventual cleanup |
+| Model response lost | UNKNOWN; reconcile or retry under policy | Costs are not incorrectly released |
+| Hidden verifier fails or times out | Separate classification and bounded retries | Not directly counted as an agent task failure |
 
-## 10. 事件与诊断
+## 10. Events and diagnosis
 
-控制事件包含接收、准入、启动、失联、取消、checkpoint、handoff、验证和清理；工具事件关联调用与结果。使用来源序号与幂等键处理重复投递，不依赖跨机器 wall clock 建立全局顺序。
+Control events cover receipt, admission, startup, disconnection, cancellation, checkpoints, handoffs, verification, and cleanup. Tool events link calls with their results. Handle duplicate delivery with source sequence numbers and idempotency keys; do not rely on wall clocks across machines for global ordering.
 
-原始产物不可变，查询投影可重建。大日志放对象存储，不写入 Temporal history。先做失败分类、重复操作、公开测试变化与恢复损失窗口；过程 judge 后续校准。
+Raw artifacts are immutable; query projections can be rebuilt. Store large logs in object storage, outside Temporal history. Begin with failure classification, repeated operations, public-test changes, and lost-work windows. Calibrate process judges later.
 
-## 11. 依赖核验入口
+## 11. Dependency verification references
 
 - [Harbor loading trajectories](https://docs.harborframework.com/jobs/loading-trajectories)
 - [Harbor multi-step tasks](https://docs.harborframework.com/tasks/multi-step)
 - [Harbor separate verifier](https://docs.harborframework.com/tasks/separate-verifier)
 - [Temporal Activity definition](https://docs.temporal.io/activity-definition)
 
-上述文档是调研依据。设计中的静止、快照和 ownership 协议为本项目提案，需要实测验证。
+These documents inform the research. The quiescence, snapshot, and ownership protocols described here are RTV proposals that require empirical validation.

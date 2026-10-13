@@ -8,7 +8,13 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from uuid import UUID, uuid4
 
-from rtv.checkpoints import CheckpointError, CheckpointManifest, CheckpointRef, FileEntry
+from rtv.checkpoints import (
+    CheckpointError,
+    CheckpointManifest,
+    CheckpointRef,
+    FileEntry,
+    SymlinkEntry,
+)
 from rtv.domain import ExecutionRef
 
 
@@ -23,7 +29,8 @@ def _is_within(path: Path, parent: Path) -> bool:
 class LocalCheckpointStore:
     """Publish a stage snapshot only after all files and the manifest have been written.
 
-    The caller must establish quiescence. Only regular files and directories are supported.
+    The caller must establish quiescence. Relative in-tree symbolic links are supported
+    when explicitly enabled.
     The reference digest protects manifest integrity; it is not an authenticity signature.
     Files and directory entries are fsynced before returning. Host power loss has not
     been tested. The M2 runtime supplies database ownership, conditional publication,
@@ -45,7 +52,10 @@ class LocalCheckpointStore:
         checkpoint_id: UUID | None = None,
         preserve_directory_modes: bool = False,
         exclude_names: tuple[str, ...] = (),
+        preserve_symlinks: bool = False,
     ) -> CheckpointRef:
+        if preserve_symlinks and (not preserve_directory_modes or context is None):
+            raise CheckpointError("Symbolic links require directory modes and recovery context")
         if workspace.is_symlink() or not workspace.is_dir():
             raise CheckpointError("Workspace must be a real directory")
         workspace = workspace.resolve()
@@ -62,6 +72,7 @@ class LocalCheckpointStore:
             snapshot = staging / "files"
             snapshot.mkdir()
             entries = []
+            symlinks = []
             directories = []
             directory_modes = {}
             for source in sorted(workspace.rglob("*")):
@@ -80,6 +91,8 @@ class LocalCheckpointStore:
                     target.write_bytes(data)
                     target.chmod(mode)
                     entries.append(FileEntry(relative, _sha256(data), len(data), mode))
+                elif stat.S_ISLNK(metadata.st_mode) and preserve_symlinks:
+                    symlinks.append(SymlinkEntry(relative, os.readlink(source)))
                 else:
                     raise CheckpointError(f"Unsupported snapshot entry: {relative}")
             manifest = CheckpointManifest(
@@ -89,21 +102,33 @@ class LocalCheckpointStore:
                 summary=summary,
                 directories=tuple(directories),
                 files=tuple(entries),
-                schema_version=3 if preserve_directory_modes else 2 if context is not None else 1,
+                schema_version=4
+                if symlinks
+                else 3
+                if preserve_directory_modes
+                else 2
+                if context is not None
+                else 1,
                 context=context,
                 directory_modes=directory_modes if preserve_directory_modes else None,
                 excluded_names=exclude_names,
+                symlinks=tuple(symlinks),
             )
+            for entry in manifest.symlinks:
+                (snapshot / entry.path).symlink_to(entry.target)
             data = json.dumps(manifest.to_dict(), sort_keys=True, indent=2).encode("utf-8")
             (staging / "manifest.json").write_bytes(data)
             # Sync children before publishing the directory entry. Database commit
             # is a separate step in the M2 protocol, never inferred from rename.
             for path in staging.rglob("*"):
-                if path.is_file():
+                if not path.is_symlink() and path.is_file():
                     with path.open("rb") as stream:
                         os.fsync(stream.fileno())
             for path in [
-                *sorted((p for p in staging.rglob("*") if p.is_dir()), reverse=True),
+                *sorted(
+                    (p for p in staging.rglob("*") if not p.is_symlink() and p.is_dir()),
+                    reverse=True,
+                ),
                 staging,
             ]:
                 descriptor = os.open(path, os.O_RDONLY)
@@ -166,6 +191,14 @@ class LocalCheckpointStore:
                 target = staging / entry.path
                 target.write_bytes(data)
                 target.chmod(entry.mode)
+            # Install links last: no file or directory write may traverse one.
+            for entry in manifest.symlinks:
+                source = snapshot / entry.path
+                if any(parent.is_symlink() for parent in source.parents):
+                    raise CheckpointError("Snapshot link parent was replaced")
+                if not source.is_symlink() or os.readlink(source) != entry.target:
+                    raise CheckpointError("Snapshot symbolic link target mismatch")
+                (staging / entry.path).symlink_to(entry.target)
             # Apply restrictive directory modes only after all children have been written.
             for directory, mode in sorted((manifest.directory_modes or {}).items(), reverse=True):
                 (staging / directory).chmod(mode)

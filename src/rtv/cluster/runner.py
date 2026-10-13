@@ -7,7 +7,9 @@ import signal
 import subprocess
 import sys
 import time
+import traceback
 from pathlib import Path
+from uuid import UUID
 
 from rtv.cluster.store import ClusterStore
 from rtv.runtime.config import Settings, execution_dir
@@ -110,5 +112,29 @@ def main(trial_id, execution_id):
             daemon.wait(timeout=5)
 
 
+def record_startup_failure(trial_id, execution_id, error):
+    from rtv.runtime.files import atomic_json
+
+    UUID(trial_id)
+    UUID(execution_id)
+    output = Settings.load().root / trial_id / "executions" / execution_id
+    output.mkdir(parents=True, exist_ok=True)
+    # Exception text and locals can contain credentials. Persist only stack locations.
+    atomic_json(
+        output / "runner-error.json",
+        {
+            "error_type": type(error).__name__,
+            "frames": [
+                {"file": frame.filename, "line": frame.lineno, "function": frame.name}
+                for frame in traceback.extract_tb(error.__traceback__)
+            ],
+        },
+    )
+
+
 if __name__ == "__main__":
-    main(*sys.argv[1:])
+    try:
+        main(*sys.argv[1:])
+    except Exception as error:
+        record_startup_failure(*sys.argv[1:], error)
+        raise

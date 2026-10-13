@@ -1,102 +1,121 @@
-# M4：运行时交接通知与命令超时
+# M4: runtime handoff notification and command timeout
 
-[![中文](assets/lang-zh.svg)](m4-runtime-notice.md) [![English](assets/lang-en.svg)](m4-runtime-notice.en.md)
+## Frozen before round three
 
-## 第三轮运行前冻结
+[Round two](m4-early-prefix.md) produced 2/4 unfinished prefixes and one heterogeneous rescue,
+plus two ungraded tool-timeout branches. Announcing a numerical allowance may encourage packing
+reads, edits, and tests into one tool; two tools are not a fixed amount of task progress. The new
+[tool-prefix-v3 protocol](../configs/benchmarks/swebench-verified-tool-prefix-v3.json) retains two
+admissions for every source, but the initial prompt only mentions a possible handoff notice.
+PostToolUse requests completion at the boundary; excess calls are denied. Quotas, completed-tool
+receipts, and workspace quiescence remain audited. Natural completion is retained. Prefixes with
+no code changes will be reported as such, not described as partial-patch handoffs.
 
-[第二轮](m4-early-prefix.md)得到 2/4 未完成前缀和一次异构修复，也暴露两个未评分的工具
-超时分支。数字额度预先告知模型可能让它把读取、修改和测试集中到一次工具调用；两次工具
-不是固定的任务进度。新 [tool-prefix-v3](../configs/benchmarks/swebench-verified-tool-prefix-v3.json)
-仍统一在 2 次工具准入后交接，但初始提示只说明可能收到交接通知，不给出数字额度。
-PostToolUse 到边界后通知模型收尾，额外调用被拒绝。额度、工具完成回执和工作区静止检查
-仍完整审计。自然完成也保留；若前缀没有代码修改，将如实报告，不把它称为部分补丁接力。
+Mini repository tools run through `/usr/bin/timeout --signal=TERM --kill-after=2s 30s bash -lc`.
+The command process group receives TERM at thirty seconds and, if needed, KILL two seconds later.
+Exit codes 124/137 become ordinary tool observations for the agent. Transport waits forty seconds
+and the thread fifty; genuine transport exceptions remain infrastructure errors without transparent
+retry. All four fixed images contain GNU timeout. A model-free real-container probe confirms a
+TERM-resistant command and descendant are terminated without subsequent workspace writes.
 
-mini 仓库工具通过 `/usr/bin/timeout --signal=TERM --kill-after=2s 30s bash -lc` 执行。
-命令的进程组在 30 秒收到 TERM，必要时 2 秒后 KILL；124/137 退出码作为普通工具结果，
-让 agent 决定下一步。传输等待 40 秒，线程等待 50 秒；真正的传输异常仍作为基础设施错误，
-不透明重试。四个固定镜像已确认具有 GNU timeout。零模型真实容器探针验证了 TERM-resistant
-命令及其子进程被终止，不会在超时后继续修改工作区。
+This jointly changes notification and timeout behavior, so before/after results cannot isolate
+their causal effects. The four tasks, models, task/verifier images, 300/300/600-second limits, and
+8/8/16 API caps remain fixed. No prior patches or hidden feedback enter the task packet. Each task
+runs once; source prefixes are graded offline only after every branch finishes. No outcome-based
+selection, substitution, automatic paid retry, or twenty-task evaluation execution. Earlier
+versions, raw observations, and results remain preserved.
 
-本轮同时调整前缀通知与命令超时，是联合开发修订，不能隔离各自的因果效果。同四题、模型、
-任务/verifier 镜像、300/300/600 秒时限、8/8/16 API 请求上限均保持不变。
-不注入旧补丁或隐藏反馈。每题运行一次，全部结束后再断网判源前缀；不筛选或替换失败结果，
-不自动付费重试，不运行 20 题评测集。旧版本、原始观测和结果保留。
+A separate analysis correction retains known cost lower bounds from infrastructure-error rows
+while preserving unknown-total counters. Request ledgers and admission limits are unchanged.
 
-分析器另修复已知费用下界的累计：基础设施失败即使总成本未知，其已知部分仍计入汇总，
-未知行计数也保留。这不改变请求准入账本或预算上限。
+## Execution gates and budget
 
-## 运行门槛与预算
+The unit/mocked suite passes 225 tests with one optional Docker skip. A real-CLI, scripted-model,
+offline container probe passes six checks including the two-tool boundary, excess-call denial,
+session restoration, and cleanup. These are not real-model efficacy evidence. The new runner
+must bind a source commit and image digest and pass seventeen fake-credential checks before use.
 
-代码层已有 225 个单元/模拟测试通过，1 个可选 Docker 检查跳过。真实 CLI 加脚本模型的
-断网容器探针通过 6 项检查，包括 2 次工具边界、超额拒绝、会话恢复和清理；这些都不是
-真实模型效果证据。新 runner 要绑定提交和镜像摘要，并通过 17 项假凭据验收后才能运行。
+The existing user authorization allows up to $30 without another confirmation. Prior known M4
+API spending is $0.57644430 with zero unknown API requests. This round reserves up to $20.48 for
+128 calls, giving an initial cost-plus-reservation bound of $21.05644430. Unknown/pending requests
+retain their full reservations. Subscription cost remains unknown and separate; historical gross
+reservations are not invoices. New paid calls stop if they would exceed authorization.
 
-沿用用户已批准的 $30 上限，无需再次确认。此前 M4 已知 API 花费 $0.57644430，
-未知 API 请求为 0。本轮最多 128 请求、$20.48 全额预约，初始费用加预约上界
-$21.05644430，低于上限。未知/在途请求保留全额预约；订阅费用未知并单列，历史累计
-毛预约不冒充账单。运行中发现超过授权范围的风险则停止新的付费调用。
+## Real round-three results (2026-10-13)
 
-## 第三轮真实结果（2026-10-13）
+The filtered [evidence](evidence/m4-runtime-notice-development-arm64-20261013.json) binds runtime
+commit `0a707c7db53d96ba26cf3828aeb8f54637de244d` and runner digest
+`sha256:ddb0551c72b03d71ed2b43a3f14b7399156938230b995c90217c8215f5dc6cf1`.
+Each of four tasks ran once: all sixteen branches received independent grades, **56/56 workflow
+checks passed**, and no branch remained ungraded due to infrastructure. No automatic paid retries.
+Every source sealed after two completed tools. Only after all branches and cleanup did checkpoint
+validation, offline prefix grading, and source-unchanged checks eventually complete for all four
+checkpoints. Two initial post hoc diagnostics fail Git ownership checks on restored files. Trusting
+only `/testbed` inside each disposable verifier allows two model-free follow-ups to complete. Both
+initial failures and follow-ups remain recorded with separate verifier implementation hashes. The
+sixteen original branch grades remain unchanged, with no model reruns, task-byte or grading-rule changes.
 
-[筛选证据](evidence/m4-runtime-notice-development-arm64-20261013.json)绑定运行提交
-`0a707c7db53d96ba26cf3828aeb8f54637de244d` 和 runner 摘要
-`sha256:ddb0551c72b03d71ed2b43a3f14b7399156938230b995c90217c8215f5dc6cf1`。
-四题各一次、16 个分支全部得到独立判分，**56/56 项流程检查通过**，无基础设施未评分分支，
-无自动付费重跑。四个源前缀均在 2 次工具完成后封存；全部分支结束并清理后才判源前缀，
-四个 checkpoint 最终完成验证、断网判分和源工作区不变检查。首次事后诊断中两题因 Git
-属主检查拒绝访问恢复目录而失败；仅在临时验证器容器内为 `/testbed` 设置明确的
-`safe.directory` 后，两个零模型补跑完成。初次失败与补跑都保留，验证代码哈希另记；
-16 个真实分支的原始评分不改写，未重新调用模型，也未改变任务字节或判分标准。
-
-| 任务 | 源前缀 | A 原生继续 | B 工作区 | B 工作区＋摘要 | B 从头开始 |
+| Task | Source prefix | A native continuation | B workspace | B workspace + summary | B fresh |
 | --- | --- | --- | --- | --- | --- |
-| sympy-22914 | 未通过 | 通过 | 通过 | 通过 | 通过 |
-| sympy-15599 | 未通过 | 通过 | 未通过 | 未通过 | 未通过 |
-| sympy-13091 | 未通过 | 通过 | 未通过 | 未通过 | 未通过 |
-| scikit-learn-9288 | 未通过 | 通过 | 通过 | 通过 | 通过 |
+| sympy-22914 | Fail | Pass | Pass | Pass | Pass |
+| sympy-15599 | Fail | Pass | Fail | Fail | Fail |
+| sympy-13091 | Fail | Pass | Fail | Fail | Fail |
+| scikit-learn-9288 | Fail | Pass | Pass | Pass | Pass |
 
-原生继续通过 4/4，三种 mini 路径各 2/4。未完成前缀现在是 **4/4**，但四个工作区都
-**尚未改码**，不能把这个数字解释成“继承部分补丁”的覆盖提升。工作区接力在这些样本中
-没有已修改代码可继承；摘要与原生会话仍包含阅读得到的上下文。与此前两轮并列：
+Native continuation solves 4/4; each mini strategy solves 2/4. Unfinished-prefix coverage is now
+**4/4**, but **none contains code changes**. This does not improve coverage of inherited partial
+patches. Workspace relay has no modified code to inherit here; summaries and native sessions still
+carry reading context. The three development revisions must be viewed together:
 
-| 开发版本 | 未完成前缀 | 已有改动且未完成的前缀 | 该类前缀被 B 工作区接力修好 |
+| Development version | Unfinished prefixes | Modified and unfinished prefixes | B workspace rescues within that stratum |
 | --- | --- | --- | --- |
-| v1：预告 6 次工具 | 1/4 | 1/4 | 0/1 |
-| v2：预告 2 次工具＋登录 shell | 2/4 | 2/4 | 1/2 |
-| v3：运行时通知 2 次工具＋命令超时 | 4/4 | 0/4 | 无此类样本 |
+| v1: six announced tools | 1/4 | 1/4 | 0/1 |
+| v2: two announced tools + login shell | 2/4 | 2/4 | 1/2 |
+| v3: two runtime-notified tools + command timeout | 4/4 | 0/4 | No such samples |
 
-因此，v2 的 scikit-learn 任务保留了一个**已有修改、仍未完成、被异构接力修好**的实例；
-v3 验证了更早的上下文交接与超时修正，但没有增加部分补丁样本。这是同四题上的联合开发
-修订，不是独立消融或泛化结果。没有证据证明接力总体优于原生继续，也没有摘要相对工作区
-或 fresh 的成功率优势；模型与 scaffold 同时变化，订阅费用未知，不能宣称端到端省钱。
+The v2 scikit-learn task remains one real example of heterogeneous repair of a modified, unfinished
+workspace. Version three validates earlier context transfer and timeout handling without adding
+partial-patch samples. These are joint development revisions on the same four tasks, not isolated
+ablations or generalization evidence. Relay has not shown overall superiority to native continuation,
+nor has summary relay shown a success-rate advantage over workspace or fresh execution. Model and
+scaffold change together, and subscription cost is unknown, precluding end-to-end savings claims.
 
-### 真实超时与失败轨迹
+### Real timeouts and failed trajectories
 
-scikit-learn 摘要接力发生过一次 30 秒命令超时，得到退出码 124 后又完成一次模型响应，
-最终独立测试通过。它同时因 8 次请求额度结束而记录 `LimitsExceeded`：执行状态和补丁
-是否通过必须分别报告。上一轮相同分支的传输超时导致未评分，这轮保留了可判分产物。
-这验证了“工具超时后继续”的真实路径；不等于任意传输故障都可恢复。
+The scikit-learn summary arm encounters a thirty-second command timeout, receives exit code 124,
+and completes another model response before its patch passes independent grading. It also records
+`LimitsExceeded` after eight requests: execution termination and patch correctness are separate
+outcomes. The previous round's same arm aborted on transport timeout without a grade. This round
+retains a gradable artifact, validating the actual command-timeout continuation path, not recovery
+from arbitrary transport failures.
 
-15599 的三个 mini 分支仍扩大了余数变换条件。工作区与 fresh 分支都看到公开 `test_Mod`
-浮点断言失败，但复合 shell 在 Python 失败后继续执行 Git 命令，整体退出码为 0。
-因此工具退出成功不能替代测试内容或独立判分；fresh 在 6 次请求后提交，不能归因于额度耗尽。
-13091 的三个 mini 分支仍集中修改 Basic；通过的原生路径还覆盖 Expr 与 numbers.py。
-两题的多个 mini 分支尝试调用未安装的 pytest，这是所选公开测试命令的问题，不能直接记成
-独立 verifier 的基础设施错误。以上是轨迹标记和人工补丁检查，不是自动、经校准的因果诊断。
+All three mini arms on 15599 still broaden the modulo transformation condition. Workspace and
+fresh arms observe a public `test_Mod` floating-point assertion failure, but their compound shell
+continues to Git commands after Python fails and returns zero overall. A successful tool exit is
+therefore not a substitute for reading test output or independent grading. Fresh submits after six
+requests, below its cap. On 13091, all mini arms still focus on Basic; the passing native repair also
+covers Expr and numbers.py. Several mini arms try unavailable pytest; that public-command choice is
+not automatically a verifier infrastructure failure. These findings combine trajectory markers and
+manual patch inspection, not calibrated automatic causal diagnosis.
 
-### 费用、验证与下一步
+### Costs, validation, and next step
 
-本轮 98 个 API 请求，已知费用 **$0.27852765**；M4 累计 333 请求、**$0.85497195**，
-未知 API 请求为 0，处于已批准的 $30 范围内。8 个订阅阶段另计，美元成本未知。
-累计毛预约 $51.418 只是多轮准入上界的累计，不是花费。四题任务执行合计约 48.8 分钟。
-全部已发送请求保留 160 KB 输入上限，未扩大本轮额度。
+This round makes 98 API requests costing **$0.27852765**. M4 totals 333 requests and **$0.85497195**
+known API charges, with zero unknown API requests, within the existing $30 authorization. Eight
+subscription stages remain separately accounted with unknown dollar cost. Historical gross
+reservations of $51.418 sum admission bounds across rounds, not spending. Task execution totals
+about 48.8 minutes. Sent requests retain the 160 KB input ceiling without enlarging this round's caps.
 
-运行前单元/模拟测试为 225 通过、1 项可选跳过；17 项假凭据检查和真实容器零模型探针
-均通过。运行后补充“完全已知总额优先于较小费用下界”的统计边界修正，226 项测试通过、
-1 项可选跳过，ruff 检查通过；追加验证器属主修正后再次通过同一套 226 项测试。本轮完整汇总与费用修正前一致。执行代码、后处理代码哈希及
-修正前副本分开记录，原始运行结果不改写。
+The pre-run unit/mocked suite passes 225 tests with one optional skip; seventeen fake-credential
+checks and model-free real-container probes pass. A post-run statistics edge-case fix prefers a
+fully known total over a smaller known lower bound; 226 tests pass with one optional skip, and ruff
+checks pass. The same 226-test suite passes again after the verifier ownership fix. This round's
+complete aggregate is identical before and after the cost correction. Runtime
+and postprocessing implementation hashes and the earlier aggregate are separate; raw runs remain intact.
 
-凭据原值扫描未发现匹配，完整轨迹仍仅留在 `work/`；这不代表原始轨迹没有账户元数据。
-Job、模型 Secret 与诊断容器已清理。M4 仍未完成：20 题评测和正式真实模型故障实验未运行。
-下一步应先冻结能覆盖不同工作进度的前缀采样规则，按“未改码／已有改动”分层报告，
-再开展正式评测；不能只优化“未完成比例”，也不能依据隐藏测试挑选要交接的前缀。
+An original-credential-value scan finds no matches. Full trajectories remain in ignored `work/`;
+this does not assert absence of account metadata. Jobs, model Secrets, and diagnostic containers
+are cleaned up. M4 remains incomplete: the twenty-task evaluation and formal real-model fault
+experiments have not run. Next, freeze a prefix-sampling rule covering multiple progress levels and
+report unchanged versus modified workspaces separately before formal evaluation. Optimizing only
+unfinished percentage is insufficient; hidden grades must not select which prefixes are handed off.

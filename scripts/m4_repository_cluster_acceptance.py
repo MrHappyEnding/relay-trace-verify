@@ -37,8 +37,8 @@ def main(args):
     store, relay, kube = ClusterStore(settings), RelayStore(settings), Kubernetes(config)
     store.initialize_pool(config)
     declared = validate_contract(json.loads(args.contract.read_text()))
-    if declared["instance_id"] != "sympy__sympy-22914":
-        raise ValueError("Scripted controls are pinned to the first pilot task")
+    if declared["split"] != args.split:
+        raise ValueError("Scripted controls must use the explicitly requested split")
     oracle = (Path(declared["task_directory"]) / "solution/solve.sh").read_text()
     controls = output / "controls.json"
     controls.write_text(
@@ -65,7 +65,7 @@ def main(args):
         pause_after_checkpoint=True,
     )
     protocol = load(args.plan)
-    run = prepare_pair(protocol, spec, output)
+    run = prepare_pair(protocol, spec, output, split=args.split)
     (output / "run.json").write_text(json.dumps(run, indent=2) + "\n")
     rows, checks, pod_snapshots = [], {}, {}
     worker = None
@@ -143,6 +143,18 @@ def main(args):
             source["status"] == "sealed"
             and source["result"]["verification"]["status"] == "not_run",
         )
+        from rtv.runtime import checkpoint
+
+        manifest = checkpoint.artifacts(settings).load(
+            checkpoint.reference(store.checkpoint(source["latest_checkpoint"]))
+        )
+        source_links = [
+            p
+            for p in (execution_dir(settings, source) / "bundle/workspace").rglob("*")
+            if p.is_symlink()
+        ]
+        check("workspace_links_in_manifest", len(manifest.symlinks) == len(source_links))
+        check("link_manifest_version", manifest.schema_version == (4 if source_links else 3))
         prefix_digest = source["result"]["workspace_digest"]
         host_prefix_digest = workspace_digest(
             execution_dir(settings, source) / "bundle/workspace", spec
@@ -176,103 +188,108 @@ def main(args):
         check("frozen_branch_order", actual_order == [e["branch"] for e in run["entries"]])
         report = collect(protocol, run, store, output / "observations")
         check("four_linked_observations", report["received"] == 4 and report["mode"] == "oracle")
-        check("other_pilot_tasks_stay_missing", report["planned"] == 16 and report["missing"] == 12)
+        check("other_tasks_stay_missing", report["missing"] == report["planned"] - 4)
         check(
             "no_incomplete_confidence_intervals",
             all(v["ci95"] is None for v in report["comparisons"].values()),
         )
-        # A separate reliability trial cannot replace a preassigned experiment observation.
-        fault_spec = {
-            **run["entries"][0]["spec"],
-            "adapter": "fixture",
-            "stages": 2,
-            "max_recoveries": 1,
-            "benchmark_assignment": {"role": "fault-only"},
-            "scripted_target": [
-                "test ! -e .inflight && touch .inflight && sleep 45 && rm .inflight",
-                *spec["scripted_target"],
-            ],
-        }
-        eid = relay.create_experiment(
-            source,
-            "separate-recovery-control",
-            [{"label": "fault-only", "policy": "task-only", "spec": fault_spec}],
-            1800,
-        )
-        fault = relay.experiment(eid)["trials"][0]
-        rows.append(fault)
+        if not args.skip_fault:
+            # A separate reliability trial cannot replace a preassigned experiment observation.
+            fault_spec = {
+                **run["entries"][0]["spec"],
+                "adapter": "fixture",
+                "stages": 2,
+                "max_recoveries": 1,
+                "benchmark_assignment": {"role": "fault-only"},
+                "scripted_target": [
+                    "test ! -e .inflight && touch .inflight && sleep 45 && rm .inflight",
+                    *spec["scripted_target"],
+                ],
+            }
+            eid = relay.create_experiment(
+                source,
+                "separate-recovery-control",
+                [{"label": "fault-only", "policy": "task-only", "spec": fault_spec}],
+                1800,
+            )
+            fault = relay.experiment(eid)["trials"][0]
+            rows.append(fault)
 
-        def inflight():
-            row = store.get(fault["trial_id"])
-            if row["status"] in TERMINAL:
-                raise RuntimeError("Fault trial finished before injection")
-            if store.ledger(row["trial_id"])["pending_operations"]:
-                allocation = store.allocation(row["execution_id"])
-                pods = kube.pods(allocation)
-                if len(pods) != 1:
-                    return None
-                project = "rtv-m2-" + row["execution_id"].replace("-", "")
-                command = (
-                    "cid=$(docker ps -q --filter label=com.docker.compose.project="
-                    + project
-                    + " --filter label=com.docker.compose.service=main); "
-                    'test -n "$cid" && docker exec "$cid" test -f /testbed/.inflight'
-                )
-                checked = subprocess.run(
-                    [
-                        "kubectl",
-                        "--kubeconfig",
-                        config.kubeconfig,
-                        "--context",
-                        config.context,
-                        "-n",
-                        config.namespace,
-                        "exec",
-                        pods[0]["metadata"]["name"],
-                        "--",
-                        "sh",
-                        "-c",
-                        command,
-                    ],
-                    capture_output=True,
-                    timeout=15,
-                )
-                if checked.returncode == 0:
-                    return row
-            return None
+            def inflight():
+                row = store.get(fault["trial_id"])
+                if row["status"] in TERMINAL:
+                    raise RuntimeError("Fault trial finished before injection")
+                if store.ledger(row["trial_id"])["pending_operations"]:
+                    allocation = store.allocation(row["execution_id"])
+                    pods = kube.pods(allocation)
+                    if len(pods) != 1:
+                        return None
+                    project = "rtv-m2-" + row["execution_id"].replace("-", "")
+                    command = (
+                        "cid=$(docker ps -q --filter label=com.docker.compose.project="
+                        + project
+                        + " --filter label=com.docker.compose.service=main); "
+                        'test -n "$cid" && docker exec "$cid" test -f /testbed/.inflight'
+                    )
+                    checked = subprocess.run(
+                        [
+                            "kubectl",
+                            "--kubeconfig",
+                            config.kubeconfig,
+                            "--context",
+                            config.context,
+                            "-n",
+                            config.namespace,
+                            "exec",
+                            pods[0]["metadata"]["name"],
+                            "--",
+                            "sh",
+                            "-c",
+                            command,
+                        ],
+                        capture_output=True,
+                        timeout=15,
+                    )
+                    if checked.returncode == 0:
+                        return row
+                return None
 
-        fault = wait(inflight)
-        check("uncommitted_marker_observed_before_fault", True)
-        allocation = store.allocation(fault["execution_id"])
-        check("fault_has_adopted_job_uid", bool(allocation["job_uid"] and allocation["node_name"]))
-        wait(lambda: kube.remove(allocation, pool_label(settings)), seconds=90)
-        recovered = wait(
-            lambda: r if (r := store.get(fault["trial_id"]))["epoch"] > fault["epoch"] else None
-        )
-        check(
-            "inherited_checkpoint_recovery", recovered["resume_from"] == source["latest_checkpoint"]
-        )
-        check("recovery_deadline_unchanged", recovered["deadline"] == fault["deadline"])
-        recovered = wait(lambda: finished(fault["trial_id"]))
-        check("recovered_trial_verified", recovered["status"] == "succeeded")
-        next_allocation = store.allocation(recovered["execution_id"])
-        check("recovery_on_other_node", next_allocation["node_name"] != allocation["node_name"])
-        check(
-            "unknown_operation_retained", store.ledger(fault["trial_id"])["unknown_operations"] == 1
-        )
-        check(
-            "inflight_write_discarded",
-            not (execution_dir(settings, recovered) / "restored/workspace/.inflight").exists(),
-        )
-        check(
-            "source_snapshot_unchanged",
-            workspace_digest(execution_dir(settings, source) / "bundle/workspace", spec)
-            == host_prefix_digest,
-        )
-        check(
-            "fault_not_in_paired_statistics",
-            all(o.get("trial_id") != fault["trial_id"] for o in report["observations"]),
-        )
+            fault = wait(inflight)
+            check("uncommitted_marker_observed_before_fault", True)
+            allocation = store.allocation(fault["execution_id"])
+            check(
+                "fault_has_adopted_job_uid", bool(allocation["job_uid"] and allocation["node_name"])
+            )
+            wait(lambda: kube.remove(allocation, pool_label(settings)), seconds=90)
+            recovered = wait(
+                lambda: r if (r := store.get(fault["trial_id"]))["epoch"] > fault["epoch"] else None
+            )
+            check(
+                "inherited_checkpoint_recovery",
+                recovered["resume_from"] == source["latest_checkpoint"],
+            )
+            check("recovery_deadline_unchanged", recovered["deadline"] == fault["deadline"])
+            recovered = wait(lambda: finished(fault["trial_id"]))
+            check("recovered_trial_verified", recovered["status"] == "succeeded")
+            next_allocation = store.allocation(recovered["execution_id"])
+            check("recovery_on_other_node", next_allocation["node_name"] != allocation["node_name"])
+            check(
+                "unknown_operation_retained",
+                store.ledger(fault["trial_id"])["unknown_operations"] == 1,
+            )
+            check(
+                "inflight_write_discarded",
+                not (execution_dir(settings, recovered) / "restored/workspace/.inflight").exists(),
+            )
+            check(
+                "source_snapshot_unchanged",
+                workspace_digest(execution_dir(settings, source) / "bundle/workspace", spec)
+                == host_prefix_digest,
+            )
+            check(
+                "fault_not_in_paired_statistics",
+                all(o.get("trial_id") != fault["trial_id"] for o in report["observations"]),
+            )
         completed = True
     finally:
         if worker and worker.poll() is None:
@@ -336,5 +353,7 @@ if __name__ == "__main__":
     parser.add_argument("--config", type=Path, required=True)
     parser.add_argument("--contract", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--split", choices=["pilot", "evaluation"], default="pilot")
+    parser.add_argument("--skip-fault", action="store_true")
     parser.add_argument("--plan", type=Path, default=DEFAULT_PLAN)
     main(parser.parse_args())
