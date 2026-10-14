@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "kind": "selected-acceptance-summary",
+  "updated": "2026-10-13",
+  "browser_replay": "Illustrative protocol simulation; no model calls or captured transcript.",
+  "records": [
+    {
+      "milestone": "M3",
+      "validation": "native continuation and three cross-agent handoff policies",
+      "checks_passed": 14,
+      "scope": "Single trusted development task; Codex CLI 0.160.1 native continuation and Codex-to-mini text-context transfer; linux/arm64 Docker on macOS.",
+      "source": "https://github.com/MrHappyEnding/relay-trace-verify/blob/main/docs/evidence/m3-real-arm64-20261009.json",
+      "source_sha256": "a047495c2e3eb772c605d4dd293b7e44dcf6902a7fdc645cdbbccbb0f831ad3d"
+    },
+    {
+      "milestone": "M4",
+      "validation": "native-session recovery after executor loss",
+      "execution_nodes": 2,
+      "independent_verifier_reward": 1.0,
+      "scope": "One targeted native Codex executor-loss recovery on local k3d; no physical-host or throughput claim.",
+      "audit_note": "The original inspector refreshed the temporary export's Git index. The committed checkpoint is separately revalidated byte-for-byte, including restored permissions. Original records are retained; no model or verifier rerun.",
+      "source": "https://github.com/MrHappyEnding/relay-trace-verify/blob/main/docs/evidence/m4-model-recovery-arm64-20261013.json",
+      "source_sha256": "9bba88fa6e8cabaeedaaf77819e01611073a1f6a136a452cedd12a6e1e187746"
+    },
+    {
+      "milestone": "M4",
+      "validation": "repository execution and independent grading",
+      "development_tasks": 4,
+      "graded_branches": 16,
+      "workflow_checks_passed": 56,
+      "scope": "Third development round; runtime-notified 2-tool prefix plus in-sandbox command timeout. No isolated causal claim, official score, or held-out evaluation.",
+      "source": "https://github.com/MrHappyEnding/relay-trace-verify/blob/main/docs/evidence/m4-runtime-notice-development-arm64-20261013.json",
+      "source_sha256": "a1a08d2962a2e37e06980b338dd34f6f89833775d9c76937134c63d02581a452"
+    }
+  ],
+  "boundaries": [
+    "These are selected functional acceptance runs, not an official benchmark score.",
+    "The 20-task held-out evaluation remains pending.",
+    "Local k3d execution nodes share one physical host.",
+    "Recovery covers declared workspace files and supported sessions; process memory and external effects are excluded."
+  ]
+}

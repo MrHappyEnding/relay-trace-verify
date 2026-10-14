@@ -2,6 +2,8 @@
 
 *A platform for reliable agent execution and evaluation.*
 
+**[Explore the interactive demo](https://mrhappyending.github.io/relay-trace-verify/)** · [Run locally](site/README.md)
+
 RTV provides checkpoints, cross-agent handoff, fault recovery, and independent evaluation for
 long-running coding agents. The platform manages code, context, and execution records so later
 executions can continue existing work.

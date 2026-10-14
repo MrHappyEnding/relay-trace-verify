@@ -1,5 +1,10 @@
 # RTV demo and deployment
 
+**[Open the project demo](https://mrhappyending.github.io/relay-trace-verify/)** for an interactive
+walkthrough of handoff and recovery. The browser replay is illustrative and makes no model calls;
+recorded acceptance evidence is presented separately. See the [site guide](../site/README.md) for
+local preview and GitHub Pages deployment.
+
 Explore RTV through the following three levels. Use a new output directory for every run;
 historical runs remain separately inspectable and reproducible.
 
